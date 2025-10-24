@@ -5,27 +5,81 @@
 
 :root,
 html[data-theme="light"] {
-  --background: #fdfdfd;
-  --foreground: #282728;
-  --accent: #006cac;
-  --muted: #e6e6e6;
-  --border: #ece9e9;
+  /* Brutalist Backgrounds - Stark and Bold */
+  --background: #ffffff;
+  --card-bg: #000000;
+  --muted-bg: #f0f0f0;
+
+  /* Brutalist Foregrounds - Maximum Contrast */
+  --foreground: #000000;
+  --foreground-muted: #404040;
+
+  /* Brutalist Accents - Raw and Aggressive */
+  --accent: #ff0000;
+  --accent-hover: #cc0000;
+  --accent-light: #ff6666;
+
+  /* Brutalist Borders - Thick and Strong */
+  --border: #000000;
+  --border-strong: #000000;
+
+  /* Brutalist Shadows - Hard and Angular */
+  --shadow-sm: 4px 4px 0 rgba(0, 0, 0, 1);
+  --shadow-md: 8px 8px 0 rgba(0, 0, 0, 1);
+  --shadow-lg: 12px 12px 0 rgba(0, 0, 0, 1);
+
+  /* Brutalist Elements */
+  --gradient-primary: none;
+  --gradient-subtle: none;
+
+  /* Legacy support */
+  --muted: #f0f0f0;
 }
 
 html[data-theme="dark"] {
-  --background: #212737;
-  --foreground: #eaedf3;
-  --accent: #ff6b01;
-  --muted: #343f60;
-  --border: #ab4b08;
+  /* Brutalist Dark - Inverted Brutalism */
+  --background: #000000;
+  --card-bg: #ffffff;
+  --muted-bg: #1a1a1a;
+
+  /* Brutalist Foregrounds */
+  --foreground: #ffffff;
+  --foreground-muted: #cccccc;
+
+  /* Brutalist Accents - Electric and Raw */
+  --accent: #00ff00;
+  --accent-hover: #00cc00;
+  --accent-light: #66ff66;
+
+  /* Brutalist Borders */
+  --border: #ffffff;
+  --border-strong: #ffffff;
+
+  /* Brutalist Shadows - Inverted */
+  --shadow-sm: 4px 4px 0 rgba(255, 255, 255, 1);
+  --shadow-md: 8px 8px 0 rgba(255, 255, 255, 1);
+  --shadow-lg: 12px 12px 0 rgba(255, 255, 255, 1);
+
+  /* Brutalist Elements */
+  --gradient-primary: none;
+  --gradient-subtle: none;
+
+  /* Legacy support */
+  --muted: #1a1a1a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
   --color-accent: var(--accent);
-  --color-muted: var(--muted);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  --color-muted-bg: var(--muted-bg);
+  --color-card-bg: var(--card-bg);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-muted: var(--muted);
 }
 
 @layer base {
@@ -34,20 +88,72 @@ html[data-theme="dark"] {
     scrollbar-width: auto;
     scrollbar-color: var(--color-muted) transparent;
   }
+
   html {
     @apply overflow-y-scroll scroll-smooth;
   }
-  body {
-    @apply flex min-h-svh flex-col bg-background font-mono text-foreground selection:bg-accent/75 selection:text-background;
+
+  html[data-theme] {
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
-  a,
+
+  body {
+    @apply flex min-h-svh flex-col bg-background font-mono text-foreground;
+    @apply selection:bg-accent/20 selection:text-foreground;
+    line-height: 1.6;
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+  }
+
+  /* Brutalist Headings - Bold, Angular, Aggressive */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Arial Black', 'Impact', -apple-system, sans-serif;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: clamp(3rem, 8vw, 6rem);
+  }
+
+  h2 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  h3 {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  /* Improved link styles */
+  a {
+    @apply transition-colors duration-200;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--accent-hover);
+  }
+
+  /* Better paragraph spacing */
+  p {
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
   button {
     @apply outline-offset-1 outline-accent focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
   }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
   section,
   footer {
     @apply mx-auto max-w-app px-4;
@@ -59,11 +165,121 @@ html[data-theme="dark"] {
 }
 
 .active-nav {
-  @apply underline decoration-wavy decoration-2 underline-offset-4;
+  @apply border-b-4 border-accent pb-1;
 }
 
 /* Source: https://piccalil.li/blog/a-more-modern-css-reset/ */
 /* Anything that has been anchored to should have extra scroll margin */
 :target {
   scroll-margin-block: 1rem;
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+@layer utilities {
+  /* Gradient backgrounds */
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .bg-gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+
+  /* Shadow utilities */
+  .shadow-card {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Brutalist Hero Text - Massive and Bold */
+  .text-hero {
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    color: var(--foreground);
+    text-shadow: 4px 4px 0 var(--accent);
+  }
+
+  /* Brutalist Section Headings - Angular */
+  .heading-section {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+  }
+
+  .heading-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: var(--accent);
+    border: none;
+  }
+
+  /* Emphasized text */
+  .text-emphasis {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    line-height: 1.7;
+    color: var(--foreground-muted);
+  }
+
+  /* Fade in animation */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stagger animation delays */
+  .fade-in:nth-child(1) { animation-delay: 0.1s; }
+  .fade-in:nth-child(2) { animation-delay: 0.2s; }
+  .fade-in:nth-child(3) { animation-delay: 0.3s; }
+  .fade-in:nth-child(4) { animation-delay: 0.4s; }
+  .fade-in:nth-child(5) { animation-delay: 0.5s; }
+  .fade-in:nth-child(6) { animation-delay: 0.6s; }
+
+  /* Dark mode specific adjustments */
+  .dark img {
+    opacity: 0.9;
+  }
+
+  .dark img:hover {
+    opacity: 1;
+  }
+}
+
+@layer components {
+  /* Interactive elements */
+  .interactive {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .interactive:hover {
+    @apply scale-105;
+  }
+
+  .interactive:active {
+    @apply scale-95;
+  }
 }

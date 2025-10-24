@@ -25,40 +25,48 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 <Layout>
   <Header />
   <main id="main-content" data-layout="index">
-    <section id="hero" class="pt-8 pb-6">
-      <a
-        target="_blank"
-        href="/rss.xml"
-        class="inline-block"
-        aria-label="rss feed"
-        title="RSS Feed"
-      >
-        <IconRss
-          width={20}
-          height={20}
-          class="scale-125 stroke-accent stroke-3 rtl:-rotate-90"
-        />
-        <span class="sr-only">RSS Feed</span>
-      </a>
+    <!-- Hero Section - Brutal Style -->
+    <section id="hero" class="relative py-16 md:py-24 border-b-8 border-foreground">
+      <div class="relative z-10">
+        <!-- RSS link - Brutal button -->
+        <a
+          href="/rss.xml"
+          class="inline-flex items-center gap-2 mb-12 px-6 py-3 border-4 border-foreground bg-accent hover:bg-foreground hover:text-background text-foreground font-bold uppercase text-xs tracking-wider transition-all duration-100 hover:translate-x-1 hover:translate-y-1"
+          target="_blank"
+          aria-label="rss feed"
+          title="RSS Feed"
+        >
+          <IconRss width={20} height={20} />
+          <span>RSS</span>
+        </a>
 
-      <p>
-        Welcome to my corner of the internet where I explore agentic-first development,
-        AI/ML systems, Web3 smart contracts, and intelligent automation. I build software
-        that thinks, adapts, and scales across the full stack.
-      </p>
-      <p class="mt-2">
-        Dive into practical insights on AI agents, blockchain development, modern web
-        applications, and the future of autonomous systems.
-      </p>
-      {
-        // only display if at least one social link is enabled
-        SOCIALS.length > 0 && (
-          <div class="mt-4 flex flex-col sm:flex-row sm:items-center">
-            <div class="me-2 mb-1 whitespace-nowrap sm:mb-0">Social Links:</div>
-            <Socials />
-          </div>
-        )
-      }
+        <!-- Hero heading - Brutal and massive -->
+        <h1 class="text-hero mb-8">
+          BERRYHILL.DEV
+        </h1>
+
+        <div class="border-t-8 border-accent w-32 mb-8"></div>
+
+        <!-- Intro text - Raw and direct -->
+        <p class="text-xl md:text-2xl font-bold mb-6 max-w-3xl uppercase leading-tight">
+          AGENTIC AI // WEB3 // AUTOMATION
+        </p>
+
+        <p class="text-base font-mono max-w-2xl leading-relaxed mb-8 border-l-4 border-accent pl-4">
+          Building intelligent systems that think, adapt, and scale. From AI agents to smart contracts,
+          exploring the bleeding edge of autonomous technology.
+        </p>
+
+        <!-- Social links - Brutal style -->
+        {
+          SOCIALS.length > 0 && (
+            <div class="mt-12 flex items-center gap-6">
+              <span class="text-xs font-bold uppercase tracking-widest border-r-2 border-foreground pr-6">CONNECT</span>
+              <Socials />
+            </div>
+          )
+        }
+      </div>
     </section>
 
     <Hr />
@@ -66,11 +74,12 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     {
       featuredPosts.length > 0 && (
         <>
-          <section id="featured" class="pt-12 pb-6">
-            <h2 class="text-2xl font-semibold tracking-wide">Featured</h2>
-            <ul>
+          <!-- Featured Posts - Grid Layout with Visual Distinction -->
+          <section id="featured" class="py-16">
+            <h2 class="heading-section">Featured Posts</h2>
+            <ul class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               {featuredPosts.map(data => (
-                <Card variant="h3" {...data} />
+                <Card variant="h2" {...data} />
               ))}
             </ul>
           </section>
@@ -81,9 +90,10 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 
     {
       recentPosts.length > 0 && (
-        <section id="recent-posts" class="pt-12 pb-6">
-          <h2 class="text-2xl font-semibold tracking-wide">Recent Posts</h2>
-          <ul>
+        <!-- Recent Posts - Grid Layout -->
+        <section id="recent-posts" class="py-16">
+          <h2 class="heading-section">Recent Posts</h2>
+          <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentPosts.map(
               (data, index) =>
                 index < SITE.postPerIndex && <Card variant="h3" {...data} />
@@ -93,11 +103,15 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       )
     }
 
-    <div class="my-8 text-center">
-      <LinkButton href="/posts/">
-        All Posts
-        <IconArrowRight class="inline-block rtl:-rotate-180" />
-      </LinkButton>
+    <!-- Brutal CTA Button -->
+    <div class="my-16 text-center">
+      <a
+        href="/posts/"
+        class="inline-flex items-center gap-4 px-12 py-6 border-6 border-foreground bg-accent hover:bg-foreground text-foreground hover:text-background font-black uppercase text-xl tracking-tight transition-all duration-100 hover:translate-x-2 hover:translate-y-2 shadow-lg hover:shadow-none"
+      >
+        <span>ALL POSTS</span>
+        <IconArrowRight class="inline-block rtl:-rotate-180 w-8 h-8" />
+      </a>
     </div>
   </main>
   <Footer />
