@@ -84,7 +84,7 @@ const isActive = (path: string) => {
     font-weight: 700;
     color: var(--foreground);
     text-decoration: none;
-    transition: color var(--duration-base) var(--ease-smooth);
+    transition: color 0.3s ease;
   }
 
   .logo:hover {
@@ -102,10 +102,11 @@ const isActive = (path: string) => {
     font-weight: 500;
     color: var(--fg-secondary);
     text-decoration: none;
-    transition: color var(--duration-base) var(--ease-smooth);
+    transition: color 0.3s ease;
   }
 
-  .nav-links a:hover {
+  .nav-links a:hover,
+  .nav-links a.active-nav {
     color: var(--accent);
   }
 
@@ -132,7 +133,7 @@ const isActive = (path: string) => {
     transform: translate(-50%, -50%);
     width: 20px;
     height: 20px;
-    transition: all var(--duration-base) var(--ease-smooth);
+    transition: all 0.3s ease;
   }
 
   .moon-icon {

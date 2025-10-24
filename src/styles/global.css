@@ -1,136 +1,87 @@
 @import "tailwindcss";
 
-/* GENERATIVE MINIMALISM THEME */
+/* Clean, Minimal Blog Theme */
 
 :root,
 html[data-theme="light"] {
-  /* Muted, soft backgrounds */
-  --background: #fafbfc;
-  --bg-secondary: #f5f6f8;
-  --bg-tertiary: #ffffff;
-
-  /* Soft foreground */
-  --foreground: #2d3748;
+  /* Base colors */
+  --background: #ffffff;
+  --foreground: #1a202c;
   --fg-secondary: #4a5568;
   --foreground-muted: #718096;
 
-  /* Vivid, computed accents */
-  --accent: #667eea;
-  --accent-secondary: #f093fb;
-  --accent-tertiary: #4facfe;
+  /* Accent */
+  --accent: #3b82f6;
 
-  /* Legacy variables */
-  --border: rgba(102, 126, 234, 0.15);
-  --muted: #e2e8f0;
-  --highlight: rgba(102, 126, 234, 0.1);
-  --card-bg: #ffffff;
-  --muted-bg: #f5f6f8;
-
-  /* Generative gradients */
-  --gradient-flow: linear-gradient(135deg,
-    #667eea 0%,
-    #764ba2 25%,
-    #f093fb 50%,
-    #4facfe 75%,
-    #00f2fe 100%);
-
-  --gradient-subtle: linear-gradient(180deg,
-    rgba(102, 126, 234, 0.03) 0%,
-    rgba(244, 147, 251, 0.03) 100%);
-
-  --gradient-mesh: radial-gradient(at 40% 20%, rgba(102, 126, 234, 0.15) 0px, transparent 50%),
-                   radial-gradient(at 80% 0%, rgba(244, 147, 251, 0.15) 0px, transparent 50%),
-                   radial-gradient(at 0% 50%, rgba(79, 172, 254, 0.15) 0px, transparent 50%);
+  /* Borders and backgrounds */
+  --border: #e2e8f0;
+  --bg-secondary: #f7fafc;
+  --muted: #edf2f7;
+  --highlight: #ebf5ff;
+  --muted-bg: #f7fafc;
 }
 
 html[data-theme="dark"] {
-  /* Deep, rich backgrounds */
-  --background: #0f1419;
-  --bg-secondary: #1a1f2e;
-  --bg-tertiary: #252d3d;
+  /* Dark mode colors */
+  --background: #1a202c;
+  --foreground: #f7fafc;
+  --fg-secondary: #e2e8f0;
+  --foreground-muted: #cbd5e0;
 
-  /* Soft light foreground */
-  --foreground: #e2e8f0;
-  --fg-secondary: #cbd5e0;
-  --foreground-muted: #a0aec0;
+  /* Accent */
+  --accent: #60a5fa;
 
-  /* Brighter accents for dark mode */
-  --accent: #818cf8;
-  --accent-secondary: #f472b6;
-  --accent-tertiary: #60a5fa;
-
-  /* Legacy variables */
-  --border: rgba(129, 140, 248, 0.2);
-  --muted: #2d3748;
-  --highlight: rgba(129, 140, 248, 0.15);
-  --card-bg: #1a1f2e;
-  --muted-bg: #1a1f2e;
-
-  /* Enhanced gradients */
-  --gradient-flow: linear-gradient(135deg,
-    #818cf8 0%,
-    #a78bfa 25%,
-    #f472b6 50%,
-    #60a5fa 75%,
-    #22d3ee 100%);
-
-  --gradient-subtle: linear-gradient(180deg,
-    rgba(129, 140, 248, 0.05) 0%,
-    rgba(244, 114, 182, 0.05) 100%);
-
-  --gradient-mesh: radial-gradient(at 40% 20%, rgba(129, 140, 248, 0.2) 0px, transparent 50%),
-                   radial-gradient(at 80% 0%, rgba(244, 114, 182, 0.2) 0px, transparent 50%),
-                   radial-gradient(at 0% 50%, rgba(96, 165, 250, 0.2) 0px, transparent 50%);
+  /* Borders and backgrounds */
+  --border: #2d3748;
+  --bg-secondary: #2d3748;
+  --muted: #4a5568;
+  --highlight: #2c5282;
+  --muted-bg: #2d3748;
 }
 
 :root {
-  /* Smooth, organic easing curves */
+  /* Fluid type scale */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.85rem + 0.125vw, 1rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1.05rem + 0.375vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.35rem + 0.75vw, 2.25rem);
+  --text-2xl: clamp(2rem, 1.75rem + 1.25vw, 3.25rem);
+  --text-3xl: clamp(2.5rem, 2rem + 2.5vw, 5rem);
+
+  /* Line heights */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 1.75;
+
+  /* Letter spacing */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* Easing */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-flow: cubic-bezier(0.65, 0, 0.35, 1);
-  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
   /* Timing */
   --duration-fast: 200ms;
   --duration-base: 300ms;
   --duration-slow: 500ms;
-  --duration-slower: 800ms;
-
-  /* Modular scale based on golden ratio */
-  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-  --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
-  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-  --text-lg: clamp(1.125rem, 1rem + 0.625vw, 1.5rem);
-  --text-xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
-  --text-2xl: clamp(2rem, 1.7rem + 1.5vw, 3rem);
-  --text-3xl: clamp(2.5rem, 2rem + 2.5vw, 4.5rem);
-
-  /* Line heights */
-  --leading-tight: 1.2;
-  --leading-snug: 1.4;
-  --leading-normal: 1.6;
-  --leading-relaxed: 1.8;
-
-  /* Letter spacing */
-  --tracking-tight: -0.02em;
-  --tracking-normal: 0;
-  --tracking-wide: 0.025em;
-  --tracking-wider: 0.05em;
 }
 
 @layer base {
-  * {
-    transition: background-color var(--duration-base) var(--ease-smooth),
-                color var(--duration-base) var(--ease-smooth),
-                border-color var(--duration-base) var(--ease-smooth);
-  }
-
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
     font-size: var(--text-base);
     line-height: var(--leading-relaxed);
-    letter-spacing: var(--tracking-normal);
     color: var(--foreground);
     background: var(--background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
   }
 
@@ -141,9 +92,20 @@ html[data-theme="dark"] {
     color: var(--foreground);
   }
 
-  h1 { font-size: var(--text-3xl); }
-  h2 { font-size: var(--text-2xl); }
-  h3 { font-size: var(--text-xl); }
+  h1 {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+    font-weight: 600;
+  }
 
   p {
     line-height: var(--leading-relaxed);
@@ -153,15 +115,12 @@ html[data-theme="dark"] {
   a {
     color: var(--accent);
     text-decoration: none;
-    transition: all var(--duration-base) var(--ease-smooth);
+    transition: color 0.3s ease;
   }
 
   a:hover {
-    color: var(--accent-secondary);
-  }
-
-  section {
-    position: relative;
+    color: var(--accent);
+    opacity: 0.8;
   }
 
   *:focus-visible {
@@ -171,55 +130,35 @@ html[data-theme="dark"] {
   }
 }
 
-/* Gradient utilities */
+/* Tailwind skin color utilities */
 @layer utilities {
-  .gradient-text {
-    background: var(--gradient-flow);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+  .text-skin-base {
+    color: var(--foreground);
   }
 
-  .grid-pattern {
-    background-image:
-      linear-gradient(rgba(102, 126, 234, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(102, 126, 234, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: -1px -1px;
+  .text-skin-accent {
+    color: var(--accent);
   }
 
-  .dot-pattern {
-    background-image: radial-gradient(
-      circle at center,
-      rgba(102, 126, 234, 0.1) 1px,
-      transparent 1px
-    );
-    background-size: 20px 20px;
+  .text-skin-muted {
+    color: var(--foreground-muted);
   }
 
-  .animate-fade-in {
-    animation: fadeIn var(--duration-slow) var(--ease-smooth) forwards;
-    opacity: 0;
+  .bg-skin-fill {
+    background-color: var(--background);
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .bg-skin-card {
+    background-color: var(--bg-secondary);
   }
 
-  .stagger-1 { animation-delay: 100ms; }
-  .stagger-2 { animation-delay: 200ms; }
-  .stagger-3 { animation-delay: 300ms; }
-  .stagger-4 { animation-delay: 400ms; }
-  .stagger-5 { animation-delay: 500ms; }
-  .stagger-6 { animation-delay: 600ms; }
+  .border-skin-line {
+    border-color: var(--border);
+  }
+
+  .border-skin-accent {
+    border-color: var(--accent);
+  }
 }
 
 @utility max-w-app {
@@ -231,11 +170,10 @@ html[data-theme="dark"] {
   font-weight: 600;
 }
 
-/* Smooth scrolling */
-:target {
-  scroll-margin-block: 5ex;
-}
-
 html {
   scroll-behavior: smooth;
+}
+
+:target {
+  scroll-margin-block: 5ex;
 }

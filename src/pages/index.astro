@@ -24,192 +24,139 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 
 <Layout>
   <Header />
-  <main id="main-content" data-layout="index">
-    <!-- Hero Section - Generative Minimalism -->
-    <section id="hero" class="generative-hero">
-      <div class="hero-background"></div>
-
-      <div class="hero-content">
-        <div class="hero-badge animate-fade-in">
-          <span class="badge-dot"></span>
-          <span>Generative Minimalism</span>
-        </div>
-
-        <h1 class="hero-title animate-fade-in stagger-1">
-          Welcome to
-          <span class="gradient-text">berryhill.dev</span>
+  <main id="main-content" data-layout="index" class="max-w-6xl mx-auto px-4 sm:px-6">
+    <!-- Hero Section -->
+    <section id="hero" class="pt-8 pb-6 max-w-4xl relative">
+      <div class="hero-content relative">
+        <h1 class="text-lg md:text-xl font-mono font-bold mb-4 tracking-tight flex items-center flex-wrap gap-1">
+          <span class="terminal-prompt">$</span>
+          <span class="cycle-word">spec</span>
+          <span class="arrow">→</span>
+          <span class="cycle-word">build</span>
+          <span class="arrow">→</span>
+          <span class="cycle-word">play</span>
+          <span class="arrow">→</span>
+          <span class="cycle-word">destroy</span>
+          <span class="arrow">→</span>
+          <span class="cycle-word highlight">repeat</span>
+          <span class="cursor-blink">_</span>
         </h1>
 
-        <p class="hero-description animate-fade-in stagger-2">
-          Exploring the intersection of agentic-first development, AI/ML systems,
-          Web3 smart contracts, and intelligent automation through the lens of
-          computational beauty and elegant simplicity.
-        </p>
-
-        <div class="hero-links animate-fade-in stagger-3">
-          <a href="/posts/" class="hero-cta primary">
-            <span>Explore Posts</span>
-            <IconArrowRight class="arrow" />
-          </a>
-          <a href="/rss.xml" class="hero-cta secondary">
-            <IconRss width={20} height={20} />
-            <span>RSS Feed</span>
-          </a>
+        <div class="space-y-2 mb-4">
+          <p class="text-base md:text-lg leading-relaxed text-skin-base">
+            Welcome to my corner of the internet where I explore agentic-first development,
+            AI/ML systems, Web3 smart contracts, and intelligent automation.
+          </p>
+          <p class="text-sm md:text-base leading-relaxed text-skin-muted">
+            Dive into practical insights on AI agents, blockchain development, modern web
+            applications, and the future of autonomous systems.
+          </p>
         </div>
 
-        {
-          SOCIALS.length > 0 && (
-            <div class="hero-socials animate-fade-in stagger-4">
-              <Socials />
-            </div>
-          )
-        }
+        <!-- RSS Feed and Social Links -->
+        <div class="flex items-center gap-3 flex-wrap text-sm link-container">
+          <a
+            target="_blank"
+            href="/rss.xml"
+            class="inline-flex items-center gap-1.5 link-hover"
+            aria-label="rss feed"
+          >
+            <IconRss width={16} height={16} />
+            <span>RSS Feed</span>
+          </a>
+          {
+            SOCIALS.length > 0 && (
+              <>
+                <span class="text-skin-muted">|</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-skin-muted">Follow:</span>
+                  <Socials />
+                </div>
+              </>
+            )
+          }
+        </div>
       </div>
     </section>
 
-    <style jsx>
-      .generative-hero {
-        position: relative;
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        padding: 4rem 2rem;
-      }
-
-      .hero-background {
-        position: absolute;
-        inset: 0;
-        background: var(--gradient-mesh);
-        opacity: 1;
-        animation: meshFlow 20s ease-in-out infinite;
-      }
-
-      @keyframes meshFlow {
-        0%, 100% {
-          transform: translate(0, 0) scale(1);
-        }
-        33% {
-          transform: translate(5%, -5%) scale(1.05);
-        }
-        66% {
-          transform: translate(-5%, 5%) scale(0.95);
-        }
-      }
-
-      .hero-content {
-        position: relative;
-        z-index: 10;
-        max-width: 800px;
-        text-align: center;
-      }
-
-      .hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        background: var(--highlight);
-        border: 1px solid var(--border);
-        border-radius: 100px;
-        font-size: var(--text-sm);
+    <style>
+      .terminal-prompt {
         color: var(--accent);
-        margin-bottom: 2rem;
-      }
-
-      .badge-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--gradient-flow);
-        border-radius: 50%;
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      }
-
-      @keyframes pulse {
-        0%, 100% {
-          opacity: 1;
-          transform: scale(1);
-        }
-        50% {
-          opacity: 0.5;
-          transform: scale(1.2);
-        }
-      }
-
-      .hero-title {
-        font-size: var(--text-3xl);
         font-weight: 700;
-        line-height: var(--leading-tight);
-        margin-bottom: 1.5rem;
+        text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      }
+
+      .cycle-word {
         color: var(--foreground);
+        position: relative;
+        transition: all 0.3s ease;
       }
 
-      .hero-description {
-        font-size: var(--text-lg);
-        line-height: var(--leading-relaxed);
-        color: var(--fg-secondary);
-        margin-bottom: 2.5rem;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .hero-links {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-bottom: 2rem;
-      }
-
-      .hero-cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem 2rem;
-        border-radius: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all var(--duration-base) var(--ease-smooth);
-      }
-
-      .hero-cta.primary {
-        background: var(--gradient-flow);
-        color: white;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-      }
-
-      .hero-cta.primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-      }
-
-      .hero-cta.secondary {
-        background: transparent;
+      .cycle-word:hover {
         color: var(--accent);
-        border: 2px solid var(--border);
+        transform: translateY(-2px);
       }
 
-      .hero-cta.secondary:hover {
-        background: var(--highlight);
-        border-color: var(--accent);
+      .cycle-word.highlight {
+        color: var(--accent);
+        font-weight: 700;
       }
 
       .arrow {
-        width: 20px;
-        height: 20px;
-        transition: transform var(--duration-base) var(--ease-smooth);
+        color: var(--foreground-muted);
+        opacity: 0.4;
+        font-size: 0.9em;
       }
 
-      .hero-cta:hover .arrow {
-        transform: translateX(4px);
+      .cursor-blink {
+        color: var(--accent);
+        animation: blink 1s step-end infinite;
+        font-weight: 700;
       }
 
-      .hero-socials {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
+      @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
+      }
+
+      .link-hover {
+        color: var(--accent);
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .link-hover::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--accent);
+        transition: width 0.3s ease;
+      }
+
+      .link-hover:hover::after {
+        width: 100%;
+      }
+
+      .link-hover:hover {
+        transform: translateX(2px);
+      }
+
+      .hero-content {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
 
@@ -218,40 +165,38 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     {
       featuredPosts.length > 0 && (
         <>
-          <!-- Featured Posts - Generative Style -->
-          <section id="featured" class="generative-section">
-            <div class="section-header">
-              <h2 class="section-title">
-                <span class="title-accent"></span>
-                Featured Posts
+          <!-- Featured Posts Section -->
+          <section id="featured" class="pt-8 pb-6 section-animate">
+            <div class="section-header-fancy">
+              <h2 class="text-2xl font-bold tracking-tight mb-4 relative inline-block">
+                <span class="gradient-title">Featured Posts</span>
+                <span class="title-glow"></span>
               </h2>
-              <p class="section-description">
-                Curated insights on AI, blockchain, and intelligent systems
-              </p>
             </div>
 
-            <ul class="generative-grid">
-              {featuredPosts.map((data, index) => (
+            <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 list-none">
+              {featuredPosts.map((data) => (
                 <Card variant="h2" {...data} />
               ))}
             </ul>
           </section>
+          <Hr />
         </>
       )
     }
 
     {
       recentPosts.length > 0 && (
-        <!-- Recent Posts - Generative Style -->
-        <section id="recent-posts" class="generative-section">
-          <div class="section-header">
-            <h2 class="section-title">
-              <span class="title-accent"></span>
-              Recent Posts
+        <!-- Recent Posts Section -->
+        <section id="recent-posts" class="pt-8 pb-6 section-animate">
+          <div class="section-header-fancy">
+            <h2 class="text-2xl font-bold tracking-tight mb-4 relative inline-block">
+              <span class="gradient-title">Recent Posts</span>
+              <span class="title-glow"></span>
             </h2>
           </div>
 
-          <ul class="generative-grid grid-3">
+          <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 list-none">
             {recentPosts.map(
               (data, index) =>
                 index < SITE.postPerIndex && <Card variant="h3" {...data} />
@@ -261,107 +206,99 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       )
     }
 
-    <!-- View All CTA -->
-    <div class="cta-section">
-      <a href="/posts/" class="view-all-cta">
-        <span>View All Posts</span>
-        <IconArrowRight class="arrow" />
-      </a>
-    </div>
-
     <style>
-      .generative-section {
-        padding: clamp(4rem, 8vw, 8rem) 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
+      .section-animate {
+        animation: slideInUp 0.5s ease-out;
       }
 
-      .section-header {
-        text-align: center;
-        margin-bottom: clamp(3rem, 6vw, 5rem);
-      }
-
-      .section-title {
-        position: relative;
-        display: inline-block;
-        font-size: var(--text-2xl);
-        font-weight: 700;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-      }
-
-      .title-accent {
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 4px;
-        background: var(--gradient-flow);
-        border-radius: 2px;
-      }
-
-      .section-description {
-        font-size: var(--text-lg);
-        color: var(--foreground-muted);
-        max-width: 600px;
-        margin: 0 auto;
-      }
-
-      .generative-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .generative-grid.grid-3 {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      }
-
-      @media (min-width: 768px) {
-        .generative-grid:not(.grid-3) {
-          grid-template-columns: repeat(2, 1fr);
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
 
-      .cta-section {
-        text-align: center;
-        padding: 4rem 2rem;
+      .section-header-fancy {
+        margin-bottom: 1.5rem;
       }
 
-      .view-all-cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem 2.5rem;
-        background: var(--gradient-flow);
-        color: white;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: var(--text-lg);
-        text-decoration: none;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        transition: all var(--duration-base) var(--ease-smooth);
+      .gradient-title {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--foreground) 50%, var(--accent) 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 3s linear infinite;
+        position: relative;
+        padding-bottom: 0.5rem;
       }
 
-      .view-all-cta:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      .gradient-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent), transparent);
+        animation: expandWidth 1s ease-out;
       }
 
-      .view-all-cta .arrow {
-        width: 24px;
-        height: 24px;
-        transition: transform var(--duration-base) var(--ease-smooth);
+      .title-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120%;
+        height: 120%;
+        background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+        opacity: 0.15;
+        filter: blur(20px);
+        z-index: -1;
+        animation: pulse 2s ease-in-out infinite;
       }
 
-      .view-all-cta:hover .arrow {
-        transform: translateX(4px);
+      @keyframes shimmer {
+        0% {
+          background-position: 0% center;
+        }
+        100% {
+          background-position: 200% center;
+        }
+      }
+
+      @keyframes expandWidth {
+        from {
+          width: 0%;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 0.15;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          opacity: 0.25;
+          transform: translate(-50%, -50%) scale(1.1);
+        }
       }
     </style>
+
+    <!-- View All Posts CTA -->
+    <div class="my-12 text-center">
+      <LinkButton href="/posts/" class="text-lg px-8 py-3">
+        View All Posts
+        <IconArrowRight class="inline-block rtl:-rotate-180 ml-2" />
+      </LinkButton>
+    </div>
   </main>
   <Footer />
 </Layout>
