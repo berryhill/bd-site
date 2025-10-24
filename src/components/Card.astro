@@ -11,42 +11,94 @@ export interface Props extends CollectionEntry<"blog"> {
 const { variant = "h2", data, id, filePath } = Astro.props;
 
 const { title, description, pubDatetime, modDatetime, timezone } = data;
-
-const headerProps = {
-  style: { viewTransitionName: slugifyStr(title) },
-  class: "text-lg font-medium decoration-dashed hover:underline",
-};
 ---
 
-<li class="group relative h-full">
-  <div class="h-full border-4 border-border bg-card-bg p-6
-              transition-all duration-150
-              hover:shadow-card-hover hover:translate-x-1 hover:translate-y-1">
+<li class="brutal-card">
+  <div class="card-border">
+    <!-- Exposed metadata -->
+    <div class="card-meta">
+      [{pubDatetime.toISOString().split('T')[0]}]
+    </div>
 
-    <!-- Content -->
-    <div class="relative flex flex-col h-full">
-      <a
-        href={getPath(id, filePath)}
-        class="block mb-4 group-hover:text-accent transition-colors duration-100"
-      >
-        {
-          variant === "h2" ? (
-            <h2 class="text-2xl font-black leading-none uppercase tracking-tight">{title}</h2>
-          ) : (
-            <h3 class="text-xl font-black leading-none uppercase tracking-tight">{title}</h3>
-          )
-        }
-      </a>
+    <!-- Raw link -->
+    <a href={getPath(id, filePath)}>
+      {variant === "h2" ? (
+        <h2>{'>>> ' + title.toUpperCase()}</h2>
+      ) : (
+        <h3>{'>>> ' + title}</h3>
+      )}
+    </a>
 
-      <div class="border-t-2 border-accent w-16 mb-4"></div>
+    <!-- Plain description -->
+    <p class="card-desc">
+      {description}
+    </p>
 
-      <Datetime {pubDatetime} {modDatetime} {timezone}
-                class="text-xs font-bold uppercase tracking-wider mb-4" />
-
-      <p class="flex-grow font-mono text-sm leading-relaxed">{description}</p>
-
-      <!-- Brutal corner accent -->
-      <div class="absolute top-0 right-0 w-4 h-4 bg-accent"></div>
+    <!-- ASCII arrow -->
+    <div class="card-arrow">
+      ──────────────────>
     </div>
   </div>
 </li>
+
+<style>
+  .brutal-card {
+    border: 3px solid var(--border);
+    background: var(--background);
+    padding: 0;
+    margin: 15px 0;
+    list-style: none;
+  }
+
+  .card-border {
+    border: 1px solid var(--border);
+    margin: 5px;
+    padding: 15px;
+  }
+
+  .card-meta {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .brutal-card h2,
+  .brutal-card h3 {
+    margin: 10px 0;
+  }
+
+  .brutal-card a {
+    text-decoration: none;
+    color: var(--accent);
+  }
+
+  .card-desc {
+    margin: 10px 0;
+    line-height: 1.4;
+    font-size: 14px;
+  }
+
+  .card-arrow {
+    font-family: monospace;
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--foreground-muted);
+  }
+
+  .brutal-card:hover {
+    background: var(--highlight);
+    transform: translate(-3px, -3px);
+    box-shadow: 3px 3px 0 var(--border);
+  }
+
+  html[data-theme="dark"] .brutal-card {
+    border-color: var(--border);
+    background: var(--card-bg);
+  }
+
+  html[data-theme="dark"] .brutal-card:hover {
+    background: var(--muted);
+    box-shadow: 3px 3px 0 var(--border);
+  }
+</style>
