@@ -7,6 +7,25 @@ export interface Props {
 const { noPadding = false, ariaHidden = true } = Astro.props;
 ---
 
-<div style={noPadding ? "max-width: 1200px; margin: 20px auto; padding: 0;" : "max-width: 1200px; margin: 20px auto; padding: 0 16px;"}>
-  <hr style="border: none; border-top: 2px solid var(--border); margin: 0;" aria-hidden={ariaHidden} />
+<div class="hr-wrapper" class:list={{ "no-padding": noPadding }}>
+  <hr aria-hidden={ariaHidden} />
 </div>
+
+<style>
+  .hr-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .hr-wrapper.no-padding {
+    padding: 0;
+  }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border);
+    margin: 4rem 0;
+  }
+</style>

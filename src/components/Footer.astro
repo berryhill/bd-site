@@ -1,5 +1,4 @@
 ---
-import Hr from "./Hr.astro";
 import Socials from "./Socials.astro";
 
 const currentYear = new Date().getFullYear();
@@ -11,14 +10,39 @@ export interface Props {
 const { noMarginTop = false } = Astro.props;
 ---
 
-<footer style={noMarginTop ? "width: 100%;" : "width: 100%; margin-top: auto;"}>
-  <Hr noPadding />
-  <div style="max-width: 1200px; margin: 0 auto; border: 3px solid var(--border); padding: 20px; margin-top: 0; background: var(--background);">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-      <div style="font-size: 14px; font-weight: bold;">
-        [© {currentYear}] ALL_RIGHTS_RESERVED
-      </div>
-      <Socials centered />
+<footer class="site-footer" class:list={{ "no-margin": noMarginTop }}>
+  <div class="footer-content">
+    <div class="footer-info">
+      <p>© {currentYear} All rights reserved.</p>
     </div>
+    <Socials centered />
   </div>
 </footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    background: var(--bg-secondary);
+  }
+
+  .site-footer.no-margin {
+    margin-top: 0;
+  }
+
+  .footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .footer-info p {
+    color: var(--foreground-muted);
+    font-size: var(--text-sm);
+  }
+</style>

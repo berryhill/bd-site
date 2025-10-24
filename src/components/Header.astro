@@ -1,5 +1,4 @@
 ---
-import Hr from "./Hr.astro";
 import IconMoon from "@/assets/icons/IconMoon.svg";
 import IconSearch from "@/assets/icons/IconSearch.svg";
 import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
@@ -8,7 +7,6 @@ import { SITE } from "@/config";
 
 const { pathname } = Astro.url;
 
-// Remove trailing slash from current pathname if exists
 const currentPath =
   pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname;
 
@@ -20,67 +18,145 @@ const isActive = (path: string) => {
 };
 ---
 
-<header>
-  <a
-    id="skip-to-content"
-    href="#main-content"
-    style="position: absolute; left: 64px; top: -100%; z-index: 50; background: var(--background); padding: 12px; color: var(--accent); border: 2px solid var(--border);"
-  >
-    Skip to content
-  </a>
-  <div
-    id="nav-container"
-    style="max-width: 1200px; margin: 0 auto; border: 3px solid var(--border); padding: 15px; margin-bottom: 0; background: var(--background);"
-  >
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-      <a
-        href="/"
-        style="text-decoration: none; font-weight: bold; font-size: 18px; color: var(--accent);"
-      >
-        [{SITE.title}]
-      </a>
+<header class="site-header">
+  <nav class="nav-container">
+    <a href="/" class="logo">
+      {SITE.title}
+    </a>
 
-      <nav style="display: flex; align-items: center; gap: 15px;">
-        <a href="/posts" class:list={{ "active-nav": isActive("/posts") }} style="text-decoration: none; padding: 5px 10px; border: 2px solid var(--border); background: var(--background); font-weight: bold; display: inline-block;">
-          [POSTS]
-        </a>
-        <a href="/tags" class:list={{ "active-nav": isActive("/tags") }} style="text-decoration: none; padding: 5px 10px; border: 2px solid var(--border); background: var(--background); font-weight: bold; display: inline-block;">
-          [TAGS]
-        </a>
-        <a href="/about" class:list={{ "active-nav": isActive("/about") }} style="text-decoration: none; padding: 5px 10px; border: 2px solid var(--border); background: var(--background); font-weight: bold; display: inline-block;">
-          [ABOUT]
-        </a>
-        <LinkButton
-          href="/search"
-          class:list={[
-            { "active-nav": isActive("/search") },
-          ]}
-          ariaLabel="search"
-          title="Search"
-          style="padding: 5px 10px; border: 2px solid var(--border); background: var(--background); font-weight: bold;"
-        >
-          [SEARCH]
-        </LinkButton>
-        {
-          SITE.lightAndDarkMode && (
-            <button
-              id="theme-btn"
-              style="padding: 5px 10px; border: 2px solid var(--border); background: var(--background); cursor: pointer; font-weight: bold;"
-              title="Toggles light & dark"
-              aria-label="auto"
-              aria-live="polite"
-            >
-              [THEME]
-            </button>
-          )
-        }
-      </nav>
+    <div class="nav-links">
+      <a href="/posts" class:list={{ "active-nav": isActive("/posts") }}>
+        Posts
+      </a>
+      <a href="/tags" class:list={{ "active-nav": isActive("/tags") }}>
+        Tags
+      </a>
+      <a href="/about" class:list={{ "active-nav": isActive("/about") }}>
+        About
+      </a>
+      <LinkButton
+        href="/search"
+        class:list={{ "active-nav": isActive("/search") }}
+        ariaLabel="search"
+        title="Search"
+      >
+        <IconSearch class="icon" />
+      </LinkButton>
+      {
+        SITE.lightAndDarkMode && (
+          <button
+            id="theme-btn"
+            class="theme-toggle"
+            title="Toggles light & dark"
+            aria-label="auto"
+            aria-live="polite"
+          >
+            <IconMoon class="moon-icon" />
+            <IconSunHigh class="sun-icon" />
+          </button>
+        )
+      }
     </div>
-  </div>
+  </nav>
 </header>
 
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--background);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--foreground);
+    text-decoration: none;
+    transition: color var(--duration-base) var(--ease-smooth);
+  }
+
+  .logo:hover {
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav-links a {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--fg-secondary);
+    text-decoration: none;
+    transition: color var(--duration-base) var(--ease-smooth);
+  }
+
+  .nav-links a:hover {
+    color: var(--accent);
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .theme-toggle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 8px;
+  }
+
+  .moon-icon,
+  .sun-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    transition: all var(--duration-base) var(--ease-smooth);
+  }
+
+  .moon-icon {
+    opacity: 1;
+    rotate: 0deg;
+  }
+
+  .sun-icon {
+    opacity: 0;
+    rotate: 90deg;
+  }
+
+  html[data-theme="dark"] .moon-icon {
+    opacity: 0;
+    rotate: -90deg;
+  }
+
+  html[data-theme="dark"] .sun-icon {
+    opacity: 1;
+    rotate: 0deg;
+  }
+</style>
+
 <script>
-  // No smooth transitions - instant theme switch
   function initThemeToggle() {
     const themeBtn = document.querySelector("#theme-btn");
     if (!themeBtn) return;

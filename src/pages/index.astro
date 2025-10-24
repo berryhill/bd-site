@@ -25,91 +25,343 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 <Layout>
   <Header />
   <main id="main-content" data-layout="index">
-    <!-- Hero Section - Algorithmic Brutalism -->
-    <section id="hero">
-      <!-- ASCII art header -->
-      <pre style="font-size: 14px; line-height: 1.2; margin-bottom: 20px; overflow-x: auto;">╔══════════════════════════════════════════════╗
-║   BERRYHILL.DEV                              ║
-║   ALGORITHMIC BRUTALISM                      ║
-╚══════════════════════════════════════════════╝</pre>
+    <!-- Hero Section - Generative Minimalism -->
+    <section id="hero" class="generative-hero">
+      <div class="hero-background"></div>
 
-      <!-- Raw heading -->
-      <h1>
-        WELCOME_TO_MY_<br>CORNER_OF_THE_<br>INTERNET
-      </h1>
+      <div class="hero-content">
+        <div class="hero-badge animate-fade-in">
+          <span class="badge-dot"></span>
+          <span>Generative Minimalism</span>
+        </div>
 
-      <!-- Exposed list -->
-      <ul style="list-style: none; padding: 0; margin: 20px 0; font-size: 18px; line-height: 1.8;">
-        <li>[X] AGENTIC-FIRST DEVELOPMENT</li>
-        <li>[X] AI/ML SYSTEMS</li>
-        <li>[X] WEB3 SMART CONTRACTS</li>
-        <li>[X] INTELLIGENT AUTOMATION</li>
-      </ul>
+        <h1 class="hero-title animate-fade-in stagger-1">
+          Welcome to
+          <span class="gradient-text">berryhill.dev</span>
+        </h1>
 
-      <!-- Raw links -->
-      <div style="margin-top: 30px; display: flex; gap: 20px; flex-wrap: wrap;">
-        <a href="/rss.xml" style="border: 2px solid var(--border); padding: 10px 20px; background: var(--background); text-decoration: none; font-weight: bold; display: inline-block;">[RSS_FEED]</a>
-        <a href="/posts/" style="border: 2px solid var(--border); padding: 10px 20px; background: var(--background); text-decoration: none; font-weight: bold; display: inline-block;">[ALL_POSTS]</a>
-        <a href="/search/" style="border: 2px solid var(--border); padding: 10px 20px; background: var(--background); text-decoration: none; font-weight: bold; display: inline-block;">[SEARCH]</a>
+        <p class="hero-description animate-fade-in stagger-2">
+          Exploring the intersection of agentic-first development, AI/ML systems,
+          Web3 smart contracts, and intelligent automation through the lens of
+          computational beauty and elegant simplicity.
+        </p>
+
+        <div class="hero-links animate-fade-in stagger-3">
+          <a href="/posts/" class="hero-cta primary">
+            <span>Explore Posts</span>
+            <IconArrowRight class="arrow" />
+          </a>
+          <a href="/rss.xml" class="hero-cta secondary">
+            <IconRss width={20} height={20} />
+            <span>RSS Feed</span>
+          </a>
+        </div>
+
+        {
+          SOCIALS.length > 0 && (
+            <div class="hero-socials animate-fade-in stagger-4">
+              <Socials />
+            </div>
+          )
+        }
       </div>
-
-      <!-- Social links if present -->
-      {
-        SOCIALS.length > 0 && (
-          <div style="margin-top: 30px; border-top: 2px solid var(--border); padding-top: 20px;">
-            <span style="font-size: 14px; font-weight: bold; display: block; margin-bottom: 10px;">[CONNECT]</span>
-            <Socials />
-          </div>
-        )
-      }
     </section>
+
+    <style jsx>
+      .generative-hero {
+        position: relative;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        padding: 4rem 2rem;
+      }
+
+      .hero-background {
+        position: absolute;
+        inset: 0;
+        background: var(--gradient-mesh);
+        opacity: 1;
+        animation: meshFlow 20s ease-in-out infinite;
+      }
+
+      @keyframes meshFlow {
+        0%, 100% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(5%, -5%) scale(1.05);
+        }
+        66% {
+          transform: translate(-5%, 5%) scale(0.95);
+        }
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 10;
+        max-width: 800px;
+        text-align: center;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--highlight);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        font-size: var(--text-sm);
+        color: var(--accent);
+        margin-bottom: 2rem;
+      }
+
+      .badge-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--gradient-flow);
+        border-radius: 50%;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.2);
+        }
+      }
+
+      .hero-title {
+        font-size: var(--text-3xl);
+        font-weight: 700;
+        line-height: var(--leading-tight);
+        margin-bottom: 1.5rem;
+        color: var(--foreground);
+      }
+
+      .hero-description {
+        font-size: var(--text-lg);
+        line-height: var(--leading-relaxed);
+        color: var(--fg-secondary);
+        margin-bottom: 2.5rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-links {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+      }
+
+      .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all var(--duration-base) var(--ease-smooth);
+      }
+
+      .hero-cta.primary {
+        background: var(--gradient-flow);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .hero-cta.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .hero-cta.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 2px solid var(--border);
+      }
+
+      .hero-cta.secondary:hover {
+        background: var(--highlight);
+        border-color: var(--accent);
+      }
+
+      .arrow {
+        width: 20px;
+        height: 20px;
+        transition: transform var(--duration-base) var(--ease-smooth);
+      }
+
+      .hero-cta:hover .arrow {
+        transform: translateX(4px);
+      }
+
+      .hero-socials {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+    </style>
 
     <Hr />
 
     {
       featuredPosts.length > 0 && (
         <>
-          <!-- Featured Posts - Algorithmic Brutalism -->
-          <section id="featured">
-            <pre style="font-size: 18px; line-height: 1.3; margin-bottom: 20px;">╔═══════════════════════╗
-║ FEATURED_POSTS      ║
-╚═══════════════════════╝</pre>
-            <ul style="display: grid; grid-template-columns: 1fr; gap: 0; padding: 0;">
+          <!-- Featured Posts - Generative Style -->
+          <section id="featured" class="generative-section">
+            <div class="section-header">
+              <h2 class="section-title">
+                <span class="title-accent"></span>
+                Featured Posts
+              </h2>
+              <p class="section-description">
+                Curated insights on AI, blockchain, and intelligent systems
+              </p>
+            </div>
+
+            <ul class="generative-grid">
               {featuredPosts.map((data, index) => (
-                <Card variant="h2" {...data} data-index={index} />
+                <Card variant="h2" {...data} />
               ))}
             </ul>
           </section>
-          {recentPosts.length > 0 && <Hr />}
         </>
       )
     }
 
     {
       recentPosts.length > 0 && (
-        <!-- Recent Posts - Algorithmic Brutalism -->
-        <section id="recent-posts">
-          <pre style="font-size: 18px; line-height: 1.3; margin-bottom: 20px;">╔═══════════════════════╗
-║ RECENT_POSTS        ║
-╚═══════════════════════╝</pre>
-          <ul style="display: grid; grid-template-columns: 1fr; gap: 0; padding: 0;">
+        <!-- Recent Posts - Generative Style -->
+        <section id="recent-posts" class="generative-section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <span class="title-accent"></span>
+              Recent Posts
+            </h2>
+          </div>
+
+          <ul class="generative-grid grid-3">
             {recentPosts.map(
               (data, index) =>
-                index < SITE.postPerIndex && <Card variant="h3" {...data} data-index={index} />
+                index < SITE.postPerIndex && <Card variant="h3" {...data} />
             )}
           </ul>
         </section>
       )
     }
 
-    <!-- Brutal CTA -->
-    <div style="margin: 40px 0; text-align: center;">
-      <a href="/posts/" style="border: 3px solid var(--border); padding: 15px 30px; background: var(--background); text-decoration: none; font-weight: bold; display: inline-block; font-size: 18px;">
-        ────────────────────>
-        <br>[VIEW_ALL_POSTS]
-        <br>────────────────────>
+    <!-- View All CTA -->
+    <div class="cta-section">
+      <a href="/posts/" class="view-all-cta">
+        <span>View All Posts</span>
+        <IconArrowRight class="arrow" />
       </a>
     </div>
+
+    <style>
+      .generative-section {
+        padding: clamp(4rem, 8vw, 8rem) 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: clamp(3rem, 6vw, 5rem);
+      }
+
+      .section-title {
+        position: relative;
+        display: inline-block;
+        font-size: var(--text-2xl);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      .title-accent {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: var(--gradient-flow);
+        border-radius: 2px;
+      }
+
+      .section-description {
+        font-size: var(--text-lg);
+        color: var(--foreground-muted);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .generative-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .generative-grid.grid-3 {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      }
+
+      @media (min-width: 768px) {
+        .generative-grid:not(.grid-3) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .cta-section {
+        text-align: center;
+        padding: 4rem 2rem;
+      }
+
+      .view-all-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2.5rem;
+        background: var(--gradient-flow);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: var(--text-lg);
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        transition: all var(--duration-base) var(--ease-smooth);
+      }
+
+      .view-all-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .view-all-cta .arrow {
+        width: 24px;
+        height: 24px;
+        transition: transform var(--duration-base) var(--ease-smooth);
+      }
+
+      .view-all-cta:hover .arrow {
+        transform: translateX(4px);
+      }
+    </style>
   </main>
   <Footer />
 </Layout>
