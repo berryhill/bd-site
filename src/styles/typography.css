@@ -10,11 +10,12 @@
     h3,
     h4,
     th {
-      @apply mb-3 text-foreground;
+      margin-bottom: 0.75rem;
+      color: var(--foreground);
     }
 
     h3 {
-      @apply italic;
+      font-style: italic;
     }
 
     p,
@@ -24,70 +25,122 @@
     figcaption,
     table,
     code {
-      @apply text-foreground;
+      color: var(--foreground);
     }
 
     a {
-      @apply break-words text-foreground decoration-dashed underline-offset-4 hover:text-accent focus-visible:no-underline;
+      word-break: break-word;
+      color: var(--foreground);
+      text-decoration-line: underline;
+      text-decoration-style: dashed;
+      text-underline-offset: 4px;
+    }
+
+    a:hover {
+      color: var(--accent);
+    }
+
+    a:focus-visible {
+      text-decoration: none;
     }
 
     ul {
-      @apply overflow-x-clip;
+      overflow-x: clip;
     }
 
-    li {
-      @apply marker:text-accent;
+    li::marker {
+      color: var(--accent);
     }
 
     hr {
-      @apply border-border;
+      border-color: var(--border);
     }
 
     img {
-      @apply mx-auto border border-border;
+      margin-left: auto;
+      margin-right: auto;
+      border: 1px solid var(--border);
     }
 
     figcaption {
-      @apply opacity-75;
+      opacity: 0.75;
     }
 
-    table {
-      th,
-      td {
-        @apply border border-border p-2;
-      }
+    table th,
+    table td {
+      border: 1px solid var(--border);
+      padding: 0.5rem;
+    }
 
-      th {
-        @apply py-1.5;
-      }
+    table th {
+      padding-top: 0.375rem;
+      padding-bottom: 0.375rem;
+    }
 
-      code {
-        @apply break-all sm:break-normal;
+    table code {
+      word-break: break-all;
+    }
+
+    @media (min-width: 640px) {
+      table code {
+        word-break: normal;
       }
     }
 
     code {
-      @apply rounded bg-muted/75 p-1 break-words text-foreground before:content-none after:content-none;
+      border-radius: 0.25rem;
+      background-color: rgb(var(--muted) / 0.75);
+      padding: 0.25rem;
+      word-break: break-word;
+      color: var(--foreground);
+    }
+
+    code::before,
+    code::after {
+      content: none;
     }
 
     .astro-code code {
-      @apply flex-[1_0_100%] bg-inherit p-0;
+      flex: 1 0 100%;
+      background-color: inherit;
+      padding: 0;
     }
 
     blockquote {
-      @apply border-s-accent/80 break-words opacity-80;
+      border-inline-start-color: rgb(var(--accent) / 0.8);
+      word-break: break-word;
+      opacity: 0.8;
     }
 
     details {
-      @apply inline-block cursor-pointer text-foreground select-none [&_p]:hidden [&_ul]:!my-0;
+      display: inline-block;
+      cursor: pointer;
+      color: var(--foreground);
+      user-select: none;
     }
 
-    summary {
-      @apply focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent focus-visible:outline-dashed;
+    details p {
+      display: none;
     }
 
-    pre {
-      @apply focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-dashed;
+    details ul {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+
+    summary:focus-visible {
+      text-decoration: none;
+      outline-width: 2px;
+      outline-offset: 1px;
+      outline-color: var(--accent);
+      outline-style: dashed;
+    }
+
+    pre:focus-visible {
+      border-color: transparent;
+      outline-width: 2px;
+      outline-color: var(--accent);
+      outline-style: dashed;
     }
   }
 

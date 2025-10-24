@@ -1,42 +1,45 @@
 @import "tailwindcss";
+@import "./typography.css";
 
 /* Clean, Minimal Blog Theme */
 
 :root,
 html[data-theme="light"] {
   /* Base colors */
-  --background: #ffffff;
-  --foreground: #1a202c;
-  --fg-secondary: #4a5568;
-  --foreground-muted: #718096;
+  --background: #fafbfc;
+  --foreground: #0f172a;
+  --fg-secondary: #475569;
+  --foreground-muted: #64748b;
 
-  /* Accent */
-  --accent: #3b82f6;
+  /* Accent - Indigo/Cyan gradient */
+  --accent: #6366f1;
+  --accent-secondary: #06b6d4;
 
   /* Borders and backgrounds */
   --border: #e2e8f0;
-  --bg-secondary: #f7fafc;
-  --muted: #edf2f7;
-  --highlight: #ebf5ff;
-  --muted-bg: #f7fafc;
+  --bg-secondary: #f1f5f9;
+  --muted: #e2e8f0;
+  --highlight: #dbeafe;
+  --muted-bg: #f8fafc;
 }
 
 html[data-theme="dark"] {
-  /* Dark mode colors */
-  --background: #1a202c;
-  --foreground: #f7fafc;
-  --fg-secondary: #e2e8f0;
-  --foreground-muted: #cbd5e0;
+  /* Dark mode colors - Deep blue/purple */
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --fg-secondary: #cbd5e1;
+  --foreground-muted: #94a3b8;
 
-  /* Accent */
-  --accent: #60a5fa;
+  /* Accent - Bright Cyan/Purple */
+  --accent: #22d3ee;
+  --accent-secondary: #a78bfa;
 
   /* Borders and backgrounds */
-  --border: #2d3748;
-  --bg-secondary: #2d3748;
-  --muted: #4a5568;
-  --highlight: #2c5282;
-  --muted-bg: #2d3748;
+  --border: #1e293b;
+  --bg-secondary: #1e293b;
+  --muted: #334155;
+  --highlight: #1e3a8a;
+  --muted-bg: #1e293b;
 }
 
 :root {
@@ -159,6 +162,55 @@ html[data-theme="dark"] {
   .border-skin-accent {
     border-color: var(--accent);
   }
+
+  /* Additional utilities for post detail page */
+  .text-accent {
+    color: var(--accent);
+  }
+
+  .bg-background {
+    background-color: var(--background);
+  }
+
+  .bg-accent {
+    background-color: var(--accent);
+  }
+
+  .bg-muted {
+    background-color: var(--muted);
+  }
+
+  .border-muted {
+    border-color: var(--muted);
+  }
+
+  .border-border {
+    border-color: var(--border);
+  }
+
+  .outline-border {
+    outline-color: var(--border);
+  }
+
+  .outline-accent {
+    outline-color: var(--accent);
+  }
+}
+
+/* Define custom utilities that can be used in @apply */
+@theme {
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+}
+
+/* Typography utilities - must be outside @layer utilities for @apply to work */
+.text-foreground {
+  color: var(--foreground);
+}
+
+.border-s-accent\/80 {
+  border-inline-start-color: rgb(var(--accent) / 0.8);
 }
 
 @utility max-w-app {

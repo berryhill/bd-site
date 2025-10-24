@@ -21,7 +21,7 @@ const isActive = (path: string) => {
 <header class="site-header">
   <nav class="nav-container">
     <a href="/" class="logo">
-      {SITE.title}
+      berryhill<span class="logo-dot">.</span><span class="logo-dev">dev</span>
     </a>
 
     <div class="nav-links">
@@ -87,8 +87,25 @@ const isActive = (path: string) => {
     transition: color 0.3s ease;
   }
 
+  .logo-dev {
+    color: var(--accent);
+  }
+
+  .logo-dot {
+    color: var(--accent-secondary);
+    font-weight: 900;
+  }
+
   .logo:hover {
     color: var(--accent);
+  }
+
+  .logo:hover .logo-dev {
+    color: var(--accent);
+  }
+
+  .logo:hover .logo-dot {
+    color: var(--accent-secondary);
   }
 
   .nav-links {
