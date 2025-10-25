@@ -27,6 +27,9 @@ RUN pnpm install --prod --frozen-lockfile
 # Copy built application from build stage
 COPY --from=build /app/dist ./dist
 
+# Remove posts directory - will be mounted as volume
+RUN rm -rf ./dist/server/pages/posts
+
 # Set environment variables
 ENV PORT=80
 ENV HOST=0.0.0.0

@@ -20,6 +20,20 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: {{ toJson .Values.command }}
           args: {{ toJson .Values.commandArgs }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
           env:
             - name: DOPPLER_TOKEN
               value: {{ .Values.dopplerToken }}
+          volumeMounts:
+            - name: posts-content
+              mountPath: /app/dist/server/pages/posts
+      volumes:
+        - name: posts-content
+          {{- if .Values.volumes.postsContent.persistentVolumeClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.volumes.postsContent.persistentVolumeClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

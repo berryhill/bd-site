@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/berryhill/bd-site
-  tag: 0.0.2
+  tag: 0.0.3
   pullPolicy: IfNotPresent
 
 service:
@@ -19,3 +19,8 @@ ingress:
   name: bd-site
 
 dopplerToken: ""
+
+volumes:
+  postsContent:
+    # Set to PVC name if using persistent storage, otherwise uses emptyDir
+    persistentVolumeClaim: "bd-site-posts-pvc"
