@@ -1,17 +1,38 @@
-# Base stage for building the static files
-FROM node:lts AS base
+# Build stage
+FROM node:lts AS build
 WORKDIR /app
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
+# Copy package files
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
+# Copy source and build
 COPY . .
 RUN pnpm run build
 
-# Runtime stage for serving the application
-FROM nginx:mainline-alpine-slim AS runtime
-COPY --from=base /app/dist /usr/share/nginx/html
+# SSR Runtime stage
+FROM node:lts-alpine AS runtime
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files and install production deps only
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
+
+# Copy built application from build stage
+COPY --from=build /app/dist ./dist
+
+# Set environment variables
+ENV PORT=80
+ENV HOST=0.0.0.0
+ENV NODE_ENV=production
+
 EXPOSE 80
+
+# Start the SSR server
+CMD ["node", "./dist/server/entry.mjs"]
