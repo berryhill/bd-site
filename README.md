@@ -1,180 +1,172 @@
-# AstroPaper 📄
+# berryhill.dev
 
-![AstroPaper](public/astropaper-og.jpg)
-[![Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/community/file/1356898632249991861)
-![Typescript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![GitHub](https://img.shields.io/github/license/satnaing/astro-paper?color=%232F3741&style=for-the-badge)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white&style=for-the-badge)](https://conventionalcommits.org)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=for-the-badge)](http://commitizen.github.io/cz-cli/)
+Personal website and blog for Matt Berryhill - exploring agentic-first development, AI/ML systems, blockchain technologies, crypto markets, digital music, and intelligent automation.
 
-AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro blog theme. This theme is designed and crafted based on [my personal blog](https://satnaing.dev/blog).
+## 🚀 Tech Stack
 
-Read [the blog posts](https://astro-paper.pages.dev/posts/) or check [the README Documentation Section](#-documentation) for more info.
+**Framework** - [Astro](https://astro.build/) with SSR (Node adapter)
+**Type Checking** - [TypeScript](https://www.typescriptlang.org/)
+**Styling** - [TailwindCSS 4.x](https://tailwindcss.com/)
+**Search** - [Pagefind](https://pagefind.app/)
+**Deployment** - Kubernetes on Linode (LKE)
+**Container** - Docker with Node.js runtime
+**CI/CD** - GitHub Actions
+**SSL/TLS** - Let's Encrypt via cert-manager
+**Theme** - Based on [AstroPaper](https://github.com/satnaing/astro-paper)
 
-## 🔥 Features
+## 🏗️ Architecture
 
-- [x] type-safe markdown
-- [x] super fast performance
-- [x] accessible (Keyboard/VoiceOver)
-- [x] responsive (mobile ~ desktops)
-- [x] SEO-friendly
-- [x] light & dark mode
-- [x] fuzzy search
-- [x] draft posts & pagination
-- [x] sitemap & rss feed
-- [x] followed best practices
-- [x] highly customizable
-- [x] dynamic OG image generation for blog posts [#15](https://github.com/satnaing/astro-paper/pull/15) ([Blog Post](https://astro-paper.pages.dev/posts/dynamic-og-image-generation-in-astropaper-blog-posts/))
+This site runs as a server-side rendered (SSR) Astro application:
 
-_Note: I've tested screen-reader accessibility of AstroPaper using **VoiceOver** on Mac and **TalkBack** on Android. I couldn't test all other screen-readers out there. However, accessibility enhancements in AstroPaper should be working fine on others as well._
+- **Runtime**: Node.js on port 80
+- **Deployment**: Kubernetes with Helm charts
+- **Storage**: PersistentVolume for blog content (externalized from container image)
+- **Updates**: Zero-downtime rolling deployments with health checks
+- **SSL**: Automatic TLS certificate provisioning via cert-manager
 
-## ✅ Lighthouse Score
-
-<p align="center">
-  <a href="https://pagespeed.web.dev/report?url=https%3A%2F%2Fastro-paper.pages.dev%2F&form_factor=desktop">
-    <img width="710" alt="AstroPaper Lighthouse Score" src="AstroPaper-lighthouse-score.svg">
-  <a>
-</p>
-
-## 🚀 Project Structure
-
-Inside of AstroPaper, you'll see the following folders and files:
+## 📁 Project Structure
 
 ```bash
 /
-├── public/
-│   ├── assets/
-|   ├── pagefind/ # auto-generated when build
-│   └── favicon.svg
-│   └── astropaper-og.jpg
-│   └── favicon.svg
-│   └── toggle-theme.js
+├── helm/                    # Kubernetes Helm charts
+│   ├── templates/
+│   │   ├── deployment.yaml  # K8s deployment with rolling updates
+│   │   ├── service.yaml     # ClusterIP service
+│   │   ├── ingress.yaml     # NGINX ingress with TLS
+│   │   ├── pvc.yaml         # PersistentVolumeClaim for blog content
+│   │   └── clusterissuer.yaml # Let's Encrypt issuer
+│   └── values.yaml          # Helm configuration
 ├── src/
-│   ├── assets/
-│   │   └── icons/
-│   │   └── images/
-│   ├── components/
-│   ├── data/
-│   │   └── blog/
-│   │       └── some-blog-posts.md
-│   ├── layouts/
-│   └── pages/
-│   └── styles/
-│   └── utils/
-│   └── config.ts
-│   └── constants.ts
-│   └── content.config.ts
-└── astro.config.ts
+│   ├── components/          # Astro components
+│   ├── data/blog/          # Blog posts (Markdown)
+│   ├── layouts/            # Page layouts
+│   ├── pages/              # Routes and API endpoints
+│   ├── styles/             # Global CSS and typography
+│   └── utils/              # Utility functions
+├── Dockerfile              # Multi-stage Docker build for SSR
+├── nginx.conf              # NGINX config (for reference)
+└── astro.config.ts         # Astro SSR configuration
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-All blog posts are stored in `src/data/blog` directory.
-
-## 📖 Documentation
-
-Documentation can be read in two formats\_ _markdown_ & _blog post_.
-
-- Configuration - [markdown](src/data/blog/how-to-configure-astropaper-theme.md) | [blog post](https://astro-paper.pages.dev/posts/how-to-configure-astropaper-theme/)
-- Add Posts - [markdown](src/data/blog/adding-new-post.md) | [blog post](https://astro-paper.pages.dev/posts/adding-new-posts-in-astropaper-theme/)
-- Customize Color Schemes - [markdown](src/data/blog/customizing-astropaper-theme-color-schemes.md) | [blog post](https://astro-paper.pages.dev/posts/customizing-astropaper-theme-color-schemes/)
-- Predefined Color Schemes - [markdown](src/data/blog/predefined-color-schemes.md) | [blog post](https://astro-paper.pages.dev/posts/predefined-color-schemes/)
-
-## 💻 Tech Stack
-
-**Main Framework** - [Astro](https://astro.build/)  
-**Type Checking** - [TypeScript](https://www.typescriptlang.org/)  
-**Styling** - [TailwindCSS](https://tailwindcss.com/)  
-**UI/UX** - [Figma Design File](https://www.figma.com/community/file/1356898632249991861)  
-**Static Search** - [FuseJS](https://pagefind.app/)  
-**Icons** - [Tablers](https://tabler-icons.io/)  
-**Code Formatting** - [Prettier](https://prettier.io/)  
-**Deployment** - [Cloudflare Pages](https://pages.cloudflare.com/)  
-**Illustration in About Page** - [https://freesvgillustration.com](https://freesvgillustration.com/)  
-**Linting** - [ESLint](https://eslint.org)
-
-## 👨🏻‍💻 Running Locally
-
-You can start using this project locally by running the following command in your desired directory:
+## 💻 Local Development
 
 ```bash
-# pnpm
-pnpm create astro@latest --template satnaing/astro-paper
-
-# pnpm
-pnpm create astro@latest -- --template satnaing/astro-paper
-
-# yarn
-yarn create astro --template satnaing/astro-paper
-
-# bun
-bun create astro@latest -- --template satnaing/astro-paper
-```
-
-Then start the project by running the following commands:
-
-```bash
-# install dependencies if you haven't done so in the previous step.
+# Install dependencies
 pnpm install
 
-# start running the project
+# Start dev server (localhost:4321)
 pnpm run dev
+
+# Build for production
+pnpm run build
+
+# Preview production build
+pnpm run preview
+
+# Type checking
+pnpm run sync
+
+# Linting and formatting
+pnpm run lint
+pnpm run format
 ```
 
-As an alternative approach, if you have Docker installed, you can use Docker to run this project locally. Here's how:
+## 🐳 Docker
+
+Build and run with Docker:
 
 ```bash
-# Build the Docker image
-docker build -t astropaper .
+# Build the image
+docker build -t berryhill/bd-site:latest .
 
-# Run the Docker container
-docker run -p 4321:80 astropaper
+# Run the container (SSR on port 80)
+docker run -p 8080:80 berryhill/bd-site:latest
 ```
 
-## Google Site Verification (optional)
+Access at http://localhost:8080
 
-You can easily add your [Google Site Verification HTML tag](https://support.google.com/webmasters/answer/9008080#meta_tag_verification&zippy=%2Chtml-tag) in AstroPaper using an environment variable. This step is optional. If you don't add the following environment variable, the google-site-verification tag won't appear in the HTML `<head>` section.
+## ☸️ Kubernetes Deployment
+
+Deploy to Kubernetes using Helm:
 
 ```bash
-# in your environment variable file (.env)
-PUBLIC_GOOGLE_SITE_VERIFICATION=your-google-site-verification-value
+# Install/upgrade the release
+helm upgrade --install bd-site ./helm
+
+# With custom values
+helm upgrade --install bd-site ./helm -f ./helm/values.yaml
+
+# Check deployment status
+kubectl get pods -l app=bd-site
+kubectl logs -l app=bd-site -f
 ```
 
-> See [this discussion](https://github.com/satnaing/astro-paper/discussions/334#discussioncomment-10139247) for adding AstroPaper to the Google Search Console.
+### Configuration
 
-## 🧞 Commands
+Key values in `helm/values.yaml`:
 
-All commands are run from the root of the project, from a terminal:
+```yaml
+replicaCount: 1
+image:
+  repository: ghcr.io/berryhill/bd-site
+  tag: 0.0.3
+service:
+  port: 80
+  targetPort: 80
+ingress:
+  host: berryhill.dev
+volumes:
+  postsContent:
+    enabled: true
+    pvcName: bd-site-posts-pvc
+    size: 1Gi
+```
 
-> **_Note!_** For `Docker` commands we must have it [installed](https://docs.docker.com/engine/install/) in your machine.
+## 🔐 Environment Variables
 
-| Command                              | Action                                                                                                                           |
-| :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm install`                       | Installs dependencies                                                                                                            |
-| `pnpm run dev`                       | Starts local dev server at `localhost:4321`                                                                                      |
-| `pnpm run build`                     | Build your production site to `./dist/`                                                                                          |
-| `pnpm run preview`                   | Preview your build locally, before deploying                                                                                     |
-| `pnpm run format:check`              | Check code format with Prettier                                                                                                  |
-| `pnpm run format`                    | Format codes with Prettier                                                                                                       |
-| `pnpm run sync`                      | Generates TypeScript types for all Astro modules. [Learn more](https://docs.astro.build/en/reference/cli-reference/#astro-sync). |
-| `pnpm run lint`                      | Lint with ESLint                                                                                                                 |
-| `docker compose up -d`               | Run AstroPaper on docker, You can access with the same hostname and port informed on `dev` command.                              |
-| `docker compose run app pnpm install` | You can run any command above into the docker container.                                                                         |
-| `docker build -t astropaper .`       | Build Docker image for AstroPaper.                                                                                               |
-| `docker run -p 4321:80 astropaper`   | Run AstroPaper on Docker. The website will be accessible at `http://localhost:4321`.                                             |
+Optional environment variables:
 
-> **_Warning!_** Windows PowerShell users may need to install the [concurrently package](https://www.npmjs.com/package/concurrently) if they want to [run diagnostics](https://docs.astro.build/en/reference/cli-reference/#astro-check) during development (`astro check --watch & astro dev`). For more info, see [this issue](https://github.com/satnaing/astro-paper/issues/113).
+```bash
+# Google Search Console verification
+PUBLIC_GOOGLE_SITE_VERIFICATION=your-verification-code
 
-## ✨ Feedback & Suggestions
+# Server configuration (defaults shown)
+PORT=80
+HOST=0.0.0.0
+NODE_ENV=production
+```
 
-If you have any suggestions/feedback, you can contact me via [my email](mailto:contact@satnaing.dev). Alternatively, feel free to open an issue if you find bugs or want to request new features.
+## 📝 Blog Content Management
+
+Blog posts are stored as Markdown files in `src/data/blog/`. In production, the posts directory is mounted as a PersistentVolume, allowing content updates without rebuilding the container.
+
+To update blog content in production:
+1. Content is stored on the PVC `bd-site-posts-pvc`
+2. Update files on the PVC
+3. Pod restarts pick up new content automatically
+
+## 🚢 CI/CD Pipeline
+
+GitHub Actions workflow (`.github/workflows/deploy.yaml`):
+1. Build Docker image
+2. Push to GitHub Container Registry (GHCR)
+3. Deploy to Kubernetes via Helm
+
+## 🎨 Features
+
+- Server-side rendering for optimal SEO
+- Zero-downtime rolling deployments
+- Automatic TLS certificate management
+- Persistent blog content storage
+- Terminal-style typing animations
+- Interactive pillar modals
+- Dark/light mode toggle
+- Fuzzy search with Pagefind
+- RSS feed and sitemap
+- Dynamic OG image generation
 
 ## 📜 License
 
-Licensed under the MIT License, Copyright © 2025
+MIT License - Copyright © 2025 Matt Berryhill
 
----
-
-Made with 🤍 by [Sat Naing](https://satnaing.dev) 👨🏻‍💻 and [contributors](https://github.com/satnaing/astro-paper/graphs/contributors).
+Originally based on [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing
