@@ -1,0 +1,67 @@
+name: platform-services
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  NAME: platform-services
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_ORG: pineappleworkshop
+  DOCKER_IMAGE: tarxan-services
+  DOCKER_TAG: 0.0.100
+  GITHUB_USER: berryhill
+  GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+  LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
+  DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN}}
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    # outputs:
+    #   sha: ${{ steps.sha.outputs.SHA }}
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ env.GITHUB_USER }}
+        password: ${{ env.GHCR_TOKEN }}
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} .
+        docker push ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+
+  deploy:
+    needs: build-push
+    runs-on: ubuntu-latest
+    # environment: dev
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up Kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.LINODE_KUBECONFIG }}" | base64 -d > ~/.kube/config
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+
+    - name: Deploy using Helm
+      run: |
+        helm upgrade --install tarxan-router ./helm -f ./helm/router-values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"
+        helm upgrade --install tarxan-deployer ./helm -f ./helm/deployer-values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"
+        helm upgrade --install tarxan-deleter ./helm -f ./helm/deleter-values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"
+        helm upgrade --install tarxan-welcomer ./helm -f ./helm/welcomer-values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"
+        helm upgrade --install tarxan-employer ./helm -f ./helm/employer-values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"
+        helm upgrade --install tarxan-api ./helm -f ./helm/api-values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"
+        helm upgrade --install tarxan-resource-watcher ./helm -f ./helm/resource-watcher-values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"

@@ -3,7 +3,7 @@
 @layer base {
   /* ===== Override default Tailwind Typography styles ===== */
   .app-prose {
-    @apply prose;
+    @apply prose prose-lg;
 
     h1,
     h2,
@@ -26,6 +26,11 @@
     table,
     code {
       color: var(--foreground);
+    }
+
+    /* Ensure better contrast for body text */
+    p {
+      opacity: 0.9;
     }
 
     a {

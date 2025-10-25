@@ -3,35 +3,102 @@ layout: ../layouts/AboutLayout.astro
 title: "About"
 ---
 
-AstroPaper is a minimal, accessible and SEO-friendly blog theme built with [Astro](https://astro.build/) and [Tailwind CSS](https://tailwindcss.com/).
+<div class="about-hero">
+  <div class="about-intro">
+    <p class="intro-text">
+      <span class="drop-cap">M</span>att Berryhill is an agentic-first digital builder focused on creating intelligent products at the intersection of AI, machine learning, blockchain, crypto, and digital music. Passionate about crafting elegant systems and exploring technical frontiers, he works on how emerging technologies are reshaping the way software—and creators—evolve in an increasingly agentic world.
+    </p>
+  </div>
 
-![Astro Paper](public/astropaper-og.jpg)
+  <div class="about-image">
+    <div class="image-fade-container">
+      <img src="/matt_headshot.jpeg" alt="Matt Berryhill" class="headshot" />
+      <img src="/avatar.png" alt="Matt Berryhill Avatar" class="avatar" />
+    </div>
+  </div>
+</div>
 
-AstroPaper provides a solid foundation for blogs, or even portfolios\_ with full markdown support, built-in dark mode, and a clean layout that works out-of-the-box.
+## A Little Bit More About Matt (Like Anyone Cares)
 
-The blog posts in this theme also serve as guides, docs or example articles\_ making AstroPaper a flexible starting point for your next content-driven site.
+Matt is passionate about the cutting edge of software development — from AI-powered systems to the frameworks and tools shaping the next generation of digital products. He's particularly drawn to the intersection of technology, design, and culture — where ideas become systems, and systems become stories.
 
-## Features
+As an agentic-first digital builder, Matt focuses on creating products and teams that evolve intelligently. He's learned that great teams aren't built overnight — they're living systems that thrive on collaboration, experimentation, and shared purpose. Skill matters, but mindset matters more. Hunger, curiosity, and the ability to think differently are what move teams — and products — forward.
 
-AstroPaper comes with a set of useful features that make content publishing easy and effective:
+Leadership, for Matt, is about presence, consistency, and momentum. Culture comes from the top but thrives when everyone contributes. He believes the best teams balance autonomy with alignment, reward outcomes over optics, and grow through shared achievement rather than individual heroics.
 
-- SEO-friendly
-- Fast performance
-- Light & dark mode
-- Highly customizable
-- Organizable blog posts
-- Responsive & accessible
-- Static search with [PageFind](https://pagefind.app/)
-- Automatic social image generation
+If you want to talk ideas, projects, or potential collaborations — <a href="https://www.linkedin.com/in/matthew-berryhill" target="_blank" rel="noopener noreferrer">schedule a call</a>.
 
-and so much more.
+<style>
+  .about-hero {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 3rem;
+    align-items: start;
+    margin-bottom: 3rem;
+  }
 
-## Show your support
+  @media (max-width: 768px) {
+    .about-hero {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
 
-If you like [AstroPaper](https://github.com/satnaing/astro-paper), consider giving it a star ⭐️.
+    .about-image {
+      order: -1;
+    }
+  }
 
-Found a bug 🐛 or have an improvement ✨ in mind? Feel free to open an [issue](https://github.com/satnaing/astro-paper/issues), submit a [pull request](https://github.com/satnaing/astro-paper/pulls) or start a [discussion](https://github.com/satnaing/astro-paper/discussions).
+  .intro-text {
+    font-size: 1.125rem;
+    line-height: 1.75;
+    color: var(--fg-secondary);
+  }
 
-If you find this theme helpful, you can also [sponsor me on GitHub](https://github.com/sponsors/satnaing) or [buy me a coffee](https://buymeacoffee.com/satnaing) to show your support — every penny counts.
+  .drop-cap {
+    float: left;
+    font-size: 3.5rem;
+    line-height: 1;
+    font-weight: 700;
+    margin-right: 0.125rem;
+    margin-top: -0.1rem;
+    color: var(--foreground);
+  }
 
-Kyay zuu! 🙏🏼
+  .image-fade-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+    cursor: pointer;
+  }
+
+  .image-fade-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: opacity 0.5s ease-in-out;
+    border: 3px solid var(--border);
+  }
+
+  .headshot {
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .avatar {
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .image-fade-container:hover .headshot {
+    opacity: 0;
+  }
+
+  .image-fade-container:hover .avatar {
+    opacity: 1;
+  }
+</style>

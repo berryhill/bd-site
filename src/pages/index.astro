@@ -9,6 +9,7 @@ import Socials from "@/components/Socials.astro";
 import LinkButton from "@/components/LinkButton.astro";
 import Card from "@/components/Card.astro";
 import Hr from "@/components/Hr.astro";
+import PillarModal from "@/components/PillarModal.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import IconRss from "@/assets/icons/IconRss.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
@@ -29,27 +30,18 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     <section id="hero" class="pt-8 pb-4 max-w-4xl relative">
       <div class="hero-content relative">
         <h1 class="text-lg md:text-xl font-mono font-bold mb-4 tracking-tight flex items-center flex-wrap gap-1">
-          <span class="terminal-prompt">$ </span>
-          <span class="cycle-word">spec</span>
-          <span class="arrow"> →</span>
-          <span class="cycle-word">build</span>
-          <span class="arrow"> →</span>
-          <span class="cycle-word">play</span>
-          <span class="arrow"> →</span>
-          <span class="cycle-word">destroy</span>
-          <span class="arrow"> →</span>
-          <span class="cycle-word highlight">repeat</span>
-          <span class="cursor-blink"> _</span>
+          <span class="terminal-prompt">$</span>
+          <span id="typed-text" class="ml-2"></span>
+          <span class="cursor-blink" id="typing-cursor"> _</span>
         </h1>
 
         <div class="space-y-2 mb-4">
           <p class="text-base md:text-lg leading-relaxed text-skin-base">
             Welcome to my corner of the internet where I explore agentic-first development,
-            AI/ML systems, Web3 smart contracts, and intelligent automation.
+            AI/ML systems, blockchain technologies, crypto markets, digital music, and intelligent automation.
           </p>
           <p class="text-sm md:text-base leading-relaxed text-skin-muted">
-            Dive into practical insights on AI agents, blockchain development, modern web
-            applications, and the future of autonomous systems.
+            Beyond the stack lies the shift — a new cultural operating system where creativity, governance, and decision-making are rewritten by agentic systems. The question isn't just what we build, but what kind of world that code creates. As the barrier between intent and manifestation dissolves, the act of creation itself becomes instantaneous — transforming how we design, trade, teach, and govern.
           </p>
         </div>
 
@@ -92,13 +84,28 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
         transition: all 0.3s ease;
       }
 
+      .highlight-word {
+        color: #d91c5c !important;
+        font-weight: 700;
+      }
+
       .cycle-word:hover {
         color: var(--accent);
         transform: translateY(-2px);
       }
 
+      .cycle-word.pillar-clickable {
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .cycle-word.pillar-clickable:hover {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+
       .cycle-word.highlight {
-        color: var(--accent);
+        color: #d91c5c !important;
         font-weight: 700;
       }
 
@@ -295,6 +302,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     </div>
   </main>
   <Footer />
+  <PillarModal />
 </Layout>
 
 <script>
@@ -303,6 +311,87 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       ?.dataset?.layout;
     if (indexLayout) {
       sessionStorage.setItem("backUrl", "/");
+    }
+
+    // Typing animation
+    const typedTextElement = document.getElementById("typed-text");
+    const cursorElement = document.getElementById("typing-cursor");
+
+    if (typedTextElement && cursorElement) {
+      const words = [
+        { text: "spec", class: "cycle-word pillar-clickable", pillar: "spec" },
+        { text: " → ", class: "arrow" },
+        { text: "build", class: "cycle-word pillar-clickable", pillar: "build" },
+        { text: " → ", class: "arrow" },
+        { text: "play", class: "cycle-word pillar-clickable", pillar: "play" },
+        { text: " → ", class: "arrow" },
+        { text: "repeat", class: "cycle-word highlight" }
+      ];
+
+      let wordIndex = 0;
+      let charIndex = 0;
+      const typingSpeed = 40; // milliseconds per character
+      const wordDelay = 50; // pause between words
+
+      function typeText() {
+        if (wordIndex < words.length) {
+          const currentWord = words[wordIndex];
+
+          if (charIndex === 0) {
+            // Create a new span for this word/arrow
+            const span = document.createElement("span");
+            span.className = currentWord.class;
+            span.dataset.wordIndex = wordIndex.toString();
+
+            // Add pillar data attribute if this is a clickable pillar
+            if (currentWord.pillar) {
+              span.dataset.pillar = currentWord.pillar;
+            }
+
+            typedTextElement?.appendChild(span);
+          }
+
+          const currentSpan = typedTextElement?.querySelector(
+            `[data-word-index="${wordIndex}"]`
+          ) as HTMLElement;
+
+          if (currentSpan && charIndex < currentWord.text.length) {
+            currentSpan.textContent += currentWord.text[charIndex];
+            charIndex++;
+            setTimeout(typeText, typingSpeed);
+          } else {
+            // Move to next word
+            charIndex = 0;
+            wordIndex++;
+            setTimeout(typeText, wordDelay);
+          }
+        } else {
+          // Animation complete - keep cursor blinking and attach click handlers
+          cursorElement?.classList.add("cursor-blink");
+          attachPillarClickHandlers();
+        }
+      }
+
+      function attachPillarClickHandlers() {
+        const pillarWords = document.querySelectorAll(".pillar-clickable");
+        pillarWords.forEach((word) => {
+          word.addEventListener("click", () => {
+            const pillar = (word as HTMLElement).dataset.pillar;
+            if (pillar) {
+              const event = new CustomEvent("open-pillar-modal", {
+                detail: { pillar },
+              });
+              window.dispatchEvent(event);
+            }
+          });
+        });
+      }
+
+      // Start typing animation after a brief delay
+      setTimeout(() => {
+        cursorElement?.classList.remove("cursor-blink");
+        typeText();
+      }, 300);
     }
   });
 </script>

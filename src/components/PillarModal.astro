@@ -1,0 +1,535 @@
+---
+// PillarModal component - Interactive modal for philosophy pillars
+---
+
+<div id="pillar-modal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-container">
+    <div class="modal-content">
+      <div class="auto-close-progress" id="auto-close-bar"></div>
+      <button class="modal-close" aria-label="Close modal">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="modal-body">
+        <div class="pillar-icon" id="modal-icon"></div>
+        <h2 class="pillar-title" id="modal-title"></h2>
+        <p class="pillar-description" id="modal-description"></p>
+        <div class="pillar-details" id="modal-details"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 1rem;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal-container {
+    max-width: 650px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.7) translateY(50px) rotate(-5deg);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+  }
+
+  .modal-overlay.active .modal-container {
+    transform: scale(1) translateY(0) rotate(0deg);
+    opacity: 1;
+    animation: modalPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes modalPop {
+    0% {
+      transform: scale(0.7) translateY(50px) rotate(-5deg);
+    }
+    50% {
+      transform: scale(1.05) translateY(-10px) rotate(2deg);
+    }
+    100% {
+      transform: scale(1) translateY(0) rotate(0deg);
+    }
+  }
+
+  .modal-content {
+    background: linear-gradient(135deg, var(--background) 0%, color-mix(in srgb, var(--background) 95%, var(--accent)) 100%);
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    padding: 3rem 2.5rem;
+    position: relative;
+    box-shadow:
+      0 0 60px rgba(59, 130, 246, 0.25),
+      0 30px 90px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+
+  .modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  .auto-close-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent);
+    width: 0%;
+    border-radius: 0 0 0 14px;
+    box-shadow: 0 0 10px var(--accent);
+    transition: width 6s linear;
+    z-index: 1;
+  }
+
+  .auto-close-progress.active {
+    width: 100%;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--foreground-muted);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+
+  .modal-close:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--background);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+
+  .modal-body {
+    text-align: center;
+    position: relative;
+  }
+
+  .pillar-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+    animation: iconBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), iconFloat 2s ease-in-out infinite 0.8s;
+    display: inline-block;
+    position: relative;
+  }
+
+  @keyframes iconFloat {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(5deg);
+    }
+  }
+
+  .pillar-title {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 70%, white) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.25rem;
+    font-family: 'Courier New', monospace;
+    text-transform: lowercase;
+    letter-spacing: -0.02em;
+    animation: titleSlide 0.6s ease-out 0.1s both;
+    text-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  }
+
+  .pillar-description {
+    font-size: 1.35rem;
+    color: var(--foreground);
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+    font-weight: 500;
+    animation: descFade 0.6s ease-out 0.2s both;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pillar-details {
+    text-align: left;
+    color: var(--foreground-muted);
+    line-height: 1.9;
+    animation: detailsFade 0.6s ease-out 0.3s both;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .pillar-details ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 1.5rem 0;
+  }
+
+  .pillar-details li {
+    padding: 0.75rem 0;
+    padding-left: 2rem;
+    position: relative;
+    font-size: 1.05rem;
+    transition: all 0.2s ease;
+  }
+
+  .pillar-details li:hover {
+    color: var(--foreground);
+    transform: translateX(4px);
+  }
+
+  .pillar-details li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .pillar-details p {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.1rem;
+    color: var(--accent);
+    text-align: center;
+  }
+
+  @keyframes iconBounce {
+    0% {
+      opacity: 0;
+      transform: scale(0) rotate(-180deg);
+    }
+    60% {
+      transform: scale(1.1) rotate(10deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  @keyframes titleSlide {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes descFade {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes detailsFade {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .modal-content {
+      padding: 2rem 1.5rem;
+    }
+
+    .pillar-icon {
+      font-size: 3.5rem;
+    }
+
+    .pillar-title {
+      font-size: 2.25rem;
+    }
+
+    .pillar-description {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .pillar-details {
+      padding: 1.5rem;
+    }
+
+    .pillar-details li {
+      font-size: 0.95rem;
+      padding-left: 1.5rem;
+    }
+
+    .pillar-details p {
+      font-size: 1rem;
+    }
+  }
+
+  /* Smooth scrollbar for modal */
+  .modal-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .modal-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+
+  .modal-container::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+  }
+
+  .modal-container::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--accent) 80%, white);
+  }
+</style>
+
+<script>
+  // Pillar data
+  const pillarData = {
+    spec: {
+      icon: '📐',
+      title: 'spec',
+      description: 'Every great system starts with a clear vision',
+      details: `
+        <ul>
+          <li>Define the problem space and desired outcomes</li>
+          <li>Create architectural blueprints and requirements</li>
+          <li>Plan for scale, performance, and maintainability</li>
+          <li>Document assumptions and constraints</li>
+        </ul>
+        <p style="margin-top: 1rem; font-style: italic;">
+          "Weeks of coding can save you hours of planning."
+        </p>
+      `
+    },
+    build: {
+      icon: '🔨',
+      title: 'build',
+      description: 'Transform ideas into tangible, working systems',
+      details: `
+        <ul>
+          <li>Write clean, maintainable, and tested code</li>
+          <li>Iterate rapidly with continuous integration</li>
+          <li>Leverage modern tools and frameworks</li>
+          <li>Build with automation and AI assistance</li>
+        </ul>
+        <p style="margin-top: 1rem; font-style: italic;">
+          "Make it work, make it right, make it fast."
+        </p>
+      `
+    },
+    play: {
+      icon: '🎮',
+      title: 'play',
+      description: 'Experiment, explore, and push boundaries',
+      details: `
+        <ul>
+          <li>Test assumptions in production-like environments</li>
+          <li>Gather real-world feedback and metrics</li>
+          <li>Explore edge cases and failure modes</li>
+          <li>Learn through hands-on experimentation</li>
+        </ul>
+        <p style="margin-top: 1rem; font-style: italic;">
+          "The best way to learn is by doing."
+        </p>
+      `
+    },
+    destroy: {
+      icon: '💥',
+      title: 'destroy',
+      description: 'Break it down to build it better',
+      details: `
+        <ul>
+          <li>Analyze what worked and what didn't</li>
+          <li>Remove technical debt and anti-patterns</li>
+          <li>Refactor ruthlessly for clarity</li>
+          <li>Embrace creative destruction</li>
+        </ul>
+        <p style="margin-top: 1rem; font-style: italic;">
+          "Sometimes you need to tear down to rebuild stronger."
+        </p>
+      `
+    },
+    repeat: {
+      icon: '🔄',
+      title: 'repeat',
+      description: 'Continuous improvement through iteration',
+      details: `
+        <ul>
+          <li>Apply lessons learned to the next cycle</li>
+          <li>Compound knowledge over time</li>
+          <li>Refine processes and workflows</li>
+          <li>Never stop learning and evolving</li>
+        </ul>
+        <p style="margin-top: 1rem; font-style: italic;">
+          "Excellence is not a destination, it's a continuous journey."
+        </p>
+      `
+    }
+  };
+
+  function initPillarModal() {
+    const modal = document.getElementById('pillar-modal');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+    const modalDetails = document.getElementById('modal-details');
+    const progressBar = document.getElementById('auto-close-bar');
+    const closeBtn = modal?.querySelector('.modal-close');
+    let autoCloseTimer: number | null = null;
+
+    // Open modal function with auto-close
+    function openModal(pillarName: string) {
+      const pillar = pillarData[pillarName as keyof typeof pillarData];
+      if (!pillar || !modal || !modalIcon || !modalTitle || !modalDescription || !modalDetails || !progressBar) return;
+
+      // Clear any existing timer
+      if (autoCloseTimer) {
+        clearTimeout(autoCloseTimer);
+      }
+
+      // Reset progress bar
+      progressBar.classList.remove('active');
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+
+      // Set content
+      modalIcon.textContent = pillar.icon;
+      modalTitle.textContent = pillar.title;
+      modalDescription.textContent = pillar.description;
+      modalDetails.innerHTML = pillar.details;
+
+      // Show modal
+      modal.setAttribute('aria-hidden', 'false');
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Add a subtle shake animation to the icon
+      modalIcon.style.animation = 'none';
+      setTimeout(() => {
+        if (modalIcon) modalIcon.style.animation = '';
+      }, 10);
+
+      // Start progress bar animation
+      setTimeout(() => {
+        if (progressBar) {
+          progressBar.style.transition = 'width 6s linear';
+          progressBar.classList.add('active');
+        }
+      }, 50);
+
+      // Auto-close after 6 seconds
+      autoCloseTimer = window.setTimeout(() => {
+        closeModal();
+      }, 6000);
+    }
+
+    // Close modal function
+    function closeModal() {
+      if (!modal || !progressBar) return;
+
+      // Clear timer if manually closed
+      if (autoCloseTimer) {
+        clearTimeout(autoCloseTimer);
+        autoCloseTimer = null;
+      }
+
+      // Stop progress bar
+      progressBar.classList.remove('active');
+
+      modal.setAttribute('aria-hidden', 'true');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Event listeners
+    closeBtn?.addEventListener('click', closeModal);
+
+    // Close on overlay click
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+      }
+    });
+
+    // Attach click handlers to pillar words
+    const pillarWords = document.querySelectorAll('.cycle-word');
+    pillarWords.forEach((word) => {
+      const pillarName = word.textContent?.trim().toLowerCase();
+      if (pillarName && pillarData[pillarName as keyof typeof pillarData]) {
+        word.classList.add('pillar-clickable');
+        word.addEventListener('click', () => openModal(pillarName));
+      }
+    });
+  }
+
+  // Initialize on page load
+  initPillarModal();
+
+  // Reinitialize after Astro page transitions
+  document.addEventListener('astro:after-swap', initPillarModal);
+</script>

@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { writeFile } from "fs/promises";
 import { join } from "path";
-import slugify from "@/utils/slugify";
+import { slugifyStr } from "@/utils/slugify";
 
 export const prerender = false;
 
@@ -34,14 +34,14 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Generate slug from title
-    const slug = slugify(title);
+    const slug = slugifyStr(title);
 
     // Generate filename
     const filename = `${slug}.md`;
 
-    // Create frontmatter
+    // Create frontmatter (quote title to handle special characters like colons)
     const frontmatter = `---
-title: ${title}
+title: "${title}"
 description: "${description}"
 pubDatetime: ${new Date().toISOString()}
 slug: ${slug}

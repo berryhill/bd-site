@@ -6,40 +6,40 @@
 :root,
 html[data-theme="light"] {
   /* Base colors */
-  --background: #fafbfc;
-  --foreground: #0f172a;
-  --fg-secondary: #475569;
-  --foreground-muted: #64748b;
+  --background: #fffbeb;
+  --foreground: #1c1917;
+  --fg-secondary: #57534e;
+  --foreground-muted: #78716c;
 
-  /* Accent - Indigo/Cyan gradient */
-  --accent: #6366f1;
-  --accent-secondary: #06b6d4;
+  /* Accent - Maroon/Orange gradient */
+  --accent: #800020;
+  --accent-secondary: #ff6b35;
 
   /* Borders and backgrounds */
-  --border: #e2e8f0;
-  --bg-secondary: #f1f5f9;
-  --muted: #e2e8f0;
-  --highlight: #dbeafe;
-  --muted-bg: #f8fafc;
+  --border: #fde68a;
+  --bg-secondary: #fef3c7;
+  --muted: #fde68a;
+  --highlight: #fef3c7;
+  --muted-bg: #fffbeb;
 }
 
 html[data-theme="dark"] {
-  /* Dark mode colors - Deep blue/purple */
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --fg-secondary: #cbd5e1;
-  --foreground-muted: #94a3b8;
+  /* Dark mode colors - Warm dark brown */
+  --background: #1c1917;
+  --foreground: #fafaf9;
+  --fg-secondary: #d6d3d1;
+  --foreground-muted: #a8a29e;
 
-  /* Accent - Bright Cyan/Purple */
-  --accent: #22d3ee;
-  --accent-secondary: #a78bfa;
+  /* Accent - Bright Maroon/Orange */
+  --accent: #a0153e;
+  --accent-secondary: #ff8c42;
 
   /* Borders and backgrounds */
-  --border: #1e293b;
-  --bg-secondary: #1e293b;
-  --muted: #334155;
-  --highlight: #1e3a8a;
-  --muted-bg: #1e293b;
+  --border: #44403c;
+  --bg-secondary: #292524;
+  --muted: #44403c;
+  --highlight: #451a03;
+  --muted-bg: #292524;
 }
 
 :root {

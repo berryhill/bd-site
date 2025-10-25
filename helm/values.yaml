@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/berryhill/bd-site
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  name: bd-site
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+command: []
+commandArgs: []
+
+ingress:
+  host: berryhill.dev
+  name: bd-site
+
+dopplerToken: ""
