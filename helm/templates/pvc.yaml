@@ -1,0 +1,15 @@
+{{- if .Values.volumes.postsContent.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.volumes.postsContent.pvcName }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.volumes.postsContent.size }}
+  {{- if .Values.volumes.postsContent.storageClassName }}
+  storageClassName: {{ .Values.volumes.postsContent.storageClassName }}
+  {{- end }}
+{{- end }}
