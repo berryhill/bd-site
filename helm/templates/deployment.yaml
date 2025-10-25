@@ -31,7 +31,7 @@ spec:
               value: {{ .Values.dopplerToken }}
           volumeMounts:
             - name: posts-content
-              mountPath: /app/dist/server/pages/posts
+              mountPath: /app/dist/client/posts
           readinessProbe:
             httpGet:
               path: /
