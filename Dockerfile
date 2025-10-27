@@ -27,8 +27,11 @@ RUN pnpm install --prod --frozen-lockfile
 # Copy built application from build stage
 COPY --from=build /app/dist ./dist
 
-# Remove posts directory - will be mounted as volume
-RUN rm -rf ./dist/client/posts
+# Copy source files needed for live collections
+COPY --from=build /app/src ./src
+
+# Remove source blog directory and recreate it empty - will be mounted as volume
+RUN rm -rf ./src/data/blog && mkdir -p ./src/data/blog
 
 # Set environment variables
 ENV PORT=80

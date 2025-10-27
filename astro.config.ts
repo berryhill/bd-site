@@ -64,5 +64,6 @@ export default defineConfig({
   },
   experimental: {
     preserveScriptOrder: true,
+    liveContentCollections: true,
   },
 });

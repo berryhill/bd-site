@@ -1,7 +1,7 @@
-export const prerender = true;
+export const prerender = false;
 
 ---
-import { getCollection } from "astro:content";
+import { getLiveCollection } from "astro:content";
 import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
 import Tag from "@/components/Tag.astro";
@@ -10,9 +10,9 @@ import Footer from "@/components/Footer.astro";
 import getUniqueTags from "@/utils/getUniqueTags";
 import { SITE } from "@/config";
 
-const posts = await getCollection("blog");
+const { entries: posts } = await getLiveCollection("liveBlog");
 
-let tags = getUniqueTags(posts);
+let tags = getUniqueTags(posts || []);
 ---
 
 <Layout title={`Tags | ${SITE.title}`}>

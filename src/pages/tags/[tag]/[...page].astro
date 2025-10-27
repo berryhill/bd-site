@@ -1,8 +1,7 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
-import { getCollection } from "astro:content";
-import type { GetStaticPathsOptions } from "astro";
+import { getLiveCollection } from "astro:content";
 import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
@@ -13,24 +12,47 @@ import getUniqueTags from "@/utils/getUniqueTags";
 import getPostsByTag from "@/utils/getPostsByTag";
 import { SITE } from "@/config";
 
-export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  const posts = await getCollection("blog");
-  const tags = getUniqueTags(posts);
+const { tag, page: pageParam } = Astro.params;
+const currentPage = pageParam ? parseInt(pageParam) : 1;
 
-  return tags.flatMap(({ tag, tagName }) => {
-    const tagPosts = getPostsByTag(posts, tag);
+const { entries: allPosts } = await getLiveCollection("liveBlog");
+const posts = allPosts || [];
 
-    return paginate(tagPosts, {
-      params: { tag },
-      props: { tagName },
-      pageSize: SITE.postPerPage,
-    });
-  });
+// Get all tags to find the tag name
+const tags = getUniqueTags(posts);
+const tagData = tags.find(t => t.tag === tag);
+
+if (!tagData) {
+  return Astro.redirect("/404");
 }
 
-const params = Astro.params;
-const { tag } = params;
-const { page, tagName } = Astro.props;
+const { tagName } = tagData;
+
+// Get posts for this tag
+const tagPosts = getPostsByTag(posts, tag);
+
+// Calculate pagination
+const pageSize = SITE.postPerPage;
+const totalPages = Math.ceil(tagPosts.length / pageSize);
+const start = (currentPage - 1) * pageSize;
+const end = start + pageSize;
+const paginatedPosts = tagPosts.slice(start, end);
+
+// Create page object
+const page = {
+  data: paginatedPosts,
+  start,
+  end: Math.min(end, tagPosts.length),
+  size: pageSize,
+  total: tagPosts.length,
+  currentPage,
+  lastPage: totalPages,
+  url: {
+    current: `/tags/${tag}/${currentPage}`,
+    prev: currentPage > 1 ? `/tags/${tag}/${currentPage - 1}` : undefined,
+    next: currentPage < totalPages ? `/tags/${tag}/${currentPage + 1}` : undefined,
+  },
+};
 ---
 
 <Layout title={`Tag: ${tagName} | ${SITE.title}`}>

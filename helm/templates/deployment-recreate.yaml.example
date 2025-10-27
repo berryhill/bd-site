@@ -1,3 +1,6 @@
+# Alternative deployment strategy if ReadWriteMany is not available
+# Replace deployment.yaml with this content to use Recreate strategy
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,10 +8,7 @@ metadata:
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+    type: Recreate  # Terminates old pod BEFORE creating new one
   selector:
     matchLabels:
       app: {{ .Values.service.name }}
@@ -17,17 +17,6 @@ spec:
       labels:
         app: {{ .Values.service.name }}
     spec:
-      # Force pods to schedule on same node to allow ReadWriteOnce PVC sharing during rolling update
-      affinity:
-        podAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchLabels:
-                    app: {{ .Values.service.name }}
-                topologyKey: kubernetes.io/hostname
-      terminationGracePeriodSeconds: 30
       containers:
         - name: {{ .Values.service.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -43,10 +32,6 @@ spec:
           volumeMounts:
             - name: posts-content
               mountPath: /app/src/data/blog
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/bin/sh", "-c", "sleep 15"]
           readinessProbe:
             httpGet:
               path: /

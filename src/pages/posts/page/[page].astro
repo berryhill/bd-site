@@ -1,0 +1,63 @@
+---
+export const prerender = false;
+
+import { getLiveCollection } from "astro:content";
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Card from "@/components/Card.astro";
+import Pagination from "@/components/Pagination.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { SITE } from "@/config";
+
+const { page: pageParam } = Astro.params;
+
+// This route handles /posts/[number] - validate it's actually a number
+const currentPage = parseInt(pageParam);
+if (isNaN(currentPage) || !pageParam.match(/^\d+$/)) {
+  // Not a valid page number, this must be a post slug
+  // Return 404 so the [...slug] route can handle it
+  return new Response(null, { status: 404 });
+}
+
+const { entries: allPosts } = await getLiveCollection("liveBlog");
+const posts = (allPosts || []).filter(({ data }) => !data.draft);
+const sortedPosts = getSortedPosts(posts);
+
+// Calculate pagination
+const pageSize = SITE.postPerPage;
+const totalPages = Math.ceil(sortedPosts.length / pageSize);
+const start = (currentPage - 1) * pageSize;
+const end = start + pageSize;
+const paginatedPosts = sortedPosts.slice(start, end);
+
+// Create page object similar to Astro's paginate
+const page = {
+  data: paginatedPosts,
+  start,
+  end: Math.min(end, sortedPosts.length),
+  size: pageSize,
+  total: sortedPosts.length,
+  currentPage,
+  lastPage: totalPages,
+  url: {
+    current: `/posts/page/${currentPage}`,
+    prev: currentPage > 1 ? `/posts/page/${currentPage - 1}` : undefined,
+    next: currentPage < totalPages ? `/posts/page/${currentPage + 1}` : undefined,
+  },
+};
+---
+
+<Layout title={`Posts | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
+    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {page.data.map(data => <Card variant="h3" {...data} />)}
+    </ul>
+  </Main>
+
+  <Pagination {page} />
+
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>

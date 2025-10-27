@@ -1,0 +1,28 @@
+---
+export const prerender = false;
+
+import { getLiveCollection } from "astro:content";
+import PostDetails from "@/layouts/PostDetails.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+
+// Get the slug from the URL
+const { slug } = Astro.params;
+
+// Load all posts
+const { entries: allPosts } = await getLiveCollection("liveBlog");
+
+if (!allPosts || allPosts.length === 0) {
+  return Astro.redirect("/404");
+}
+
+// Find the post matching the slug (slug = filename without extension)
+const post = allPosts.find(p => p.id === slug);
+
+if (!post || post.data.draft) {
+  return Astro.redirect("/404");
+}
+
+const sortedPosts = getSortedPosts(allPosts);
+---
+
+<PostDetails post={post} posts={sortedPosts} />

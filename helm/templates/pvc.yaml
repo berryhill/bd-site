@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.volumes.postsContent.pvcName }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.volumes.postsContent.accessMode | default "ReadWriteMany" }}
   resources:
     requests:
       storage: {{ .Values.volumes.postsContent.size }}

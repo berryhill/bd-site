@@ -44,7 +44,6 @@ export const POST: APIRoute = async ({ request }) => {
 title: "${title}"
 description: "${description}"
 pubDatetime: ${new Date().toISOString()}
-slug: ${slug}
 featured: ${featured || false}
 draft: ${draft || false}
 tags:

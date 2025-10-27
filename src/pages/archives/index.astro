@@ -1,7 +1,7 @@
-export const prerender = true;
+export const prerender = false;
 
 ---
-import { getCollection } from "astro:content";
+import { getLiveCollection } from "astro:content";
 import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
@@ -15,7 +15,8 @@ if (!SITE.showArchives) {
   return Astro.redirect("/404");
 }
 
-const posts = await getCollection("blog", ({ data }) => !data.draft);
+const { entries: allPosts } = await getLiveCollection("liveBlog");
+const posts = (allPosts || []).filter(({ data }) => !data.draft);
 
 const months = [
   "January",
