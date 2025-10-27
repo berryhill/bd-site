@@ -5,7 +5,7 @@ export const SITE = {
   desc: "A minimal, responsive and SEO-friendly blog.",
   title: "berryhill.dev",
   ogImage: "astropaper-og.jpg",
-  lightAndDarkMode: true,
+  lightAndDarkMode: false,
   postPerIndex: 6,
   postPerPage: 4,
   scheduledPostMargin: 15 * 60 * 1000, // 15 minutes

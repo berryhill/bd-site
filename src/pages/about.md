@@ -12,8 +12,8 @@ title: "About"
 
   <div class="about-image">
     <div class="image-fade-container">
-      <img src="/matt_headshot.jpeg" alt="Matt Berryhill" class="headshot" />
-      <img src="/avatar.png" alt="Matt Berryhill Avatar" class="avatar" />
+      <img src="/matt_headshot.jpeg" alt="Matt Berryhill" class="headshot" loading="eager" />
+      <img src="/avatar.png" alt="Matt Berryhill Avatar" class="avatar" loading="eager" />
     </div>
   </div>
 </div>
