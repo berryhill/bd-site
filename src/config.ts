@@ -2,9 +2,9 @@ export const SITE = {
   website: "https://berryhill.dev/", // replace this with your deployed domain
   author: "Berryhill",
   profile: "https://berryhill.dev/",
-  desc: "A minimal, responsive and SEO-friendly blog.",
+  desc: "Exploring agentic-first development, AI/ML systems, blockchain, crypto markets, digital music, and intelligent automation.",
   title: "berryhill.dev",
-  ogImage: "astropaper-og.jpg",
+  ogImage: "",
   lightAndDarkMode: false,
   postPerIndex: 6,
   postPerPage: 6,
