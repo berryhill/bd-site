@@ -36,7 +36,8 @@ const { title, description, pubDatetime, modDatetime, timezone } = data;
   .card-fancy {
     position: relative;
     height: 100%;
-    border-radius: 8px;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .card-glow-effect {
@@ -48,30 +49,34 @@ const { title, description, pubDatetime, modDatetime, timezone } = data;
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 1.5rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card-fancy:hover .card-content {
     border-color: var(--accent);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
   }
 
   .card-title-link {
     text-decoration: none;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     display: inline-block;
   }
 
   .card-title {
-    font-size: 1rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--foreground);
     transition: color 0.2s ease;
     margin: 0;
+    line-height: 1.4;
   }
 
   .card-fancy:hover .card-title {
@@ -79,16 +84,18 @@ const { title, description, pubDatetime, modDatetime, timezone } = data;
   }
 
   .card-date {
-    font-size: 0.75rem;
-    opacity: 0.7;
-    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+    opacity: 0.65;
+    margin-bottom: 1rem;
+    font-weight: 500;
   }
 
   .card-description {
     flex-grow: 1;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     color: var(--foreground-muted);
-    line-height: 1.6;
+    line-height: 1.7;
+    margin: 0;
   }
 
   .card-corner-accent {
