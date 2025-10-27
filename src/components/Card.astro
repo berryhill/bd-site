@@ -66,8 +66,9 @@ const { title, description, pubDatetime, modDatetime, timezone } = data;
 
   .card-title-link {
     text-decoration: none;
+    display: block;
+    height: 5.6rem;
     margin-bottom: 0.75rem;
-    display: inline-block;
   }
 
   .card-title {
@@ -77,6 +78,11 @@ const { title, description, pubDatetime, modDatetime, timezone } = data;
     transition: color 0.2s ease;
     margin: 0;
     line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .card-fancy:hover .card-title {
@@ -88,14 +94,20 @@ const { title, description, pubDatetime, modDatetime, timezone } = data;
     opacity: 0.65;
     margin-bottom: 1rem;
     font-weight: 500;
+    display: block;
   }
 
   .card-description {
-    flex-grow: 1;
     font-size: 0.9375rem;
     color: var(--foreground-muted);
     line-height: 1.7;
     margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
   }
 
   .card-corner-accent {
