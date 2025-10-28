@@ -8,7 +8,7 @@ export default async () => {
       type: "div",
       props: {
         style: {
-          background: "#fffbeb",
+          background: "#1c1917",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -33,7 +33,7 @@ export default async () => {
                     style: {
                       fontSize: 96,
                       fontWeight: "bold",
-                      color: "#1c1917",
+                      color: "#fafaf9",
                       letterSpacing: "-0.025em",
                     },
                     children: "berryhill",
@@ -45,7 +45,7 @@ export default async () => {
                     style: {
                       fontSize: 96,
                       fontWeight: "900",
-                      color: "#ff6b35",
+                      color: "#ff8c42",
                     },
                     children: ".",
                   },
@@ -56,7 +56,7 @@ export default async () => {
                     style: {
                       fontSize: 96,
                       fontWeight: "bold",
-                      color: "#800020",
+                      color: "#a0153e",
                     },
                     children: "dev",
                   },
@@ -69,7 +69,7 @@ export default async () => {
             props: {
               style: {
                 fontSize: 28,
-                color: "#57534e",
+                color: "#d6d3d1",
                 lineHeight: 1.6,
                 maxWidth: "900px",
               },

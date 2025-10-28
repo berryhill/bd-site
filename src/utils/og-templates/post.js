@@ -99,7 +99,7 @@ export default async post => {
       type: "div",
       props: {
         style: {
-          background: "#fffbeb",
+          background: "#1c1917",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -124,7 +124,7 @@ export default async post => {
                     style: {
                       fontSize: 48,
                       fontWeight: "bold",
-                      color: "#1c1917",
+                      color: "#fafaf9",
                       letterSpacing: "-0.025em",
                     },
                     children: "berryhill",
@@ -136,7 +136,7 @@ export default async post => {
                     style: {
                       fontSize: 48,
                       fontWeight: "900",
-                      color: "#ff6b35",
+                      color: "#ff8c42",
                     },
                     children: ".",
                   },
@@ -147,7 +147,7 @@ export default async post => {
                     style: {
                       fontSize: 48,
                       fontWeight: "bold",
-                      color: "#800020",
+                      color: "#a0153e",
                     },
                     children: "dev",
                   },
@@ -161,7 +161,7 @@ export default async post => {
               style: {
                 fontSize: 72,
                 fontWeight: "bold",
-                color: "#1c1917",
+                color: "#fafaf9",
                 letterSpacing: "-0.025em",
                 lineHeight: 1.1,
                 margin: "0",
@@ -177,7 +177,7 @@ export default async post => {
                 alignItems: "center",
                 gap: "12px",
                 fontSize: 24,
-                color: "#57534e",
+                color: "#d6d3d1",
               },
               children: [
                 {
@@ -191,7 +191,7 @@ export default async post => {
                   props: {
                     style: {
                       fontWeight: "600",
-                      color: "#1c1917",
+                      color: "#fafaf9",
                     },
                     children: post.data.author,
                   },
