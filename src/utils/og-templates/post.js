@@ -103,124 +103,100 @@ export default async post => {
           width: "100%",
           height: "100%",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          padding: "80px",
         },
         children: [
           {
             type: "div",
             props: {
               style: {
-                position: "absolute",
-                top: "-1px",
-                right: "-1px",
-                border: "3px solid #800020",
-                background: "#fef3c7",
-                opacity: "0.3",
-                borderRadius: "8px",
                 display: "flex",
-                justifyContent: "center",
-                margin: "2.5rem",
-                width: "88%",
-                height: "80%",
+                alignItems: "baseline",
+                marginBottom: "40px",
               },
+              children: [
+                {
+                  type: "span",
+                  props: {
+                    style: {
+                      fontSize: 48,
+                      fontWeight: "bold",
+                      color: "#1c1917",
+                      letterSpacing: "-0.025em",
+                    },
+                    children: "berryhill",
+                  },
+                },
+                {
+                  type: "span",
+                  props: {
+                    style: {
+                      fontSize: 48,
+                      fontWeight: "900",
+                      color: "#ff6b35",
+                    },
+                    children: ".",
+                  },
+                },
+                {
+                  type: "span",
+                  props: {
+                    style: {
+                      fontSize: 48,
+                      fontWeight: "bold",
+                      color: "#800020",
+                    },
+                    children: "dev",
+                  },
+                },
+              ],
+            },
+          },
+          {
+            type: "h1",
+            props: {
+              style: {
+                fontSize: 72,
+                fontWeight: "bold",
+                color: "#1c1917",
+                letterSpacing: "-0.025em",
+                lineHeight: 1.1,
+                margin: "0",
+              },
+              children: post.data.title,
             },
           },
           {
             type: "div",
             props: {
               style: {
-                border: "3px solid #800020",
-                background: "#fffbeb",
-                borderRadius: "8px",
                 display: "flex",
-                justifyContent: "center",
-                margin: "2rem",
-                width: "88%",
-                height: "80%",
+                alignItems: "center",
+                gap: "12px",
+                fontSize: 24,
+                color: "#57534e",
               },
-              children: {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    margin: "20px",
-                    width: "90%",
-                    height: "90%",
+              children: [
+                {
+                  type: "span",
+                  props: {
+                    children: "by",
                   },
-                  children: [
-                    {
-                      type: "p",
-                      props: {
-                        style: {
-                          fontSize: 72,
-                          fontWeight: "bold",
-                          maxHeight: "84%",
-                          overflow: "hidden",
-                          color: "#1c1917",
-                          letterSpacing: "-0.025em",
-                          lineHeight: 1.25,
-                        },
-                        children: post.data.title,
-                      },
-                    },
-                    {
-                      type: "div",
-                      props: {
-                        style: {
-                          display: "flex",
-                          justifyContent: "space-between",
-                          width: "100%",
-                          marginBottom: "8px",
-                          fontSize: 28,
-                          color: "#57534e",
-                        },
-                        children: [
-                          {
-                            type: "span",
-                            props: {
-                              children: [
-                                "by ",
-                                {
-                                  type: "span",
-                                  props: {
-                                    style: { color: "transparent" },
-                                    children: '"',
-                                  },
-                                },
-                                {
-                                  type: "span",
-                                  props: {
-                                    style: {
-                                      overflow: "hidden",
-                                      fontWeight: "bold",
-                                      color: "#1c1917",
-                                    },
-                                    children: post.data.author,
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                          {
-                            type: "span",
-                            props: {
-                              style: {
-                                overflow: "hidden",
-                                fontWeight: "bold",
-                                color: "#1c1917"
-                              },
-                              children: SITE.title,
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
                 },
-              },
+                {
+                  type: "span",
+                  props: {
+                    style: {
+                      fontWeight: "600",
+                      color: "#1c1917",
+                    },
+                    children: post.data.author,
+                  },
+                },
+              ],
             },
           },
         ],

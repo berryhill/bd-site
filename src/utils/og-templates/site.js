@@ -12,123 +12,68 @@ export default async () => {
           width: "100%",
           height: "100%",
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
+          alignItems: "flex-start",
           justifyContent: "center",
+          padding: "80px",
         },
         children: [
           {
             type: "div",
             props: {
               style: {
-                position: "absolute",
-                top: "-1px",
-                right: "-1px",
-                border: "3px solid #800020",
-                background: "#fef3c7",
-                opacity: "0.3",
-                borderRadius: "8px",
                 display: "flex",
-                justifyContent: "center",
-                margin: "2.5rem",
-                width: "88%",
-                height: "80%",
+                alignItems: "baseline",
+                marginBottom: "60px",
               },
+              children: [
+                {
+                  type: "span",
+                  props: {
+                    style: {
+                      fontSize: 96,
+                      fontWeight: "bold",
+                      color: "#1c1917",
+                      letterSpacing: "-0.025em",
+                    },
+                    children: "berryhill",
+                  },
+                },
+                {
+                  type: "span",
+                  props: {
+                    style: {
+                      fontSize: 96,
+                      fontWeight: "900",
+                      color: "#ff6b35",
+                    },
+                    children: ".",
+                  },
+                },
+                {
+                  type: "span",
+                  props: {
+                    style: {
+                      fontSize: 96,
+                      fontWeight: "bold",
+                      color: "#800020",
+                    },
+                    children: "dev",
+                  },
+                },
+              ],
             },
           },
           {
-            type: "div",
+            type: "p",
             props: {
               style: {
-                border: "3px solid #800020",
-                background: "#fffbeb",
-                borderRadius: "8px",
-                display: "flex",
-                justifyContent: "center",
-                margin: "2rem",
-                width: "88%",
-                height: "80%",
+                fontSize: 28,
+                color: "#57534e",
+                lineHeight: 1.6,
+                maxWidth: "900px",
               },
-              children: {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    margin: "20px",
-                    width: "90%",
-                    height: "90%",
-                  },
-                  children: [
-                    {
-                      type: "div",
-                      props: {
-                        style: {
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          height: "90%",
-                          maxHeight: "90%",
-                          overflow: "hidden",
-                          textAlign: "center",
-                        },
-                        children: [
-                          {
-                            type: "p",
-                            props: {
-                              style: {
-                                fontSize: 72,
-                                fontWeight: "bold",
-                                color: "#1c1917",
-                                letterSpacing: "-0.025em"
-                              },
-                              children: SITE.title,
-                            },
-                          },
-                          {
-                            type: "p",
-                            props: {
-                              style: {
-                                fontSize: 24,
-                                color: "#57534e",
-                                lineHeight: 1.6,
-                                marginTop: 20,
-                                paddingLeft: 40,
-                                paddingRight: 40,
-                              },
-                              children: SITE.desc,
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      type: "div",
-                      props: {
-                        style: {
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          width: "100%",
-                          marginBottom: "8px",
-                          fontSize: 28,
-                        },
-                        children: {
-                          type: "span",
-                          props: {
-                            style: {
-                              overflow: "hidden",
-                              fontWeight: "bold",
-                              color: "#1c1917"
-                            },
-                            children: new URL(SITE.website).hostname,
-                          },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
+              children: SITE.desc,
             },
           },
         ],
