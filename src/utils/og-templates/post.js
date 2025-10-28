@@ -99,7 +99,7 @@ export default async post => {
       type: "div",
       props: {
         style: {
-          background: "#fefbfb",
+          background: "#fffbeb",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -114,10 +114,10 @@ export default async post => {
                 position: "absolute",
                 top: "-1px",
                 right: "-1px",
-                border: "4px solid #000",
-                background: "#ecebeb",
-                opacity: "0.9",
-                borderRadius: "4px",
+                border: "3px solid #800020",
+                background: "#fef3c7",
+                opacity: "0.3",
+                borderRadius: "8px",
                 display: "flex",
                 justifyContent: "center",
                 margin: "2.5rem",
@@ -130,9 +130,9 @@ export default async post => {
             type: "div",
             props: {
               style: {
-                border: "4px solid #000",
-                background: "#fefbfb",
-                borderRadius: "4px",
+                border: "3px solid #800020",
+                background: "#fffbeb",
+                borderRadius: "8px",
                 display: "flex",
                 justifyContent: "center",
                 margin: "2rem",
@@ -159,6 +159,9 @@ export default async post => {
                           fontWeight: "bold",
                           maxHeight: "84%",
                           overflow: "hidden",
+                          color: "#1c1917",
+                          letterSpacing: "-0.025em",
+                          lineHeight: 1.25,
                         },
                         children: post.data.title,
                       },
@@ -172,6 +175,7 @@ export default async post => {
                           width: "100%",
                           marginBottom: "8px",
                           fontSize: 28,
+                          color: "#57534e",
                         },
                         children: [
                           {
@@ -192,6 +196,7 @@ export default async post => {
                                     style: {
                                       overflow: "hidden",
                                       fontWeight: "bold",
+                                      color: "#1c1917",
                                     },
                                     children: post.data.author,
                                   },
@@ -202,7 +207,11 @@ export default async post => {
                           {
                             type: "span",
                             props: {
-                              style: { overflow: "hidden", fontWeight: "bold" },
+                              style: {
+                                overflow: "hidden",
+                                fontWeight: "bold",
+                                color: "#1c1917"
+                              },
                               children: SITE.title,
                             },
                           },

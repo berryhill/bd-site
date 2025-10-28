@@ -8,7 +8,7 @@ export default async () => {
       type: "div",
       props: {
         style: {
-          background: "#fefbfb",
+          background: "#fffbeb",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -23,10 +23,10 @@ export default async () => {
                 position: "absolute",
                 top: "-1px",
                 right: "-1px",
-                border: "4px solid #000",
-                background: "#ecebeb",
-                opacity: "0.9",
-                borderRadius: "4px",
+                border: "3px solid #800020",
+                background: "#fef3c7",
+                opacity: "0.3",
+                borderRadius: "8px",
                 display: "flex",
                 justifyContent: "center",
                 margin: "2.5rem",
@@ -39,9 +39,9 @@ export default async () => {
             type: "div",
             props: {
               style: {
-                border: "4px solid #000",
-                background: "#fefbfb",
-                borderRadius: "4px",
+                border: "3px solid #800020",
+                background: "#fffbeb",
+                borderRadius: "8px",
                 display: "flex",
                 justifyContent: "center",
                 margin: "2rem",
@@ -77,14 +77,26 @@ export default async () => {
                           {
                             type: "p",
                             props: {
-                              style: { fontSize: 72, fontWeight: "bold" },
+                              style: {
+                                fontSize: 72,
+                                fontWeight: "bold",
+                                color: "#1c1917",
+                                letterSpacing: "-0.025em"
+                              },
                               children: SITE.title,
                             },
                           },
                           {
                             type: "p",
                             props: {
-                              style: { fontSize: 28 },
+                              style: {
+                                fontSize: 24,
+                                color: "#57534e",
+                                lineHeight: 1.6,
+                                marginTop: 20,
+                                paddingLeft: 40,
+                                paddingRight: 40,
+                              },
                               children: SITE.desc,
                             },
                           },
@@ -104,7 +116,11 @@ export default async () => {
                         children: {
                           type: "span",
                           props: {
-                            style: { overflow: "hidden", fontWeight: "bold" },
+                            style: {
+                              overflow: "hidden",
+                              fontWeight: "bold",
+                              color: "#1c1917"
+                            },
                             children: new URL(SITE.website).hostname,
                           },
                         },
