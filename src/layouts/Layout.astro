@@ -1,6 +1,6 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import { PUBLIC_GOOGLE_SITE_VERIFICATION } from "astro:env/client";
+import { PUBLIC_GOOGLE_SITE_VERIFICATION, PUBLIC_GA_MEASUREMENT_ID } from "astro:env/client";
 import { SITE } from "@/config";
 import "@/styles/global.css";
 
@@ -133,12 +133,52 @@ const structuredData = {
 
     <ClientRouter />
 
+    <!-- Google Analytics 4 -->
+    {
+      PUBLIC_GA_MEASUREMENT_ID && import.meta.env.PROD && (
+        <>
+          <script
+            is:inline
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${PUBLIC_GA_MEASUREMENT_ID}`}
+          />
+          <script is:inline define:vars={{ PUBLIC_GA_MEASUREMENT_ID }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+            gtag("config", PUBLIC_GA_MEASUREMENT_ID);
+          </script>
+        </>
+      )
+    }
+
     <script is:inline src="/toggle-theme.js"></script>
   </head>
   <body>
     <slot />
   </body>
 </html>
+
+<!-- Handle Google Analytics with View Transitions -->
+{
+  PUBLIC_GA_MEASUREMENT_ID && import.meta.env.PROD && (
+    <script is:inline define:vars={{ PUBLIC_GA_MEASUREMENT_ID }}>
+      // Send pageview on initial load
+      if (typeof gtag !== "undefined") {
+        gtag("event", "page_view");
+      }
+
+      // Send pageview on View Transitions navigation
+      document.addEventListener("astro:page-load", () => {
+        if (typeof gtag !== "undefined") {
+          gtag("event", "page_view");
+        }
+      });
+    </script>
+  )
+}
 
 <style>
   html,
