@@ -6,11 +6,20 @@
 - **Site Type**: Personal blog (Astro-based)
 
 ## Sitemap Configuration
-- **Sitemap URL**: https://berryhill.dev/sitemap-index.xml
+- **Sitemap URL**: https://berryhill.dev/sitemap.xml
+- **Sitemap Type**: Custom dynamic sitemap (SSR)
+- **Sitemaps**:
+  - `/sitemap.xml` - Master index
+  - `/sitemap-static.xml` - Static pages
+  - `/sitemap-posts.xml` - All blog posts with lastmod dates
+- **Update Frequency**: Real-time (generated on-demand)
 - **Submission Status**:
   - Google Search Console: Pending
   - Bing Webmaster Tools: Pending
 - **IndexNow**: Not yet implemented
+
+### ✅ **FIXED: Blog Posts Now in Sitemap!**
+Previously, only 6 static pages were included. Now ALL published blog posts are discoverable by search engines and LLM crawlers.
 
 ## Robots.txt Permissions
 - **Location**: https://berryhill.dev/robots.txt
@@ -105,6 +114,16 @@
 - As of 2025, GPTBot accounts for ~30% of AI crawler traffic
 - Perplexity and Anthropic have been known to bypass robots.txt - explicit Allow directives help
 - All major AI companies (OpenAI, Anthropic, Google, Meta, Apple, Amazon) are explicitly welcomed
+
+## Changelog
+
+### 2025-10-28
+- ✅ **CRITICAL FIX**: Fixed sitemap to include all blog posts
+  - Migrated from @astrojs/sitemap integration to custom dynamic sitemaps
+  - Created 3-part sitemap system (index, static, posts)
+  - All blog posts now discoverable by search engines and LLM crawlers
+- ✅ Made robots.txt fully LLM-optimized with 18+ AI crawler allowlist
+- ✅ Created LLM Crawl Manifest documentation
 
 ## Last Updated
 2025-10-28
