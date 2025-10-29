@@ -16,7 +16,10 @@
 - **Submission Status**:
   - Google Search Console: Pending
   - Bing Webmaster Tools: Pending
-- **IndexNow**: Not yet implemented
+- **IndexNow**: ✅ **IMPLEMENTED**
+  - API Key: Hosted at `/a63643bb50ffbee1ac79fcfe60003c1dc912bdee3803a9308fa313f06024d2c6.txt`
+  - Auto-submits to Bing, Yandex, Naver, Seznam, Yep on post create/update
+  - Supports bulk submission (up to 10,000 URLs)
 
 ### ✅ **FIXED: Blog Posts Now in Sitemap!**
 Previously, only 6 static pages were included. Now ALL published blog posts are discoverable by search engines and LLM crawlers.
@@ -106,9 +109,9 @@ Previously, only 6 static pages were included. Now ALL published blog posts are 
 2. Submit sitemap to Bing Webmaster Tools
 
 ### 📋 Planned:
-1. Implement IndexNow ping automation
-2. Add FAQPage schema if FAQ content is created
-3. Monitor crawler activity in server logs
+1. Add FAQPage schema if FAQ content is created
+2. Monitor crawler activity in server logs
+3. Consider implementing llms.txt for AI-specific indexing
 
 ## Notes
 - As of 2025, GPTBot accounts for ~30% of AI crawler traffic
@@ -116,6 +119,13 @@ Previously, only 6 static pages were included. Now ALL published blog posts are 
 - All major AI companies (OpenAI, Anthropic, Google, Meta, Apple, Amazon) are explicitly welcomed
 
 ## Changelog
+
+### 2025-10-29
+- ✅ **IndexNow Automation**: Implemented instant indexing for Bing, Yandex, and more
+  - Auto-pings IndexNow API when posts are created or updated
+  - Generated and hosted API key
+  - Integrated with POST and PATCH endpoints
+  - Skips draft posts automatically
 
 ### 2025-10-28
 - ✅ **CRITICAL FIX**: Fixed sitemap to include all blog posts

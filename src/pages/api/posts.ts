@@ -3,6 +3,8 @@ import { writeFile, readFile } from "fs/promises";
 import { join } from "path";
 import { slugifyStr } from "@/utils/slugify";
 import matter from "gray-matter";
+import { submitToIndexNow } from "@/utils/indexnow";
+import { SITE } from "@/config";
 
 export const prerender = false;
 
@@ -56,6 +58,12 @@ ${content}`;
     // Write to file
     const filePath = join(process.cwd(), "src", "data", "blog", filename);
     await writeFile(filePath, frontmatter, "utf-8");
+
+    // Submit to IndexNow if not a draft
+    if (!draft) {
+      const postUrl = `${SITE.website}posts/${slug}/`;
+      await submitToIndexNow(postUrl);
+    }
 
     return new Response(
       JSON.stringify({
@@ -174,6 +182,13 @@ export const PATCH: APIRoute = async ({ request }) => {
 
     // Write back to file
     await writeFile(filePath, updatedFile, "utf-8");
+
+    // Submit to IndexNow if not a draft
+    const isDraft = draft !== undefined ? draft : frontmatterData.draft;
+    if (!isDraft) {
+      const postUrl = `${SITE.website}posts/${slug}/`;
+      await submitToIndexNow(postUrl);
+    }
 
     return new Response(
       JSON.stringify({
