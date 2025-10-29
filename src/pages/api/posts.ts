@@ -5,6 +5,7 @@ import { slugifyStr } from "@/utils/slugify";
 import matter from "gray-matter";
 import { submitToIndexNow } from "@/utils/indexnow";
 import { SITE } from "@/config";
+import { requireApiKey } from "@/utils/apiAuth";
 
 export const prerender = false;
 
@@ -17,8 +18,13 @@ interface PostData {
   content: string;
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+  // Validate API key
+  const authError = requireApiKey(context);
+  if (authError) return authError;
+
   try {
+    const { request } = context;
     // Parse the incoming JSON
     const body = await request.json();
     const { title, description, tags, featured, draft, content } = body as PostData;
@@ -101,8 +107,13 @@ interface UpdatePostData {
   description?: string;
 }
 
-export const PATCH: APIRoute = async ({ request }) => {
+export const PATCH: APIRoute = async (context) => {
+  // Validate API key
+  const authError = requireApiKey(context);
+  if (authError) return authError;
+
   try {
+    const { request } = context;
     // Parse the incoming JSON
     const body = await request.json();
     const { slug, featured, draft, tags, title, description } = body as UpdatePostData;

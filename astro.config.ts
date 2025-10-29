@@ -63,6 +63,11 @@ export default defineConfig({
         context: "client",
         optional: true,
       }),
+      X_API_KEY: envField.string({
+        access: "secret",
+        context: "server",
+        optional: false,
+      }),
     },
   },
   experimental: {
