@@ -3,7 +3,6 @@ import { getLiveCollection } from "astro:content";
 import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { SITE } from "@/config";
-import { renderMarkdown } from "@astrojs/markdown-remark";
 
 export async function GET() {
   const { entries: posts } = await getLiveCollection("liveBlog");
@@ -12,15 +11,9 @@ export async function GET() {
   // Render full content for each post
   const items = await Promise.all(
     sortedPosts.map(async ({ data, id, filePath, body }) => {
-      // Render markdown/MDX content to HTML for full content delivery
-      let content = "";
-      try {
-        // Use body directly if it's a string (markdown), otherwise use description
-        content = typeof body === "string" ? body : data.description;
-      } catch (error) {
-        console.error(`Error processing post ${id}:`, error);
-        content = data.description;
-      }
+      // Use body (raw markdown/MDX) for full content delivery
+      // RSS readers and LLMs can handle markdown format
+      const content = body || data.description;
 
       const postUrl = getPath(id, filePath);
 
