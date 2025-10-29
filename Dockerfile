@@ -11,6 +11,11 @@ RUN pnpm install --frozen-lockfile
 
 # Copy source and build
 COPY . .
+
+# Accept .env content as base64 encoded build argument and decode it
+ARG DOT_ENV
+RUN if [ -n "$DOT_ENV" ]; then echo "$DOT_ENV" | base64 -d > .env; fi
+
 RUN pnpm run build
 
 # SSR Runtime stage

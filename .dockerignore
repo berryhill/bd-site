@@ -6,3 +6,8 @@ node_modules/
 
 # Ignore build output
 dist/
+
+# Ignore local environment files (will be injected from secrets)
+.env
+.env.local
+.env.*
