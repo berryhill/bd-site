@@ -85,7 +85,7 @@ Allow: /
 User-agent: Omgilibot
 Allow: /
 
-Sitemap: ${sitemapURL.href}
+Sitemap: ${new URL("sitemap.xml", sitemapURL.origin).href}
 `;
 
 export const GET: APIRoute = ({ site }) => {

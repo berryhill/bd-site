@@ -1,7 +1,6 @@
 import { defineConfig, envField } from "astro/config";
 import node from "@astrojs/node";
 import tailwindcss from "@tailwindcss/vite";
-import sitemap from "@astrojs/sitemap";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import {
@@ -20,9 +19,8 @@ export default defineConfig({
     mode: "standalone",
   }),
   integrations: [
-    sitemap({
-      filter: page => SITE.showArchives || !page.endsWith("/archives"),
-    }),
+    // Sitemap removed - using custom dynamic sitemap at /sitemap.xml
+    // This is required for SSR mode with live content collections
   ],
   markdown: {
     remarkPlugins: [remarkToc, [remarkCollapse, { test: "Table of contents" }]],
