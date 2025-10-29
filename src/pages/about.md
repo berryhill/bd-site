@@ -26,7 +26,7 @@ As an agentic-first digital builder, Matt focuses on creating products and teams
 
 Leadership, for Matt, is about presence, consistency, and momentum. Culture comes from the top but thrives when everyone contributes. He believes the best teams balance autonomy with alignment, reward outcomes over optics, and grow through shared achievement rather than individual heroics.
 
-If you want to talk ideas, projects, or potential collaborations — <a href="https://www.linkedin.com/in/matthew-berryhill" target="_blank" rel="noopener noreferrer">schedule a call</a>.
+If you want to talk ideas, projects, or potential collaborations — <a href="https://calendly.com/matt-berryhill/30min" target="_blank" rel="noopener noreferrer">schedule a call</a>.
 
 <style>
   .about-hero {

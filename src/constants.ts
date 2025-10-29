@@ -1,6 +1,7 @@
 import type { Props } from "astro";
 import IconMail from "@/assets/icons/IconMail.svg";
 import IconLinkedin from "@/assets/icons/IconLinkedin.svg";
+import IconCalendar from "@/assets/icons/IconCalendar.svg";
 import IconWhatsapp from "@/assets/icons/IconWhatsapp.svg";
 import IconFacebook from "@/assets/icons/IconFacebook.svg";
 import IconTelegram from "@/assets/icons/IconTelegram.svg";
@@ -21,6 +22,12 @@ export const SOCIALS: Social[] = [
     href: "https://www.linkedin.com/in/matthew-berryhill",
     linkTitle: `${SITE.title} on LinkedIn`,
     icon: IconLinkedin,
+  },
+  {
+    name: "Calendly",
+    href: SITE.calendly,
+    linkTitle: `Schedule a call with ${SITE.author}`,
+    icon: IconCalendar,
   },
   {
     name: "Mail",

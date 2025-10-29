@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/berryhill/bd-site
-  tag: 0.0.28
+  tag: 0.0.29
   pullPolicy: IfNotPresent
 
 service:
