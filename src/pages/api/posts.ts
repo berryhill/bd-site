@@ -105,6 +105,7 @@ interface UpdatePostData {
   tags?: string[];
   title?: string;
   description?: string;
+  content?: string;
 }
 
 export const PATCH: APIRoute = async (context) => {
@@ -116,7 +117,7 @@ export const PATCH: APIRoute = async (context) => {
     const { request } = context;
     // Parse the incoming JSON
     const body = await request.json();
-    const { slug, featured, draft, tags, title, description } = body as UpdatePostData;
+    const { slug, featured, draft, tags, title, description, content } = body as UpdatePostData;
 
     // Validate required field
     if (!slug) {
@@ -132,7 +133,7 @@ export const PATCH: APIRoute = async (context) => {
     }
 
     // Check if at least one field to update is provided
-    if (featured === undefined && draft === undefined && !tags && !title && !description) {
+    if (featured === undefined && draft === undefined && !tags && !title && !description && !content) {
       return new Response(
         JSON.stringify({
           error: "No fields to update provided",
@@ -166,7 +167,7 @@ export const PATCH: APIRoute = async (context) => {
 
     // Parse the frontmatter
     const parsed = matter(fileContent);
-    const { data: frontmatterData, content } = parsed;
+    const { data: frontmatterData, content: originalContent } = parsed;
 
     // Update only the provided fields
     if (featured !== undefined) {
@@ -188,8 +189,11 @@ export const PATCH: APIRoute = async (context) => {
     // Add modDatetime to track the update
     frontmatterData.modDatetime = new Date().toISOString();
 
-    // Rebuild the file with updated frontmatter
-    const updatedFile = matter.stringify(content, frontmatterData);
+    // Use updated content if provided, otherwise keep original
+    const updatedContent = content !== undefined ? content : originalContent;
+
+    // Rebuild the file with updated frontmatter and content
+    const updatedFile = matter.stringify(updatedContent, frontmatterData);
 
     // Write back to file
     await writeFile(filePath, updatedFile, "utf-8");
