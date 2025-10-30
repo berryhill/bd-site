@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { writeFile, readFile } from "fs/promises";
+import { writeFile, readFile, readdir } from "fs/promises";
 import { join } from "path";
 import { slugifyStr } from "@/utils/slugify";
 import matter from "gray-matter";
@@ -17,6 +17,124 @@ interface PostData {
   draft?: boolean;
   content: string;
 }
+
+export const GET: APIRoute = async (context) => {
+  // Validate API key
+  const authError = requireApiKey(context);
+  if (authError) return authError;
+
+  try {
+    const { url } = context;
+    const searchParams = new URL(url).searchParams;
+
+    // Query parameters for filtering
+    const slug = searchParams.get("slug");
+    const featured = searchParams.get("featured");
+    const draft = searchParams.get("draft");
+
+    const blogDir = join(process.cwd(), "src", "data", "blog");
+
+    // If slug is provided, return single post
+    if (slug) {
+      const filename = `${slug}.md`;
+      const filePath = join(blogDir, filename);
+
+      try {
+        const fileContent = await readFile(filePath, "utf-8");
+        const parsed = matter(fileContent);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            post: {
+              slug,
+              ...parsed.data,
+              content: parsed.content,
+            },
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      } catch (error) {
+        return new Response(
+          JSON.stringify({
+            error: "Post not found",
+            slug,
+          }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
+    // Return all posts (with optional filtering)
+    const files = await readdir(blogDir);
+    const markdownFiles = files.filter(file => file.endsWith(".md") && !file.startsWith("_"));
+
+    const posts = await Promise.all(
+      markdownFiles.map(async (filename) => {
+        const filePath = join(blogDir, filename);
+        const fileContent = await readFile(filePath, "utf-8");
+        const parsed = matter(fileContent);
+        const postSlug = filename.replace(".md", "");
+
+        return {
+          slug: postSlug,
+          ...parsed.data,
+          content: parsed.content,
+        };
+      })
+    );
+
+    // Apply filters
+    let filteredPosts = posts;
+
+    if (featured !== null) {
+      const isFeatured = featured === "true";
+      filteredPosts = filteredPosts.filter(post => post.featured === isFeatured);
+    }
+
+    if (draft !== null) {
+      const isDraft = draft === "true";
+      filteredPosts = filteredPosts.filter(post => post.draft === isDraft);
+    }
+
+    // Sort by pubDatetime descending (newest first)
+    filteredPosts.sort((a, b) => {
+      const dateA = new Date(a.modDatetime || a.pubDatetime).getTime();
+      const dateB = new Date(b.modDatetime || b.pubDatetime).getTime();
+      return dateB - dateA;
+    });
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        count: filteredPosts.length,
+        posts: filteredPosts,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to fetch posts",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
 
 export const POST: APIRoute = async (context) => {
   // Validate API key
