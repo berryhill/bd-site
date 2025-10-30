@@ -3,7 +3,8 @@
   "type": "module",
   "version": "5.5.0",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "ENV=workstation astro dev",
+    "dev:prod": "doppler run -- astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "sync": "astro sync",

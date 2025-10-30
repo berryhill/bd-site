@@ -20,6 +20,9 @@ pnpm-debug.log*
 .env
 .env.prod
 
+# helm production values with secrets
+helm/values.prod.yaml
+
 # macOS-specific files
 .DS_Store
 

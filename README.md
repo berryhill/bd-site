@@ -2,6 +2,34 @@
 
 Personal website and blog for Matt Berryhill - exploring agentic-first development, AI/ML systems, blockchain technologies, crypto markets, digital music, and intelligent automation.
 
+## 🛠️ Local Development
+
+### Workstation Mode (uses .env file)
+
+```bash
+# Install dependencies
+pnpm install
+
+# Create .env file
+cp .env.example .env
+# Edit .env and add: X_API_KEY=$(openssl rand -hex 32)
+
+# Run development server
+pnpm run dev
+```
+
+Runs on `http://localhost:4321` with `ENV=workstation`.
+
+### Production Mode (uses Doppler)
+
+```bash
+doppler login
+doppler setup
+pnpm run dev:prod
+```
+
+Uses Doppler for secrets management (same as production).
+
 ## 🚀 Tech Stack
 
 **Framework** - [Astro](https://astro.build/) with SSR (Node adapter)

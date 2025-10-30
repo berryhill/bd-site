@@ -39,7 +39,7 @@ spec:
               protocol: TCP
           env:
             - name: DOPPLER_TOKEN
-              value: {{ .Values.dopplerToken }}
+              value: {{ .Values.dopplerToken | quote }}
           volumeMounts:
             - name: posts-content
               mountPath: /app/src/data/blog
