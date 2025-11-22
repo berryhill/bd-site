@@ -15,6 +15,7 @@ interface PostData {
   tags?: string[];
   featured?: boolean;
   draft?: boolean;
+  feature_image?: string;
   content: string;
 }
 
@@ -145,7 +146,7 @@ export const POST: APIRoute = async (context) => {
     const { request } = context;
     // Parse the incoming JSON
     const body = await request.json();
-    const { title, description, tags, featured, draft, content } = body as PostData;
+    const { title, description, tags, featured, draft, feature_image, content } = body as PostData;
 
     // Validate required fields
     if (!title || !description || !content) {
@@ -167,7 +168,7 @@ export const POST: APIRoute = async (context) => {
     const filename = `${slug}.md`;
 
     // Create frontmatter data object
-    const frontmatterData = {
+    const frontmatterData: Record<string, any> = {
       title,
       description,
       pubDatetime: new Date().toISOString(),
@@ -175,6 +176,11 @@ export const POST: APIRoute = async (context) => {
       draft: draft || false,
       tags: tags && tags.length > 0 ? tags : ["blog"],
     };
+
+    // Add feature_image if provided
+    if (feature_image) {
+      frontmatterData.ogImage = feature_image;
+    }
 
     // Use gray-matter to properly stringify frontmatter with content
     const fileContent = matter.stringify(content, frontmatterData);
@@ -223,6 +229,7 @@ interface UpdatePostData {
   tags?: string[];
   title?: string;
   description?: string;
+  feature_image?: string;
   content?: string;
 }
 
@@ -235,7 +242,7 @@ export const PATCH: APIRoute = async (context) => {
     const { request } = context;
     // Parse the incoming JSON
     const body = await request.json();
-    const { slug, featured, draft, tags, title, description, content } = body as UpdatePostData;
+    const { slug, featured, draft, tags, title, description, feature_image, content } = body as UpdatePostData;
 
     // Validate required field
     if (!slug) {
@@ -251,7 +258,7 @@ export const PATCH: APIRoute = async (context) => {
     }
 
     // Check if at least one field to update is provided
-    if (featured === undefined && draft === undefined && !tags && !title && !description && !content) {
+    if (featured === undefined && draft === undefined && !tags && !title && !description && !feature_image && !content) {
       return new Response(
         JSON.stringify({
           error: "No fields to update provided",
@@ -302,6 +309,9 @@ export const PATCH: APIRoute = async (context) => {
     }
     if (description) {
       frontmatterData.description = description;
+    }
+    if (feature_image) {
+      frontmatterData.ogImage = feature_image;
     }
 
     // Add modDatetime to track the update

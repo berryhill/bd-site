@@ -137,9 +137,19 @@ Content-Type: application/json
   "content": "# Hello World\n\nThis is the post content...",
   "tags": ["blog", "astro"],
   "featured": false,
-  "draft": true
+  "draft": true,
+  "feature_image": "https://example.com/image.jpg"
 }
 ```
+
+**Fields:**
+- `title` (required): Post title
+- `description` (required): Post description
+- `content` (required): Post content in Markdown
+- `tags` (optional): Array of tags (defaults to ["blog"])
+- `featured` (optional): Featured status (defaults to false)
+- `draft` (optional): Draft status (defaults to false)
+- `feature_image` (optional): URL to feature image (stored as ogImage in frontmatter)
 
 **Response (201 Created):**
 ```json
@@ -176,9 +186,19 @@ Content-Type: application/json
   "featured": true,
   "draft": false,
   "tags": ["updated", "tags"],
+  "feature_image": "https://example.com/new-image.jpg",
   "content": "# Updated Content\n\nNew post content..."
 }
 ```
+
+**Fields:**
+- `title` (optional): Update post title
+- `description` (optional): Update post description
+- `featured` (optional): Update featured status
+- `draft` (optional): Update draft status
+- `tags` (optional): Update tags array
+- `feature_image` (optional): Update feature image URL (stored as ogImage in frontmatter)
+- `content` (optional): Update post content in Markdown
 
 **Response (200 OK):**
 ```json
