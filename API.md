@@ -138,7 +138,7 @@ Content-Type: application/json
   "tags": ["blog", "astro"],
   "featured": false,
   "draft": true,
-  "feature_image": "https://example.com/image.jpg"
+  "featured_image": "https://example.com/image.jpg"
 }
 ```
 
@@ -149,7 +149,7 @@ Content-Type: application/json
 - `tags` (optional): Array of tags (defaults to ["blog"])
 - `featured` (optional): Featured status (defaults to false)
 - `draft` (optional): Draft status (defaults to false)
-- `feature_image` (optional): URL to feature image (stored as ogImage in frontmatter)
+- `featured_image` (optional): URL to featured image (stored as ogImage in frontmatter)
 
 **Response (201 Created):**
 ```json
@@ -186,7 +186,7 @@ Content-Type: application/json
   "featured": true,
   "draft": false,
   "tags": ["updated", "tags"],
-  "feature_image": "https://example.com/new-image.jpg",
+  "featured_image": "https://example.com/new-image.jpg",
   "content": "# Updated Content\n\nNew post content..."
 }
 ```
@@ -197,7 +197,7 @@ Content-Type: application/json
 - `featured` (optional): Update featured status
 - `draft` (optional): Update draft status
 - `tags` (optional): Update tags array
-- `feature_image` (optional): Update feature image URL (stored as ogImage in frontmatter)
+- `featured_image` (optional): Update featured image URL (stored as ogImage in frontmatter)
 - `content` (optional): Update post content in Markdown
 
 **Response (200 OK):**
