@@ -13,7 +13,42 @@ For local development:
 http://localhost:4321
 ```
 
-## 1. Health Check
+## 1. Validate API Key
+
+Validate your API key credentials.
+
+```
+GET /api/auth/validate
+```
+
+**Headers:**
+```
+x-api-key: YOUR_API_KEY
+```
+
+**Response (200 OK):**
+```json
+{
+  "valid": true,
+  "message": "API key is valid"
+}
+```
+
+**Response (401 Unauthorized):**
+```json
+{
+  "valid": false,
+  "error": "Invalid or missing API key"
+}
+```
+
+**Example:**
+```bash
+curl https://berryhill.dev/api/auth/validate \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## 2. Health Check
 
 Verify the API connection is working and validate your API key.
 
@@ -37,17 +72,12 @@ x-api-key: YOUR_API_KEY
 **Response (401 Unauthorized):**
 ```json
 {
-  "error": "API key required"
-}
-```
-or
-```json
-{
-  "error": "Invalid API key"
+  "error": "Unauthorized",
+  "message": "Valid x-api-key header is required"
 }
 ```
 
-## 2. Get Posts
+## 3. Get Posts
 
 Retrieve a list of blog posts with optional filtering.
 
@@ -85,7 +115,7 @@ x-api-key: YOUR_API_KEY
 }
 ```
 
-## 3. Create Post
+## 4. Create Post
 
 Create a new blog post.
 
@@ -121,7 +151,7 @@ Content-Type: application/json
 }
 ```
 
-## 4. Update Post
+## 5. Update Post
 
 Update an existing blog post's metadata or content.
 
@@ -167,7 +197,7 @@ Content-Type: application/json
 }
 ```
 
-## 5. Delete Post
+## 6. Delete Post
 
 Delete a blog post by slug.
 
@@ -210,18 +240,21 @@ All requests must include the `x-api-key` header with your API key:
 x-api-key: YOUR_API_KEY
 ```
 
-The API key should be stored in your environment variables as `BLOG_API_KEY`.
+The API key should be stored in your environment variables as `X_API_KEY`.
 
 ## Test Connection
 
 Test your API connection using curl:
 
 ```bash
-curl -X GET "https://interstellardispatch.com/api/health" \
+# Validate API key
+curl -X GET "https://berryhill.dev/api/auth/validate" \
+  -H "x-api-key: YOUR_API_KEY"
+
+# Health check
+curl -X GET "https://berryhill.dev/api/health" \
   -H "x-api-key: YOUR_API_KEY"
 ```
-
-Expected response: `{"status":"healthy","message":"API is operational"}`
 
 ## Error Responses
 
