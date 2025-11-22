@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { writeFile, readFile, readdir } from "fs/promises";
+import { writeFile, readFile, readdir, unlink } from "fs/promises";
 import { join } from "path";
 import { slugifyStr } from "@/utils/slugify";
 import matter from "gray-matter";
@@ -95,18 +95,18 @@ export const GET: APIRoute = async (context) => {
 
     if (featured !== null) {
       const isFeatured = featured === "true";
-      filteredPosts = filteredPosts.filter(post => post.featured === isFeatured);
+      filteredPosts = filteredPosts.filter(post => (post as any).featured === isFeatured);
     }
 
     if (draft !== null) {
       const isDraft = draft === "true";
-      filteredPosts = filteredPosts.filter(post => post.draft === isDraft);
+      filteredPosts = filteredPosts.filter(post => (post as any).draft === isDraft);
     }
 
     // Sort by pubDatetime descending (newest first)
     filteredPosts.sort((a, b) => {
-      const dateA = new Date(a.modDatetime || a.pubDatetime).getTime();
-      const dateB = new Date(b.modDatetime || b.pubDatetime).getTime();
+      const dateA = new Date((a as any).modDatetime || (a as any).pubDatetime).getTime();
+      const dateB = new Date((b as any).modDatetime || (b as any).pubDatetime).getTime();
       return dateB - dateA;
     });
 
@@ -166,22 +166,22 @@ export const POST: APIRoute = async (context) => {
     // Generate filename
     const filename = `${slug}.md`;
 
-    // Create frontmatter (quote title to handle special characters like colons)
-    const frontmatter = `---
-title: "${title}"
-description: "${description}"
-pubDatetime: ${new Date().toISOString()}
-featured: ${featured || false}
-draft: ${draft || false}
-tags:
-${tags && tags.length > 0 ? tags.map(tag => `  - ${tag}`).join("\n") : "  - blog"}
----
+    // Create frontmatter data object
+    const frontmatterData = {
+      title,
+      description,
+      pubDatetime: new Date().toISOString(),
+      featured: featured || false,
+      draft: draft || false,
+      tags: tags && tags.length > 0 ? tags : ["blog"],
+    };
 
-${content}`;
+    // Use gray-matter to properly stringify frontmatter with content
+    const fileContent = matter.stringify(content, frontmatterData);
 
     // Write to file
     const filePath = join(process.cwd(), "src", "data", "blog", filename);
-    await writeFile(filePath, frontmatter, "utf-8");
+    await writeFile(filePath, fileContent, "utf-8");
 
     // Submit to IndexNow if not a draft
     if (!draft) {
@@ -343,6 +343,78 @@ export const PATCH: APIRoute = async (context) => {
     return new Response(
       JSON.stringify({
         error: "Failed to update post",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+export const DELETE: APIRoute = async (context) => {
+  // Validate API key
+  const authError = requireApiKey(context);
+  if (authError) return authError;
+
+  try {
+    const { url } = context;
+    const searchParams = new URL(url).searchParams;
+    const slug = searchParams.get("slug");
+
+    // Validate required field
+    if (!slug) {
+      return new Response(
+        JSON.stringify({
+          error: "Missing required parameter: slug",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Construct file path
+    const filename = `${slug}.md`;
+    const filePath = join(process.cwd(), "src", "data", "blog", filename);
+
+    // Check if file exists before deleting
+    try {
+      await readFile(filePath, "utf-8");
+    } catch (error) {
+      return new Response(
+        JSON.stringify({
+          error: "Post not found",
+          slug,
+        }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Delete the file
+    await unlink(filePath);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "Post deleted successfully",
+        slug,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to delete post",
         details: error instanceof Error ? error.message : "Unknown error",
       }),
       {
