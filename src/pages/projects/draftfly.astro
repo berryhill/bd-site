@@ -1,0 +1,89 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Main from "@/layouts/Main.astro";
+import { SITE } from "@/config";
+
+const title = "DraftFly";
+const description = "DraftFly video showcase";
+---
+
+<Layout title={`${title} | ${SITE.title}`} description={description}>
+  <Main pageTitle={title} pageDesc={description}>
+    <div class="video-container">
+      <div class="video-wrapper">
+        <video
+          id="draftfly-video"
+          class="video-player"
+          controls
+          preload="metadata"
+        >
+          <source src="https://berryhilldev.us-lax-1.linodeobjects.com/test.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div class="video-info">
+        <h2>About DraftFly</h2>
+        <p>
+          Checkout Draftly Beta Here: <a href="https://draftfly.berryhill.dev" target="_blank" rel="noopener noreferrer">https://draftfly.berryhill.dev</a>
+        </p>
+      </div>
+    </div>
+  </Main>
+</Layout>
+
+<style>
+  .video-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 2rem;
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .video-player {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16 / 9;
+  }
+
+  .video-info {
+    margin-top: 2rem;
+  }
+
+  .video-info h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--foreground);
+  }
+
+  .video-info p {
+    font-size: 1.125rem;
+    line-height: 1.75;
+    color: var(--fg-secondary);
+  }
+
+  @media (max-width: 768px) {
+    .video-container {
+      padding: 1rem;
+    }
+
+    .video-info h2 {
+      font-size: 1.25rem;
+    }
+
+    .video-info p {
+      font-size: 1rem;
+    }
+  }
+</style>
