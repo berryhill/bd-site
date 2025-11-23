@@ -10,12 +10,18 @@ export interface Props extends CollectionEntry<"liveBlog"> {
 
 const { variant = "h2", data, id, filePath } = Astro.props;
 
-const { title, description, pubDatetime, modDatetime, timezone } = data;
+const { title, description, pubDatetime, modDatetime, timezone, ogImage } = data;
 ---
 
 <li class="card-fancy">
   <div class="card-glow-effect"></div>
   <div class="card-content">
+    {ogImage && (
+      <div class="card-image-wrapper">
+        <img src={ogImage} alt={title} class="card-image" />
+      </div>
+    )}
+
     <a href={getPath(id, filePath)} class="card-title-link">
       {variant === "h2" ? (
         <h2 class="card-title">{title}</h2>
@@ -108,5 +114,24 @@ const { title, description, pubDatetime, modDatetime, timezone } = data;
 
   .card-corner-accent {
     display: none;
+  }
+
+  .card-image-wrapper {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .card-fancy:hover .card-image {
+    transform: scale(1.05);
   }
 </style>
