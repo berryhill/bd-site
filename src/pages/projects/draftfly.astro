@@ -24,9 +24,126 @@ const description = "DraftFly video showcase";
 
       <div class="video-info">
         <h2>About DraftFly</h2>
-        <p>
-          Checkout Draftly Beta Here: <a href="https://draftfly.berryhill.dev" target="_blank" rel="noopener noreferrer">https://draftfly.berryhill.dev</a>
+        <p class="beta-link">
+          Checkout Draftly Beta Here: <a href="https://draftfly.berryhill.dev" target="_blank" rel="noopener noreferrer">https://draftfly.berryhill.dev</a> <span class="note">[Changes deployed daily, use on desktop]</span>
         </p>
+
+        <div class="features-section">
+          <h3>DraftFly's Interactive AI Content Curation Features</h3>
+          <p class="intro">
+            Based on the codebase analysis, DraftFly offers sophisticated interactive AI editing capabilities for language, images, and more. Here's what makes it unique:
+          </p>
+
+          <h4>🎨 Interactive Content Editing Features</h4>
+
+          <div class="feature">
+            <h5>1. Text Selection & AI Refactoring</h5>
+            <ul>
+              <li>Select any text in generated blog posts</li>
+              <li>Add comments describing how you want it improved</li>
+              <li>AI refactors the selected section based on your feedback</li>
+              <li>Real-time highlighting shows what's being edited</li>
+              <li>Preserves context - changes integrate seamlessly with surrounding content</li>
+            </ul>
+            <p class="workflow"><strong>How it works:</strong> 1. Select text → 2. Click "Comment" button → 3. Describe changes → 4. AI refactors instantly</p>
+          </div>
+
+          <div class="feature">
+            <h5>2. Interactive Image Swapping</h5>
+            <ul>
+              <li>Hover over any image to see swap option</li>
+              <li>Describe the image you want (e.g., "modern office setup", "sunset landscape")</li>
+              <li>AI generates search query from your description + blog context</li>
+              <li>Fetches new image from Unsplash automatically</li>
+              <li>Updates content with new image URL</li>
+            </ul>
+            <p class="note-text"><strong>Smart context awareness:</strong> The AI considers both your description AND the blog content to find the perfect image.</p>
+          </div>
+
+          <div class="feature">
+            <h5>3. AI-Powered Tag Generation</h5>
+            <ul>
+              <li>Auto-generates relevant tags for each variation</li>
+              <li>Click to regenerate if you want different tags</li>
+              <li>Remove individual tags with one click</li>
+              <li>Tags persist across edits and updates</li>
+            </ul>
+          </div>
+
+          <div class="feature">
+            <h5>4. Multiple Variation Editing</h5>
+            <ul>
+              <li>Generate 1-3 variations of the same topic</li>
+              <li>Edit each independently with different approaches</li>
+              <li>Compare side-by-side to choose the best version</li>
+              <li>Mix and match - refactor different sections in different variations</li>
+            </ul>
+          </div>
+
+          <div class="feature">
+            <h5>5. Real-Time Progress Tracking</h5>
+            <p>Live updates show AI agents working:</p>
+            <ul>
+              <li>🔵 Research Agent gathering information</li>
+              <li>🟣 Content Generator writing</li>
+              <li>🟡 Image Agent sourcing visuals</li>
+              <li>Progress indicators for each step</li>
+              <li>Status messages keep you informed</li>
+            </ul>
+          </div>
+
+          <div class="feature">
+            <h5>6. Persistent Editing & Version Control</h5>
+            <ul>
+              <li>All edits auto-save to MongoDB</li>
+              <li>Load previous posts to continue editing</li>
+              <li>Track changes with updatedAt timestamps</li>
+              <li>Search saved posts by topic</li>
+            </ul>
+          </div>
+
+          <div class="feature">
+            <h5>7. Export Metadata Management</h5>
+            <ul>
+              <li>Featured flag - mark posts as featured</li>
+              <li>Custom slugs - link to existing posts for updates</li>
+              <li>Tag management - add/remove/regenerate tags</li>
+              <li>All metadata persists across sessions</li>
+            </ul>
+          </div>
+
+          <h4>🎯 The Interactive Workflow</h4>
+          <pre class="workflow-diagram">Generate → Review → Select Text → Comment → AI Refactors → Swap Images → Add Tags → Publish
+           ↑                                                                            ↓
+           └────────────────────── Load & Continue Editing ──────────────────────────┘</pre>
+
+          <h4>💡 Value Proposition for Interactive Curation</h4>
+          <p><strong>Traditional AI writing tools:</strong> Generate once, accept or reject.</p>
+          <p><strong>DraftFly's approach:</strong></p>
+          <ul class="value-props">
+            <li>✅ Iterative refinement - keep improving until perfect</li>
+            <li>✅ Granular control - edit specific sections, not entire posts</li>
+            <li>✅ Context-aware - AI understands your intent and the surrounding content</li>
+            <li>✅ Visual editing - swap images with natural language descriptions</li>
+            <li>✅ Multi-variation exploration - try different angles simultaneously</li>
+            <li>✅ Persistent workspace - save, load, and continue editing anytime</li>
+          </ul>
+
+          <h4>🔧 Technical Implementation Highlights</h4>
+          <ul class="tech-highlights">
+            <li>Text selection API with position tracking</li>
+            <li>Comment boxes positioned dynamically near selections</li>
+            <li>Highlight system shows refactoring in progress</li>
+            <li>Image hover detection with timeout management</li>
+            <li>State management for multiple simultaneous edits</li>
+            <li>Backend persistence ensures no work is lost</li>
+            <li>Real-time SSE for live progress updates</li>
+          </ul>
+
+          <p class="conclusion">
+            This makes DraftFly not just a content generator, but a <strong>collaborative AI writing partner</strong> where you guide the AI to create exactly what you envision through natural, interactive editing.
+          </p>
+        </div>
       </div>
     </div>
   </Main>
@@ -61,9 +178,33 @@ const description = "DraftFly video showcase";
   }
 
   .video-info h2 {
-    font-size: 1.5rem;
+    font-size: 1.875rem;
     font-weight: 700;
     margin-bottom: 1rem;
+    color: var(--foreground);
+  }
+
+  .video-info h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--foreground);
+  }
+
+  .video-info h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--foreground);
+  }
+
+  .video-info h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
     color: var(--foreground);
   }
 
@@ -71,6 +212,115 @@ const description = "DraftFly video showcase";
     font-size: 1.125rem;
     line-height: 1.75;
     color: var(--fg-secondary);
+    margin-bottom: 1rem;
+  }
+
+  .beta-link {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .beta-link .note {
+    font-size: 0.875rem;
+    color: var(--fg-tertiary);
+    font-style: italic;
+  }
+
+  .features-section {
+    margin-top: 3rem;
+  }
+
+  .intro {
+    font-size: 1.125rem;
+    line-height: 1.75;
+    color: var(--fg-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .feature {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+  }
+
+  .feature ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .feature li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+    color: var(--fg-secondary);
+  }
+
+  .workflow {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: var(--bg-tertiary);
+    border-radius: 4px;
+    font-size: 0.95rem;
+  }
+
+  .note-text {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: var(--bg-tertiary);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-style: italic;
+  }
+
+  .workflow-diagram {
+    background-color: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.8;
+    color: var(--foreground);
+    border: 1px solid var(--border);
+  }
+
+  .value-props {
+    list-style-type: none;
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+
+  .value-props li {
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
+    line-height: 1.6;
+    color: var(--fg-secondary);
+    font-size: 1.05rem;
+  }
+
+  .tech-highlights {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .tech-highlights li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+    color: var(--fg-secondary);
+  }
+
+  .conclusion {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    font-size: 1.125rem;
+    line-height: 1.75;
+    color: var(--fg-secondary);
+    border: 2px solid var(--accent);
   }
 
   @media (max-width: 768px) {
@@ -79,11 +329,32 @@ const description = "DraftFly video showcase";
     }
 
     .video-info h2 {
+      font-size: 1.5rem;
+    }
+
+    .video-info h3 {
       font-size: 1.25rem;
+    }
+
+    .video-info h4 {
+      font-size: 1.125rem;
+    }
+
+    .video-info h5 {
+      font-size: 1rem;
     }
 
     .video-info p {
       font-size: 1rem;
+    }
+
+    .feature {
+      padding: 1rem;
+    }
+
+    .workflow-diagram {
+      font-size: 0.75rem;
+      padding: 1rem;
     }
   }
 </style>
