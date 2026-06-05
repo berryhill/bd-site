@@ -25,7 +25,7 @@ This is their story—a tale of courage, determination, and the power of interna
 
 ![Blue and white military aircraft in formation flight](https://images.unsplash.com/photo-1562545628-c28504cff9d3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4MjAxODZ8MHwxfHNlYXJjaHw5fHxQb2xpc2glMjBwaWxvdHMlMjBXV0lJJTIwUkFGfGVufDB8MHx8fDE3NjEzMzk3MzN8MA&ixlib=rb-4.1.0&q=85)
 
-*Photo by [Chandler Cruttenden](https://unsplash.com/@chanphoto?utm_source=rds_blogger&utm_medium=referral) on [Unsplash](https://unsplash.com?utm_source=rds_blogger&utm_medium=referral)*
+_Photo by [Chandler Cruttenden](https://unsplash.com/@chanphoto?utm_source=rds_blogger&utm_medium=referral) on [Unsplash](https://unsplash.com?utm_source=rds_blogger&utm_medium=referral)_
 
 On September 1, 1939, German forces invaded Poland from three directions. The Luftwaffe and Kriegsmarine supported the Army's devastating assault, overwhelming Polish defenses almost immediately.
 
@@ -41,7 +41,7 @@ Here's the thing: these weren't inexperienced recruits. Polish airmen had alread
 
 ![Spitfire aircraft manufacturing at Castle Bromwich Aeroplane Factory, Birmingham 1940-46](https://images.unsplash.com/photo-1583737226433-b34a50f3ed3d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4MjAxODZ8MHwxfHNlYXJjaHw2fHxTcGl0ZmlyZSUyMGFpcmNyYWZ0JTIwV29ybGQlMjBXYXIlMjAyfGVufDB8MHx8fDE3NjEzMzk3MzN8MA&ixlib=rb-4.1.0&q=85)
 
-*Photo by [Birmingham Museums Trust](https://unsplash.com/@birminghammuseumstrust?utm_source=rds_blogger&utm_medium=referral) on [Unsplash](https://unsplash.com?utm_source=rds_blogger&utm_medium=referral)*
+_Photo by [Birmingham Museums Trust](https://unsplash.com/@birminghammuseumstrust?utm_source=rds_blogger&utm_medium=referral) on [Unsplash](https://unsplash.com?utm_source=rds_blogger&utm_medium=referral)_
 
 After the fall of France in June 1940, Polish forces regrouped in Britain. The RAF welcomed them with open arms, recognizing that experienced pilots were exactly what they needed.
 
@@ -57,7 +57,7 @@ The Polish pilots brought something rare to the RAF: combat experience. Unlike m
 
 ![RAF aircraft in flight during the Battle of Britain era, 1941-1945](https://images.unsplash.com/photo-1571840933517-88a527cd7008?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4MjAxODZ8MHwxfHNlYXJjaHw3fHxCYXR0bGUlMjBvZiUyMEJyaXRhaW4lMjAxOTQwJTIwUkFGfGVufDB8MHx8fDE3NjEzMzk3MzR8MA&ixlib=rb-4.1.0&q=85)
 
-*Photo by [Museums Victoria](https://unsplash.com/@museumsvictoria?utm_source=rds_blogger&utm_medium=referral) on [Unsplash](https://unsplash.com?utm_source=rds_blogger&utm_medium=referral)*
+_Photo by [Museums Victoria](https://unsplash.com/@museumsvictoria?utm_source=rds_blogger&utm_medium=referral) on [Unsplash](https://unsplash.com?utm_source=rds_blogger&utm_medium=referral)_
 
 The Battle of Britain (July-October 1940) was humanity's first major air campaign. The Luftwaffe sought to destroy the RAF and gain air superiority over the English Channel. If they succeeded, invasion would follow.
 
@@ -71,7 +71,7 @@ These pilots flew Supermarine Spitfires and Hawker Hurricanes—the aircraft tha
 
 ![Vintage military pilot uniform and helmet](https://images.unsplash.com/photo-1501576003369-64f301d92efb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4MjAxODZ8MHwxfHNlYXJjaHwzfHx2aW50YWdlJTIwbWlsaXRhcnklMjBwaWxvdCUyMHVuaWZvcm0lMjBoZWxtZXR8ZW58MHwwfHx8MTc2MTMzOTczNXww&ixlib=rb-4.1.0&q=85)
 
-*Photo by [Erik-Jan Leusink](https://unsplash.com/@ejleusink?utm_source=rds_blogger&utm_medium=referral) on [Unsplash](https://unsplash.com?utm_source=rds_blogger&utm_medium=referral)*
+_Photo by [Erik-Jan Leusink](https://unsplash.com/@ejleusink?utm_source=rds_blogger&utm_medium=referral) on [Unsplash](https://unsplash.com?utm_source=rds_blogger&utm_medium=referral)_
 
 But wait—the statistics barely capture what these men endured. Each sortie meant facing waves of German bombers and fighters. Each mission could be their last. Yet they flew, again and again, driven by a commitment to defeat fascism.
 

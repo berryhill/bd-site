@@ -4,16 +4,6 @@ import { SITE } from "@/config";
 export const prerender = false;
 
 export const GET: APIRoute = async () => {
-  // List of static pages to include
-  const staticPages = [
-    "",
-    "about",
-    "posts",
-    "tags",
-    "search",
-    ...(SITE.showArchives ? ["archives"] : []),
-  ];
-
   const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>

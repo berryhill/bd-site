@@ -59,7 +59,11 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
               };
 
               // Apply filter if provided (draft filtering, etc)
-              if (!filter || (filter.draft === undefined || entry.data.draft === filter.draft)) {
+              if (
+                !filter ||
+                filter.draft === undefined ||
+                entry.data.draft === filter.draft
+              ) {
                 entries.push(entry);
               }
             }
@@ -124,7 +128,9 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
 
           // Find entry matching filter criteria
           const entry = entries.find((e: LiveEntry) => {
-            return Object.keys(filter).every(key => e.data[key] === filter[key]);
+            return Object.keys(filter).every(
+              key => e.data[key] === filter[key]
+            );
           });
 
           if (!entry) {

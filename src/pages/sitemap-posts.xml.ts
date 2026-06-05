@@ -24,7 +24,9 @@ export const GET: APIRoute = async () => {
 ${publishedPosts
   .map(post => {
     const url = `${SITE.website}${getPath({ post: post.id })}`;
-    const lastmod = (post.data.modDatetime || post.data.pubDatetime).toISOString();
+    const lastmod = (
+      post.data.modDatetime || post.data.pubDatetime
+    ).toISOString();
 
     return `  <url>
     <loc>${url}</loc>

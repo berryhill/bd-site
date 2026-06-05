@@ -1,5 +1,4 @@
 ---
-import { slugifyStr } from "@/utils/slugify";
 import type { CollectionEntry } from "astro:content";
 import { getPath } from "@/utils/getPath";
 import Datetime from "./Datetime.astro";
@@ -10,24 +9,29 @@ export interface Props extends CollectionEntry<"liveBlog"> {
 
 const { variant = "h2", data, id, filePath } = Astro.props;
 
-const { title, description, pubDatetime, modDatetime, timezone, ogImage } = data;
+const { title, description, pubDatetime, modDatetime, timezone, ogImage } =
+  data;
 ---
 
 <li class="card-fancy">
   <div class="card-glow-effect"></div>
   <div class="card-content">
-    {ogImage && (
-      <div class="card-image-wrapper">
-        <img src={ogImage} alt={title} class="card-image" />
-      </div>
-    )}
+    {
+      ogImage && (
+        <div class="card-image-wrapper">
+          <img src={ogImage} alt={title} class="card-image" />
+        </div>
+      )
+    }
 
     <a href={getPath(id, filePath)} class="card-title-link">
-      {variant === "h2" ? (
-        <h2 class="card-title">{title}</h2>
-      ) : (
-        <h3 class="card-title">{title}</h3>
-      )}
+      {
+        variant === "h2" ? (
+          <h2 class="card-title">{title}</h2>
+        ) : (
+          <h3 class="card-title">{title}</h3>
+        )
+      }
     </a>
 
     <Datetime {pubDatetime} {modDatetime} {timezone} class="card-date" />

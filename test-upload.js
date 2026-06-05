@@ -1,5 +1,6 @@
 // Test script for uploading a markdown post via API
 // Run with: node test-upload.js
+/* eslint-disable no-console */
 
 const testPost = {
   title: "My First API-Created Post",

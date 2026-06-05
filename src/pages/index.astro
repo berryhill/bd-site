@@ -25,32 +25,45 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 
 <Layout>
   <Header />
-  <main id="main-content" data-layout="index" class="max-w-6xl mx-auto px-4 sm:px-6">
+  <main
+    id="main-content"
+    data-layout="index"
+    class="mx-auto max-w-6xl px-4 sm:px-6"
+  >
     <!-- Hero Section -->
-    <section id="hero" class="pt-8 pb-4 max-w-4xl relative">
+    <section id="hero" class="relative max-w-4xl pt-8 pb-4">
       <div class="hero-content relative">
-        <h1 class="text-lg md:text-xl font-mono font-bold mb-4 tracking-tight flex items-center flex-wrap gap-1">
+        <h1
+          class="mb-4 flex flex-wrap items-center gap-1 font-mono text-lg font-bold tracking-tight md:text-xl"
+        >
           <span class="terminal-prompt">$</span>
           <span id="typed-text" class="ml-2"></span>
           <span class="cursor-blink" id="typing-cursor"> _</span>
         </h1>
 
-        <div class="space-y-2 mb-4">
-          <p class="text-base md:text-lg leading-relaxed text-skin-base">
-            Welcome to my corner of the internet where I explore agentic-first development,
-            AI/ML systems, blockchain technologies, crypto markets, digital music, and intelligent automation.
+        <div class="mb-4 space-y-2">
+          <p class="text-skin-base text-base leading-relaxed md:text-lg">
+            Welcome to my corner of the internet where I explore agentic-first
+            development, AI/ML systems, blockchain technologies, crypto markets,
+            digital music, and intelligent automation.
           </p>
-          <p class="text-sm md:text-base leading-relaxed text-skin-muted">
-            Beyond the stack lies the shift — a new cultural operating system where creativity, governance, and decision-making are rewritten by agentic systems. The question isn't just what we build, but what kind of world that code creates. As the barrier between intent and manifestation dissolves, the act of creation itself becomes instantaneous — transforming how we design, trade, teach, and govern.
+          <p class="text-skin-muted text-sm leading-relaxed md:text-base">
+            Beyond the stack lies the shift — a new cultural operating system
+            where creativity, governance, and decision-making are rewritten by
+            agentic systems. The question isn't just what we build, but what
+            kind of world that code creates. As the barrier between intent and
+            manifestation dissolves, the act of creation itself becomes
+            instantaneous — transforming how we design, trade, teach, and
+            govern.
           </p>
         </div>
 
         <!-- RSS Feed and Social Links -->
-        <div class="flex items-center gap-3 flex-wrap text-sm link-container">
+        <div class="link-container flex flex-wrap items-center gap-3 text-sm">
           <a
             target="_blank"
             href="/rss.xml"
-            class="inline-flex items-center gap-1.5 link-hover"
+            class="link-hover inline-flex items-center gap-1.5"
             aria-label="rss feed"
           >
             <IconRss width={16} height={16} />
@@ -122,8 +135,14 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       }
 
       @keyframes blink {
-        0%, 50% { opacity: 1; }
-        51%, 100% { opacity: 0; }
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0;
+        }
       }
 
       .link-hover {
@@ -133,7 +152,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       }
 
       .link-hover::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: -2px;
         left: 0;
@@ -172,14 +191,13 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     {
       featuredPosts.length > 0 && (
         <>
-          <!-- Featured Posts Section -->
-          <section id="featured" class="pt-4 pb-4 section-animate">
-            <h2 class="text-xl font-bold mb-4 text-skin-accent">
+          <section id="featured" class="section-animate pt-4 pb-4">
+            <h2 class="text-skin-accent mb-4 text-xl font-bold">
               Featured Posts
             </h2>
 
-            <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 list-none">
-              {featuredPosts.map((data) => (
+            <ul class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+              {featuredPosts.map(data => (
                 <Card variant="h2" {...data} />
               ))}
             </ul>
@@ -191,19 +209,20 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 
     {
       recentPosts.length > 0 && (
-        <!-- Recent Posts Section -->
-        <section id="recent-posts" class="pt-4 pb-4 section-animate">
-          <h2 class="text-xl font-bold mb-4 text-skin-accent">
-            Recent Posts
-          </h2>
+        <>
+          <section id="recent-posts" class="section-animate pt-4 pb-4">
+            <h2 class="text-skin-accent mb-4 text-xl font-bold">
+              Recent Posts
+            </h2>
 
-          <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 list-none">
-            {recentPosts.map(
-              (data, index) =>
-                index < SITE.postPerIndex && <Card variant="h3" {...data} />
-            )}
-          </ul>
-        </section>
+            <ul class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {recentPosts.map(
+                (data, index) =>
+                  index < SITE.postPerIndex && <Card variant="h3" {...data} />
+              )}
+            </ul>
+          </section>
+        </>
       )
     }
 
@@ -228,7 +247,12 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       }
 
       .gradient-title {
-        background: linear-gradient(135deg, var(--accent) 0%, var(--foreground) 50%, var(--accent) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--accent) 0%,
+          var(--foreground) 50%,
+          var(--accent) 100%
+        );
         background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -239,7 +263,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       }
 
       .gradient-title::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: 0;
         left: 0;
@@ -282,7 +306,8 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       }
 
       @keyframes pulse {
-        0%, 100% {
+        0%,
+        100% {
           opacity: 0.15;
           transform: translate(-50%, -50%) scale(1);
         }
@@ -295,9 +320,9 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 
     <!-- View All Posts CTA -->
     <div class="my-12 text-center">
-      <LinkButton href="/posts/" class="text-lg px-8 py-3">
+      <LinkButton href="/posts/" class="px-8 py-3 text-lg">
         View All Posts
-        <IconArrowRight class="inline-block rtl:-rotate-180 ml-2" />
+        <IconArrowRight class="ml-2 inline-block rtl:-rotate-180" />
       </LinkButton>
     </div>
   </main>
@@ -321,11 +346,15 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       const words = [
         { text: "spec", class: "cycle-word pillar-clickable", pillar: "spec" },
         { text: " → ", class: "arrow" },
-        { text: "build", class: "cycle-word pillar-clickable", pillar: "build" },
+        {
+          text: "build",
+          class: "cycle-word pillar-clickable",
+          pillar: "build",
+        },
         { text: " → ", class: "arrow" },
         { text: "play", class: "cycle-word pillar-clickable", pillar: "play" },
         { text: " → ", class: "arrow" },
-        { text: "repeat", class: "cycle-word highlight" }
+        { text: "repeat", class: "cycle-word highlight" },
       ];
 
       let wordIndex = 0;
@@ -374,7 +403,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 
       function attachPillarClickHandlers() {
         const pillarWords = document.querySelectorAll(".pillar-clickable");
-        pillarWords.forEach((word) => {
+        pillarWords.forEach(word => {
           word.addEventListener("click", () => {
             const pillar = (word as HTMLElement).dataset.pillar;
             if (pillar) {

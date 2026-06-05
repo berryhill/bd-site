@@ -19,7 +19,14 @@ interface PostData {
   content: string;
 }
 
-export const GET: APIRoute = async (context) => {
+type PostRecord = Record<string, unknown> & {
+  featured?: boolean;
+  draft?: boolean;
+  pubDatetime?: string | Date;
+  modDatetime?: string | Date | null;
+};
+
+export const GET: APIRoute = async context => {
   // Validate API key
   const authError = requireApiKey(context);
   if (authError) return authError;
@@ -58,7 +65,7 @@ export const GET: APIRoute = async (context) => {
             headers: { "Content-Type": "application/json" },
           }
         );
-      } catch (error) {
+      } catch {
         return new Response(
           JSON.stringify({
             error: "Post not found",
@@ -74,10 +81,12 @@ export const GET: APIRoute = async (context) => {
 
     // Return all posts (with optional filtering)
     const files = await readdir(blogDir);
-    const markdownFiles = files.filter(file => file.endsWith(".md") && !file.startsWith("_"));
+    const markdownFiles = files.filter(
+      file => file.endsWith(".md") && !file.startsWith("_")
+    );
 
     const posts = await Promise.all(
-      markdownFiles.map(async (filename) => {
+      markdownFiles.map(async filename => {
         const filePath = join(blogDir, filename);
         const fileContent = await readFile(filePath, "utf-8");
         const parsed = matter(fileContent);
@@ -92,22 +101,24 @@ export const GET: APIRoute = async (context) => {
     );
 
     // Apply filters
-    let filteredPosts = posts;
+    let filteredPosts: PostRecord[] = posts;
 
     if (featured !== null) {
       const isFeatured = featured === "true";
-      filteredPosts = filteredPosts.filter(post => (post as any).featured === isFeatured);
+      filteredPosts = filteredPosts.filter(
+        post => post.featured === isFeatured
+      );
     }
 
     if (draft !== null) {
       const isDraft = draft === "true";
-      filteredPosts = filteredPosts.filter(post => (post as any).draft === isDraft);
+      filteredPosts = filteredPosts.filter(post => post.draft === isDraft);
     }
 
     // Sort by pubDatetime descending (newest first)
     filteredPosts.sort((a, b) => {
-      const dateA = new Date((a as any).modDatetime || (a as any).pubDatetime).getTime();
-      const dateB = new Date((b as any).modDatetime || (b as any).pubDatetime).getTime();
+      const dateA = new Date(a.modDatetime || a.pubDatetime || 0).getTime();
+      const dateB = new Date(b.modDatetime || b.pubDatetime || 0).getTime();
       return dateB - dateA;
     });
 
@@ -123,7 +134,6 @@ export const GET: APIRoute = async (context) => {
       }
     );
   } catch (error) {
-    console.error("Error fetching posts:", error);
     return new Response(
       JSON.stringify({
         error: "Failed to fetch posts",
@@ -137,7 +147,7 @@ export const GET: APIRoute = async (context) => {
   }
 };
 
-export const POST: APIRoute = async (context) => {
+export const POST: APIRoute = async context => {
   // Validate API key
   const authError = requireApiKey(context);
   if (authError) return authError;
@@ -146,13 +156,22 @@ export const POST: APIRoute = async (context) => {
     const { request } = context;
     // Parse the incoming JSON
     const body = await request.json();
-    const { title, description, tags, featured, draft, featured_image, content } = body as PostData;
+    const {
+      title,
+      description,
+      tags,
+      featured,
+      draft,
+      featured_image,
+      content,
+    } = body as PostData;
 
     // Validate required fields
     if (!title || !description || !content) {
       return new Response(
         JSON.stringify({
-          error: "Missing required fields: title, description, and content are required",
+          error:
+            "Missing required fields: title, description, and content are required",
         }),
         {
           status: 400,
@@ -168,7 +187,7 @@ export const POST: APIRoute = async (context) => {
     const filename = `${slug}.md`;
 
     // Create frontmatter data object
-    const frontmatterData: Record<string, any> = {
+    const frontmatterData: Record<string, unknown> = {
       title,
       description,
       pubDatetime: new Date().toISOString(),
@@ -208,7 +227,6 @@ export const POST: APIRoute = async (context) => {
       }
     );
   } catch (error) {
-    console.error("Error creating post:", error);
     return new Response(
       JSON.stringify({
         error: "Failed to create post",
@@ -233,7 +251,7 @@ interface UpdatePostData {
   content?: string;
 }
 
-export const PATCH: APIRoute = async (context) => {
+export const PATCH: APIRoute = async context => {
   // Validate API key
   const authError = requireApiKey(context);
   if (authError) return authError;
@@ -242,7 +260,16 @@ export const PATCH: APIRoute = async (context) => {
     const { request } = context;
     // Parse the incoming JSON
     const body = await request.json();
-    const { slug, featured, draft, tags, title, description, featured_image, content } = body as UpdatePostData;
+    const {
+      slug,
+      featured,
+      draft,
+      tags,
+      title,
+      description,
+      featured_image,
+      content,
+    } = body as UpdatePostData;
 
     // Validate required field
     if (!slug) {
@@ -258,7 +285,15 @@ export const PATCH: APIRoute = async (context) => {
     }
 
     // Check if at least one field to update is provided
-    if (featured === undefined && draft === undefined && !tags && !title && !description && !featured_image && !content) {
+    if (
+      featured === undefined &&
+      draft === undefined &&
+      !tags &&
+      !title &&
+      !description &&
+      !featured_image &&
+      !content
+    ) {
       return new Response(
         JSON.stringify({
           error: "No fields to update provided",
@@ -277,7 +312,7 @@ export const PATCH: APIRoute = async (context) => {
     let fileContent: string;
     try {
       fileContent = await readFile(filePath, "utf-8");
-    } catch (error) {
+    } catch {
       return new Response(
         JSON.stringify({
           error: "Post not found",
@@ -339,7 +374,8 @@ export const PATCH: APIRoute = async (context) => {
         message: "Post updated successfully",
         slug,
         updated: {
-          featured: featured !== undefined ? featured : frontmatterData.featured,
+          featured:
+            featured !== undefined ? featured : frontmatterData.featured,
           draft: draft !== undefined ? draft : frontmatterData.draft,
         },
       }),
@@ -349,7 +385,6 @@ export const PATCH: APIRoute = async (context) => {
       }
     );
   } catch (error) {
-    console.error("Error updating post:", error);
     return new Response(
       JSON.stringify({
         error: "Failed to update post",
@@ -363,7 +398,7 @@ export const PATCH: APIRoute = async (context) => {
   }
 };
 
-export const DELETE: APIRoute = async (context) => {
+export const DELETE: APIRoute = async context => {
   // Validate API key
   const authError = requireApiKey(context);
   if (authError) return authError;
@@ -393,7 +428,7 @@ export const DELETE: APIRoute = async (context) => {
     // Check if file exists before deleting
     try {
       await readFile(filePath, "utf-8");
-    } catch (error) {
+    } catch {
       return new Response(
         JSON.stringify({
           error: "Post not found",
@@ -421,7 +456,6 @@ export const DELETE: APIRoute = async (context) => {
       }
     );
   } catch (error) {
-    console.error("Error deleting post:", error);
     return new Response(
       JSON.stringify({
         error: "Failed to delete post",

@@ -178,7 +178,8 @@ const isActive = (path: string) => {
 
     themeBtn.addEventListener("click", () => {
       const html = document.documentElement;
-      const currentTheme = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      const currentTheme =
+        html.getAttribute("data-theme") === "dark" ? "light" : "dark";
       html.setAttribute("data-theme", currentTheme);
       localStorage.setItem("theme", currentTheme);
     });
