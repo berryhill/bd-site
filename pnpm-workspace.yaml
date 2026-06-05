@@ -1,0 +1,5 @@
+# Approved install-time build scripts required by Astro/Tailwind/image tooling.
+allowBuilds:
+  "@tailwindcss/oxide": true
+  esbuild: true
+  sharp: true
