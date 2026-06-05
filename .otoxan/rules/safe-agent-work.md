@@ -14,6 +14,20 @@ pnpm run build
 
 There is no formal test script in `package.json` at the time this pack was created. Treat lint, format check, and build as the default validation suite unless a task introduces a more specific check.
 
+## CI and package-manager baseline
+
+The current pull-request CI baseline is intentionally narrow and should be treated as the reviewer-facing validation contract:
+
+- GitHub Actions runs on Node 20.
+- CI installs pnpm 10.11.1.
+- CI runs `pnpm install` without `--frozen-lockfile`.
+- CI then runs `pnpm run lint`, `pnpm run format:check`, and `pnpm run build`.
+- `pnpm run build` currently maps to `astro build`; it does not run `astro check` or Pagefind indexing unless `package.json` changes.
+
+Docker is stricter than CI by design: the Dockerfile uses `pnpm install --frozen-lockfile` in build/runtime stages. Do not “fix” CI by copying Docker's frozen-lockfile policy unless the issue explicitly scopes that change.
+
+`pnpm-workspace.yaml` is a required package-manager policy file here. It approves native/install-time build scripts for `@tailwindcss/oxide`, `esbuild`, and `sharp`; removing it can reintroduce `ERR_PNPM_IGNORED_BUILDS` in Docker or CI-like installs.
+
 ## Secrets and generated files
 
 Do not commit:

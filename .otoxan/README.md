@@ -26,6 +26,8 @@ Canonical repo/base branch:
 - Base branch: `main`
 - Package manager: `pnpm`
 - Validation suite: `pnpm run lint`, `pnpm run format:check`, `pnpm run build`
+- CI runtime: Node 20 with pnpm 10.11.1
+- Current build script: `astro build`
 
 Boundary for this pack:
 

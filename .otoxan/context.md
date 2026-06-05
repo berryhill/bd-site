@@ -50,6 +50,9 @@ When docs disagree, prefer this order:
 Known cautions:
 
 - `package.json` currently defines `build` as `astro build`; do not assume extra `astro check` or Pagefind copy steps unless the script is changed.
+- Current CI uses Node 20, pnpm 10.11.1, `pnpm install`, `pnpm run lint`, `pnpm run format:check`, and `pnpm run build`. Do not assume `--frozen-lockfile`, `astro check`, or Pagefind indexing in CI unless the workflow changes.
+- Docker builds intentionally use `pnpm install --frozen-lockfile` in both build and runtime stages. Keep Docker lockfile policy separate from CI's install policy.
+- `pnpm-workspace.yaml` is present to approve install-time build scripts required by `@tailwindcss/oxide`, `esbuild`, and `sharp`; do not remove it as unrelated workspace noise.
 - Some upstream AstroPaper docs/templates remain in `.github/` and may not be fully bd-site-specific.
 - `API.md` and `src/pages/api/posts.ts` should be compared before API changes; docs and implementation have had shape/base-URL mismatches.
 - `src/config.ts` edit URL currently references `berryhilldev/bd-site`; verify repo owner paths before changing public edit links.
