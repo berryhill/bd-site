@@ -1,6 +1,6 @@
+---
 export const prerender = false;
 
----
 import { getLiveCollection } from "astro:content";
 import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
@@ -12,7 +12,7 @@ import { SITE } from "@/config";
 
 const { entries: posts } = await getLiveCollection("liveBlog");
 
-let tags = getUniqueTags(posts || []);
+const tags = getUniqueTags(posts || []);
 ---
 
 <Layout title={`Tags | ${SITE.title}`}>

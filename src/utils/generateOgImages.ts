@@ -9,7 +9,9 @@ function svgBufferToPngBuffer(svg: string) {
   return pngData.asPng();
 }
 
-export async function generateOgImageForPost(post: CollectionEntry<"liveBlog">) {
+export async function generateOgImageForPost(
+  post: CollectionEntry<"liveBlog">
+) {
   const svg = await postOgImage(post);
   return svgBufferToPngBuffer(svg);
 }

@@ -44,7 +44,8 @@ const page = {
   url: {
     current: `/posts/page/${currentPage}`,
     prev: currentPage > 1 ? `/posts/page/${currentPage - 1}` : undefined,
-    next: currentPage < totalPages ? `/posts/page/${currentPage + 1}` : undefined,
+    next:
+      currentPage < totalPages ? `/posts/page/${currentPage + 1}` : undefined,
   },
 };
 ---
@@ -52,7 +53,7 @@ const page = {
 <Layout title={`Posts | ${SITE.title}`}>
   <Header />
   <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
-    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {page.data.map(data => <Card variant="h3" {...data} />)}
     </ul>
   </Main>

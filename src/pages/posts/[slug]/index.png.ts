@@ -26,7 +26,10 @@ export const GET: APIRoute = async ({ params }) => {
 
   // Find the post matching the slug
   const post = posts.find(
-    p => getPath(p.id, p.filePath, false) === slug && !p.data.draft && !p.data.ogImage
+    p =>
+      getPath(p.id, p.filePath, false) === slug &&
+      !p.data.draft &&
+      !p.data.ogImage
   );
 
   if (!post) {
@@ -36,7 +39,9 @@ export const GET: APIRoute = async ({ params }) => {
     });
   }
 
-  const buffer = await generateOgImageForPost(post as CollectionEntry<"liveBlog">);
+  const buffer = await generateOgImageForPost(
+    post as CollectionEntry<"liveBlog">
+  );
   return new Response(new Uint8Array(buffer), {
     headers: { "Content-Type": "image/png" },
   });

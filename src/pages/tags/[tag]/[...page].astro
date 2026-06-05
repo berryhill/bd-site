@@ -50,7 +50,8 @@ const page = {
   url: {
     current: `/tags/${tag}/${currentPage}`,
     prev: currentPage > 1 ? `/tags/${tag}/${currentPage - 1}` : undefined,
-    next: currentPage < totalPages ? `/tags/${tag}/${currentPage + 1}` : undefined,
+    next:
+      currentPage < totalPages ? `/tags/${tag}/${currentPage + 1}` : undefined,
   },
 };
 ---
@@ -63,7 +64,7 @@ const page = {
     pageDesc={`All the articles with the tag "${tagName}".`}
   >
     <h1 slot="title" transition:name={tag}>{`Tag:${tag}`}</h1>
-    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {page.data.map(data => <Card variant="h3" {...data} />)}
     </ul>
   </Main>

@@ -14,25 +14,36 @@ const { page } = Astro.props;
 
 {
   page.lastPage > 1 && (
-    <nav class="mt-auto mb-8 flex justify-center items-center gap-4" aria-label="Pagination">
+    <nav
+      class="mt-auto mb-8 flex items-center justify-center gap-4"
+      aria-label="Pagination"
+    >
       <LinkButton
         disabled={!page.url.prev}
         href={page.url.prev as string}
-        class:list={["px-6 py-3 bg-transparent hover:bg-accent text-accent hover:text-background font-bold uppercase text-sm tracking-wider transition-all duration-200 select-none", { "opacity-30 pointer-events-none": !page.url.prev }]}
+        class:list={[
+          "hover:text-background bg-transparent px-6 py-3 text-sm font-bold tracking-wider text-accent uppercase transition-all duration-200 select-none hover:bg-accent",
+          { "pointer-events-none opacity-30": !page.url.prev },
+        ]}
         ariaLabel="Previous"
       >
-        <IconArrowLeft class="inline-block rtl:rotate-180 w-4 h-4" />
+        <IconArrowLeft class="inline-block h-4 w-4 rtl:rotate-180" />
         Prev
       </LinkButton>
-      <span class="font-bold uppercase text-lg text-skin-base">{page.currentPage} / {page.lastPage}</span>
+      <span class="text-skin-base text-lg font-bold uppercase">
+        {page.currentPage} / {page.lastPage}
+      </span>
       <LinkButton
         disabled={!page.url.next}
         href={page.url.next as string}
-        class:list={["px-6 py-3 bg-transparent hover:bg-accent text-accent hover:text-background font-bold uppercase text-sm tracking-wider transition-all duration-200 select-none", { "opacity-30 pointer-events-none": !page.url.next }]}
+        class:list={[
+          "hover:text-background bg-transparent px-6 py-3 text-sm font-bold tracking-wider text-accent uppercase transition-all duration-200 select-none hover:bg-accent",
+          { "pointer-events-none opacity-30": !page.url.next },
+        ]}
         ariaLabel="Next"
       >
         Next
-        <IconArrowRight class="inline-block rtl:rotate-180 w-4 h-4" />
+        <IconArrowRight class="inline-block h-4 w-4 rtl:rotate-180" />
       </LinkButton>
     </nav>
   )

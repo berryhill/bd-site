@@ -169,6 +169,7 @@ NODE_ENV=production
 Blog posts are stored as Markdown files in `src/data/blog/`. In production, the posts directory is mounted as a PersistentVolume, allowing content updates without rebuilding the container.
 
 To update blog content in production:
+
 1. Content is stored on the PVC `bd-site-posts-pvc`
 2. Update files on the PVC
 3. Pod restarts pick up new content automatically
@@ -176,6 +177,7 @@ To update blog content in production:
 ## 🚢 CI/CD Pipeline
 
 GitHub Actions workflow (`.github/workflows/deploy.yaml`):
+
 1. Build Docker image
 2. Push to GitHub Container Registry (GHCR)
 3. Deploy to Kubernetes via Helm
