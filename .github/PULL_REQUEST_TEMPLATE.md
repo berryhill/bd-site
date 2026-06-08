@@ -1,30 +1,60 @@
 ## Description
 
-<!-- A clear and concise description of what the pull request does. Include any relevant motivation and background. -->
-
-## Types of changes
-
-<!-- What types of changes does your code introduce to AstroPaper? Put an `x` in the boxes that apply -->
-
-- [ ] Bug Fix (non-breaking change which fixes an issue)
-- [ ] New Feature (non-breaking change which adds functionality)
-- [ ] Documentation Update (if none of the other choices apply)
-- [ ] Others (any other types not listed above)
-
-## Checklist
-
-<!-- Please follow this checklist and put an x in each of the boxes, like this: [x]. You can also fill these out after creating the PR. This is simply a reminder of what we are going to look for before merging your code. -->
-
-- [ ] I have read the [Contributing Guide](https://github.com/satnaing/astro-paper/blob/main/.github/CONTRIBUTING.md)
-- [ ] I have added the necessary documentation (if appropriate)
-- [ ] Breaking Change (fix or feature that would cause existing functionality to not work as expected)
-
-## Further comments
-
-<!-- If this is a relatively large or complex change, kick off the discussion by explaining why you chose the solution you did and what alternatives you considered, etc... -->
+<!-- What does this PR do and why? Include the controlling issue context. -->
 
 ## Related Issue
 
-<!-- If this PR is related to an existing issue, link to it here. -->
+Closes: #<!-- Issue number -->
 
-Closes: #<!-- Issue number, if applicable -->
+## Path boundary
+
+<!-- Check one. All changed files should match the declared boundary. -->
+
+- [ ] `.otoxan-only` — all changes under `.otoxan/`
+- [ ] docs-only — documentation/template files only, no source code
+- [ ] content-only — blog posts or page content under `src/data/blog/`, plus narrowly required supporting files
+- [ ] app/source-code-touching — changes to `src/`, config, or build tooling
+- [ ] deployment-touching — changes to Docker, Helm, CI workflows, or deploy config
+
+## Change type
+
+- [ ] Content — new or revised blog post, page copy, or media
+- [ ] Docs — README, `.otoxan/`, API docs, or templates
+- [ ] Feature — new functionality
+- [ ] Fix — bug fix or correction
+- [ ] Refactor — no behavior change
+- [ ] Config/build — tooling, dependencies, or deployment
+
+## Content checklist
+
+<!-- Required for all content-only PRs. For non-content PRs, check N/A and skip. -->
+
+- [ ] N/A — this PR does not touch blog content
+
+_If checked N/A, skip to Validation. Otherwise complete all:_
+
+- [ ] **Voice and brand** — prose reads as specific, human, opinionated, accessible, forward, and useful. No generic AI cadence, hype without examples, or copy that could belong to any AI account.
+- [ ] **Frontmatter valid** — `title`, `description`, `pubDatetime`, `tags` are present and correctly typed. `draft` is explicitly set (not omitted). Timezone is `Asia/Bangkok` unless overridden.
+- [ ] **Draft state correct** — new posts ship with `draft: true` unless Matt has explicitly approved publish. State transitions follow INV-1 through INV-7.
+- [ ] **Strategic fit** — post strengthens at least one brand lane: agentic-first development, AI/ML systems, blockchain/crypto, digital music/creative systems, or practical operating notes.
+- [ ] **Images and media** — no screenshots unless initiative-scoped. Default to diagrams, editorial graphics, or dynamic OG. No Unsplash/stock unless explicitly approved.
+- [ ] **No agent metadata leaked** — no quality-checklist artifacts, model identifiers, or prompt residue in the post body.
+
+## Validation
+
+- [ ] `pnpm run lint` passes
+- [ ] `pnpm run format:check` passes
+- [ ] `pnpm run build` passes
+
+<!-- For content-only PRs: if lint/format/build fail due to pre-existing issues unrelated to this PR, note which checks are clean and what the known pre-existing failure is. -->
+
+## Staged diff review
+
+Before merging, the author should confirm:
+
+- [ ] `git diff --stat --cached HEAD` shows only files expected for this issue
+- [ ] No unintended deletions, config changes, or files outside the declared path boundary
+
+## Further comments
+
+<!-- Any context reviewers need: alternatives considered, known tradeoffs, pre-existing issues surfaced by validation. -->

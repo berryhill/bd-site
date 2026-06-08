@@ -32,3 +32,9 @@ PR body must state the path boundary:
 - deployment-touching
 
 Never claim a PR is ready without verifying the PR state and changed files through GitHub after opening it.
+
+## PR template
+
+`.github/PULL_REQUEST_TEMPLATE.md` contains the canonical PR checklist. Content PRs must complete the content checklist section (voice/brand, frontmatter, draft state, strategic fit, images/media, no agent metadata). Non-content PRs mark it N/A.
+
+If the PR template is missing or reverted to upstream AstroPaper boilerplate, flag it as a repo health issue.
