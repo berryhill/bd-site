@@ -7,6 +7,7 @@ tags:
   - asset-audit
   - bd-site
 ---
+
 **Task ID:** t_cd37beb
 **Flow:** blog_post_create | Step 1 of 9 — Intake
 **Mode:** Strategist + Analyst
@@ -22,8 +23,7 @@ Fresh checks run at intake execution:
 - All 4 per-post image-pack.json files: valid JSON, correct paths
 - `image-manifest.json`: 2 assets, both with verification_record populated
 
-Conclusion: the manifest is already accurate and complete. img-001 was added by the prior session's intake. img-002 was already present. No further corrections needed.
----
+## Conclusion: the manifest is already accurate and complete. img-001 was added by the prior session's intake. img-002 was already present. No further corrections needed.
 
 ## Intake: Image Manifest Audit + Original Diagram Record
 
@@ -36,16 +36,16 @@ Conclusion: the manifest is already accurate and complete. img-001 was added by 
 
 ### Source material reviewed
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `src/data/blog/image-manifest.json` | Canonical registry of original post images | Reviewed |
-| `src/data/blog/test-post-image-workflow.svg` | Workflow diagram SVG | 3519 bytes, valid XML |
-| `src/data/blog/_t_81cdae4-compounding-error-curve.svg` | Decay curve SVG | 4987 bytes, valid XML |
-| `src/data/blog/test-post-image-workflow.image-pack.json` | Per-post image pack | Exists |
-| `src/data/blog/_ai-agents-make-some-developers-more-valuable.image-pack.json` | Per-post image pack | Exists |
-| `src/data/blog/_smoke-test-what-breaks-when-agents-access-production-database.image-pack.json` | Per-post image pack | Exists |
-| `src/data/blog/_t_81cdae4-what-breaks-when-ai-agents-access-production-databases.image-pack.json` | Per-post image pack | Exists |
-| `src/data/blog/test-post-image-workflow.md` | Draft post embedding test-post-image-workflow.svg | Verified embed |
+| File                                                                                              | Purpose                                           | Status                |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------- | --------------------- |
+| `src/data/blog/image-manifest.json`                                                               | Canonical registry of original post images        | Reviewed              |
+| `src/data/blog/test-post-image-workflow.svg`                                                      | Workflow diagram SVG                              | 3519 bytes, valid XML |
+| `src/data/blog/_t_81cdae4-compounding-error-curve.svg`                                            | Decay curve SVG                                   | 4987 bytes, valid XML |
+| `src/data/blog/test-post-image-workflow.image-pack.json`                                          | Per-post image pack                               | Exists                |
+| `src/data/blog/_ai-agents-make-some-developers-more-valuable.image-pack.json`                     | Per-post image pack                               | Exists                |
+| `src/data/blog/_smoke-test-what-breaks-when-agents-access-production-database.image-pack.json`    | Per-post image pack                               | Exists                |
+| `src/data/blog/_t_81cdae4-what-breaks-when-ai-agents-access-production-databases.image-pack.json` | Per-post image pack                               | Exists                |
+| `src/data/blog/test-post-image-workflow.md`                                                       | Draft post embedding test-post-image-workflow.svg | Verified embed        |
 
 ### What the manifest gets right
 
@@ -59,6 +59,7 @@ Conclusion: the manifest is already accurate and complete. img-001 was added by 
 The `test-post-image-workflow.svg` diagram (3519 bytes) exists in the repo and is embedded in `test-post-image-workflow.md`, but it is **not in the manifest assets array**. The per-post image-pack exists, the SVG exists, the draft post exists, but the master registry has no entry for it.
 
 **Missing entry should document:**
+
 - `id`: img-001 (next sequential ID)
 - `post_slug`: test-post-image-workflow
 - `post_title`: Test post: the image path should be boring
@@ -79,11 +80,11 @@ The `test-post-image-workflow.svg` diagram (3519 bytes) exists in the repo and i
 
 Three per-post image-pack.json files document "no images" decisions:
 
-| File | Post | Decision |
-|------|------|----------|
-| `_ai-agents-make-some-developers-more-valuable.image-pack.json` | AI agents + developer value | dynamic_og_only; no inline images |
-| `_smoke-test-what-breaks-when-agents-access-production-database.image-pack.json` | Agent DB access smoke test | auto_og_only; no inline images |
-| `_t_81cdae4-what-breaks-when-ai-agents-access-production-databases.image-pack.json` | Agent DB access (phase 2) | 1 diagram: compounding error curve |
+| File                                                                                | Post                        | Decision                           |
+| ----------------------------------------------------------------------------------- | --------------------------- | ---------------------------------- |
+| `_ai-agents-make-some-developers-more-valuable.image-pack.json`                     | AI agents + developer value | dynamic_og_only; no inline images  |
+| `_smoke-test-what-breaks-when-agents-access-production-database.image-pack.json`    | Agent DB access smoke test  | auto_og_only; no inline images     |
+| `_t_81cdae4-what-breaks-when-ai-agents-access-production-databases.image-pack.json` | Agent DB access (phase 2)   | 1 diagram: compounding error curve |
 
 The manifest's `per_post_image_packs` list is accurate. These packs do not add assets to the manifest — they document why no assets were needed for their posts.
 
@@ -94,7 +95,7 @@ The manifest's `per_post_image_packs` list is accurate. These packs do not add a
 Two SVGs currently qualify:
 
 1. **test-post-image-workflow.svg** — workflow diagram showing the draft-first image pipeline
-2. **_t_81cdae4-compounding-error-curve.svg** — decay curve for the compounding accuracy post
+2. **\_t_81cdae4-compounding-error-curve.svg** — decay curve for the compounding accuracy post
 
 Both were created as part of Luca content workflow operations and are owned by Matt/berryhill.dev. Neither uses generative AI imagery.
 

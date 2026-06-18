@@ -6,10 +6,12 @@ tags:
   - image-manifest
   - bd-site
 ---
+
 **Task ID:** t_cd37beb
 **Flow:** blog_post_create | Step 2 of 9 — Strategic Brief
 **Mode:** Strategist
 **Previous step:** Intake (execute) — completed; manifest already accurate
+
 ---
 
 ## Strategic Brief: Image Manifest Audit
@@ -25,6 +27,7 @@ This is an audit-and-registry task, not a content-creation task. The goal is cor
 The manifest was in good structural shape but had one gap: `img-001` (test-post-image-workflow.svg) existed in the repo with a valid per-post image-pack and was embedded in its draft post, but had no manifest entry. The prior session's intake corrected that. Both img-001 and img-002 are now properly documented.
 
 Current manifest state (verified fresh at intake execution):
+
 - 2 original SVG assets registered (img-001, img-002)
 - Both SVGs: valid XML, correct byte counts, embedded in draft posts
 - All 4 per-post image-pack.json files: valid JSON, correct paths
@@ -52,11 +55,11 @@ Matt's site should be operator-grade: every asset documented, nothing ad-hoc, no
 
 ### Risks
 
-| Risk | Likelihood | Mitigation |
-|------|-------------|------------|
-| Manifest update not committed/pushed | Low | Commit now; Matt can review before merge |
-| Future assets not added to manifest | Medium | Enforce checklist in workflow_rules; Luca owns this |
-| Per-post image-pack drift from manifest | Low | Verify alignment during each image planning step |
+| Risk                                    | Likelihood | Mitigation                                          |
+| --------------------------------------- | ---------- | --------------------------------------------------- |
+| Manifest update not committed/pushed    | Low        | Commit now; Matt can review before merge            |
+| Future assets not added to manifest     | Medium     | Enforce checklist in workflow_rules; Luca owns this |
+| Per-post image-pack drift from manifest | Low        | Verify alignment during each image planning step    |
 
 ### Recommendation
 
