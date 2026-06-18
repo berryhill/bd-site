@@ -1,0 +1,165 @@
+{
+  "version": "1.0.0",
+  "title": "bd-site Original Image Asset Manifest",
+  "description": "Canonical registry of original image assets created for berryhill.dev posts. Covers SVG diagrams and other hand-authored visuals. Does not include auto-generated OG images (those are handled by the dynamic OG pipeline at src/utils/generateOgImages.ts).",
+  "managed_by": "Luca Vale (brand/content owner)",
+  "path_boundary": "content-only",
+  "generated_at": "2026-06-17T21:45:00Z",
+  "updated_at": "2026-06-18T09:00:00Z",
+  "license_policy": "All original diagrams are owned by Matt Berryhill / berryhill.dev. No external license required. No stock imagery in this registry.",
+  "generative_imagery_policy": "Standing directive: no generative AI imagery until Matt explicitly greenlights that phase. All visuals in this registry are hand-authored SVG data visualizations and structural diagrams.",
+  "assets": [
+    {
+      "id": "img-001",
+      "post_slug": "test-post-image-workflow",
+      "post_title": "Test post: the image path should be boring",
+      "draft_file": "test-post-image-workflow.md",
+      "published": false,
+      "role": "diagram",
+      "asset_type": "workflow_diagram",
+      "path": "src/data/blog/test-post-image-workflow.svg",
+      "public_path_on_publish": "src/data/blog/test-post-image-workflow.svg",
+      "source": "original",
+      "creator": "Luca Vale",
+      "owner": "Matt Berryhill / berryhill.dev",
+      "license": "owned",
+      "attribution_text": "Original diagram by Luca Vale for berryhill.dev.",
+      "alt_text": "Five labeled boxes—Draft, Plan, Local asset, Manifest, and Review—connected by arrows across a dark blue canvas before a green publish gate.",
+      "date_created": "2026-06-17",
+      "usage_rationale": "Shows the draft-first image workflow being tested, making the operational sequence easier to inspect than prose alone. Demonstrates that the site can carry a local original SVG referenced in Markdown. Approved as a template for future workflow illustrations.",
+      "visual_style": "Dark blue background (#0f172a), sky-blue (#38bdf8) borders and arrows, green (#22c55e) publish gate, Inter/sans-serif typography, drop shadow on nodes.",
+      "placement_in_post": "Immediately after the opening paragraph in the test post.",
+      "masthead_eligible": false,
+      "notes": "Created as a smoke-test to validate the image pipeline. Published post status: draft-only (draft: true). Embedded directly in test-post-image-workflow.md via Markdown image syntax. The diagram is verified as a working template for future workflow illustrations.",
+      "verification_record": {
+        "verified_at": "2026-06-18T09:00:00Z",
+        "verified_by": "Luca Vale",
+        "flow_session": "sess_15e4853c4ebe",
+        "task_id": "t_cd37beb",
+        "step": "intake",
+        "svg_bytes_verified": 3519,
+        "svg_xml_valid": true,
+        "svg_elements": {
+          "rects": 9,
+          "paths": 5,
+          "texts": 13,
+          "groups": 5,
+          "markers": 1,
+          "filters": 1
+        },
+        "draft_embed_status": "embedded in test-post-image-workflow.md",
+        "image_pack_verified": true,
+        "manifest_entry_added": true
+      }
+    },
+    {
+      "id": "img-002",
+      "post_slug": "what-breaks-when-ai-agents-access-production-databases",
+      "post_title": "What Breaks When You Give AI Agents Access to Your Production Database",
+      "draft_file": "_t_81cdae4-draft-what-breaks-when-ai-agents-access-production-databases.md",
+      "published": false,
+      "role": "diagram",
+      "asset_type": "data_visualization",
+      "path": "src/data/blog/_t_81cdae4-compounding-error-curve.svg",
+      "public_path_on_publish": "src/data/blog/_t_81cdae4-compounding-error-curve.svg",
+      "source": "original",
+      "creator": "Luca Vale",
+      "owner": "Matt Berryhill / berryhill.dev",
+      "license": "owned",
+      "attribution_text": "Original diagram by Luca Vale for berryhill.dev.",
+      "alt_text": "Decay curve showing how 85 percent per-step accuracy compounds into approximately 20 percent workflow success rate by step 10, crossing below 50 percent reliability around step 5.5.",
+      "date_created": "2026-06-17",
+      "usage_rationale": "Visualizes the 0.85^n compounding math — the post's most memorable and quotable element. Makes the multiplicative error-propagation visible rather than leaving it as a formula. Highest reader-value visual for this post.",
+      "visual_style": "Dark background (#0f1117), amber (#fb923c) decay curve with semi-transparent fill, slate grid lines, dashed 50% reliability reference line, dark card callout for 'by step 10: garbage'. Footnote preserves epistemic honesty: '85% is a model for thinking about compounding rates, not an empirical measurement.'",
+      "placement_in_post": "After the code block containing 0.85^10 ≈ 20%, before the paragraph that begins 'That is a 20% success rate on a workflow that looks perfectly reliable...'",
+      "masthead_eligible": false,
+      "notes": "Drafted and ready for Matt approval. Does NOT block finalize step — the post reads well with the code block alone. The diagram is enhancement, not dependency. See _t_81cdae4-what-breaks-when-ai-agents-access-production-databases.image-plan.md for full rationale.",
+      "verification_record": {
+        "verified_at": "2026-06-18T00:45:00Z",
+        "verified_by": "Luca Vale",
+        "flow_session": "sess_15e4853c4ebe",
+        "task_id": "t_cd37beb",
+        "svg_bytes_verified": 4987,
+        "svg_xml_valid": true,
+        "svg_elements": {
+          "paths": 2,
+          "texts": 25,
+          "lines": 9,
+          "rects": 2
+        },
+        "image_pack_verified": true,
+        "draft_embed_status": "not_embedded (awaiting Matt approval before publish)"
+      }
+    }
+  ],
+  "asset_summary": {
+    "total_assets": 2,
+    "by_role": {
+      "diagram": 2
+    },
+    "by_source": {
+      "original": 2
+    },
+    "by_publish_status": {
+      "published": 0,
+      "draft_only": 2
+    },
+    "generative_images_used": 0,
+    "external_images_used": 0
+  },
+  "masthead_guidance": {
+    "description": "Assets in this manifest are supporting visuals for brand posts, not masthead/brand identity assets.",
+    "masthead_assets": [],
+    "masthead_definition": "Masthead assets are brand-level identity elements (logos, avatars, favicons, branded templates) stored in public/ or src/. Original post diagrams live in src/data/blog/ alongside their posts.",
+    "masthead_paths_to_never_modify": [
+      "public/favicon.svg",
+      "public/favicon.png",
+      "public/matt_headshot.jpeg",
+      "public/avatar.png",
+      "public/astropaper-og.jpg"
+    ]
+  },
+  "workflow_rules": {
+    "new_asset_checklist": [
+      "1. Does the visual earn its place? (It must clarify, not decorate.)",
+      "2. Is the visual original? (No hotlinked stock. No generative imagery without Matt's greenlight.)",
+      "3. Does it have descriptive alt text? (Not keyword-stuffed. Describes what the reader sees.)",
+      "4. Is it draft-first? (Image lives alongside underscore-prefixed draft, not published content.)",
+      "5. Is it recorded here? (Add entry to this manifest before the post leaves draft state.)",
+      "6. Does the image-pack.json reflect this? (Per-post image-pack.json points back to this manifest for cross-reference.)"
+    ],
+    "og_image_handling": "OG images are auto-generated by the site's dynamic OG pipeline (src/utils/generateOgImages.ts + /posts/[slug]/index.png.ts). Custom OG images are only added when Matt explicitly requests one. This manifest covers body/inline images only; OG images are tracked in per-post image-pack.json files."
+  },
+  "per_post_image_packs": [
+    "src/data/blog/test-post-image-workflow.image-pack.json",
+    "src/data/blog/_ai-agents-make-some-developers-more-valuable.image-pack.json",
+    "src/data/blog/_smoke-test-what-breaks-when-agents-access-production-database.image-pack.json",
+    "src/data/blog/_t_81cdae4-what-breaks-when-ai-agents-access-production-databases.image-pack.json"
+  ],
+  "audit_notes": {
+    "audit_date": "2026-06-18T09:00:00Z",
+    "auditor": "Luca Vale",
+    "task_id": "t_cd37beb",
+    "finding": "img-001 (test-post-image-workflow.svg) existed in the repo with a per-post image-pack.json and was embedded in its draft post, but was missing from the manifest assets array. Entry added during this audit.",
+    "all_svgs_verified": true,
+    "all_image_packs_verified": true
+  },
+  "next_actions": [
+    {
+      "action": "Approve or request changes to the updated manifest",
+      "owner": "Matt",
+      "blocking": true
+    },
+    {
+      "action": "If Matt approves the compounding error curve (img-002), embed it in the phase-2 draft during Finalize Draft step",
+      "owner": "Luca",
+      "blocking": false,
+      "note": "The finalize step is not blocked by this — the draft reads well without the diagram. This is enhancement, not dependency."
+    },
+    {
+      "action": "Update this manifest whenever a new original image asset is created for a published or draft post",
+      "owner": "Luca",
+      "blocking": false
+    }
+  ]
+}
