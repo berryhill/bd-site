@@ -5,7 +5,7 @@ Use these endpoints to integrate with DraftFly or other platforms.
 ## Base URL
 
 ```
-https://interstellardispatch.com
+https://berryhill.dev
 ```
 
 For local development:
@@ -94,11 +94,12 @@ x-api-key: YOUR_API_KEY
 - `slug` (optional): Filter by specific post slug
 - `featured` (optional): Filter by featured status (`true` or `false`)
 - `draft` (optional): Filter by draft status (`true` or `false`)
-- `tag` (optional): Filter by tag
 
 **Response (200 OK):**
 ```json
 {
+  "success": true,
+  "count": 1,
   "posts": [
     {
       "slug": "my-first-post",
@@ -109,6 +110,10 @@ x-api-key: YOUR_API_KEY
       "featured": false,
       "draft": false,
       "tags": ["blog", "astro"],
+      "ogImage": "https://example.com/image.jpg",
+      "canonicalURL": "https://berryhill.dev/posts/my-first-post/",
+      "hideEditPost": false,
+      "timezone": "Asia/Bangkok",
       "content": "# Hello World\n\nThis is the post content..."
     }
   ]
@@ -135,10 +140,17 @@ Content-Type: application/json
   "title": "My New Post",
   "description": "A description of my post",
   "content": "# Hello World\n\nThis is the post content...",
+  "author": "Berryhill",
+  "pubDatetime": "2025-01-15T10:00:00.000Z",
+  "modDatetime": null,
   "tags": ["blog", "astro"],
   "featured": false,
   "draft": true,
-  "featured_image": "https://example.com/image.jpg"
+  "ogImage": "https://example.com/image.jpg",
+  "featured_image": "https://example.com/image.jpg",
+  "canonicalURL": "https://berryhill.dev/posts/my-new-post/",
+  "hideEditPost": false,
+  "timezone": "Asia/Bangkok"
 }
 ```
 
@@ -146,10 +158,17 @@ Content-Type: application/json
 - `title` (required): Post title
 - `description` (required): Post description
 - `content` (required): Post content in Markdown
+- `author` (optional): Post author (schema defaults to site author when omitted)
+- `pubDatetime` (optional): Publication datetime; defaults to the creation time when omitted
+- `modDatetime` (optional): Modified datetime; can be `null`
 - `tags` (optional): Array of tags (defaults to ["blog"])
 - `featured` (optional): Featured status (defaults to false)
 - `draft` (optional): Draft status (defaults to false)
-- `featured_image` (optional): URL to featured image (stored as ogImage in frontmatter)
+- `ogImage` (optional): Open Graph image URL/path stored as `ogImage` in frontmatter; can be `null`
+- `featured_image` (optional): Backward-compatible alias for `ogImage`; `ogImage` takes precedence when it is provided, including `null`; can be `null`
+- `canonicalURL` (optional): Canonical URL for the post; can be `null`
+- `hideEditPost` (optional): Hide the edit link for this post
+- `timezone` (optional): IANA timezone override for datetime display
 
 **Response (201 Created):**
 ```json
@@ -166,7 +185,7 @@ Content-Type: application/json
 Update an existing blog post's metadata or content.
 
 ```
-PATCH /api/posts?slug=my-post-slug
+PATCH /api/posts
 ```
 
 **Headers:**
@@ -175,29 +194,42 @@ x-api-key: YOUR_API_KEY
 Content-Type: application/json
 ```
 
-**Query Parameters:**
-- `slug` (required): The slug of the post to update
-
-**Request Body (all fields optional):**
+**Request Body:**
 ```json
 {
+  "slug": "my-post-slug",
   "title": "Updated Title",
   "description": "Updated description",
+  "author": "Berryhill",
+  "pubDatetime": "2025-01-15T10:00:00.000Z",
+  "modDatetime": "2025-01-16T10:00:00.000Z",
   "featured": true,
   "draft": false,
   "tags": ["updated", "tags"],
+  "ogImage": "https://example.com/new-image.jpg",
   "featured_image": "https://example.com/new-image.jpg",
+  "canonicalURL": "https://berryhill.dev/posts/my-post-slug/",
+  "hideEditPost": false,
+  "timezone": "Asia/Bangkok",
   "content": "# Updated Content\n\nNew post content..."
 }
 ```
 
 **Fields:**
+- `slug` (required): The slug of the post to update
 - `title` (optional): Update post title
 - `description` (optional): Update post description
+- `author` (optional): Update post author
+- `pubDatetime` (optional): Update publication datetime
+- `modDatetime` (optional): Update modified datetime; if omitted, the API sets it to the current update time
 - `featured` (optional): Update featured status
 - `draft` (optional): Update draft status
 - `tags` (optional): Update tags array
-- `featured_image` (optional): Update featured image URL (stored as ogImage in frontmatter)
+- `ogImage` (optional): Update Open Graph image URL/path stored as `ogImage` in frontmatter; can be `null`
+- `featured_image` (optional): Backward-compatible alias for `ogImage`; `ogImage` takes precedence when it is provided, including `null`; can be `null`
+- `canonicalURL` (optional): Update canonical URL; can be `null`
+- `hideEditPost` (optional): Update whether the edit link is hidden
+- `timezone` (optional): Update IANA timezone override
 - `content` (optional): Update post content in Markdown
 
 **Response (200 OK):**
@@ -207,12 +239,8 @@ Content-Type: application/json
   "message": "Post updated successfully",
   "slug": "my-post-slug",
   "updated": {
-    "title": true,
-    "description": true,
     "featured": true,
-    "draft": true,
-    "tags": true,
-    "content": true
+    "draft": false
   }
 }
 ```

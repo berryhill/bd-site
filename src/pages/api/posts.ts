@@ -12,12 +12,31 @@ export const prerender = false;
 interface PostData {
   title: string;
   description: string;
+  author?: string;
+  pubDatetime?: string;
+  modDatetime?: string | null;
   tags?: string[];
   featured?: boolean;
   draft?: boolean;
-  featured_image?: string;
+  ogImage?: string | null;
+  featured_image?: string | null;
+  canonicalURL?: string | null;
+  hideEditPost?: boolean;
+  timezone?: string;
   content: string;
 }
+
+type FrontmatterValue = string | string[] | boolean | null;
+
+const applyOptionalFrontmatter = (
+  frontmatterData: Record<string, unknown>,
+  key: string,
+  value: FrontmatterValue | undefined
+) => {
+  if (value !== undefined) {
+    frontmatterData[key] = value;
+  }
+};
 
 type PostRecord = Record<string, unknown> & {
   featured?: boolean;
@@ -159,10 +178,17 @@ export const POST: APIRoute = async context => {
     const {
       title,
       description,
+      author,
+      pubDatetime,
+      modDatetime,
       tags,
       featured,
       draft,
+      ogImage,
       featured_image,
+      canonicalURL,
+      hideEditPost,
+      timezone,
       content,
     } = body as PostData;
 
@@ -190,16 +216,22 @@ export const POST: APIRoute = async context => {
     const frontmatterData: Record<string, unknown> = {
       title,
       description,
-      pubDatetime: new Date().toISOString(),
-      featured: featured || false,
-      draft: draft || false,
+      pubDatetime: pubDatetime ?? new Date().toISOString(),
+      featured: featured ?? false,
+      draft: draft ?? false,
       tags: tags && tags.length > 0 ? tags : ["blog"],
     };
 
-    // Add featured_image if provided
-    if (featured_image) {
-      frontmatterData.ogImage = featured_image;
-    }
+    applyOptionalFrontmatter(frontmatterData, "author", author);
+    applyOptionalFrontmatter(frontmatterData, "modDatetime", modDatetime);
+    applyOptionalFrontmatter(
+      frontmatterData,
+      "ogImage",
+      ogImage !== undefined ? ogImage : featured_image
+    );
+    applyOptionalFrontmatter(frontmatterData, "canonicalURL", canonicalURL);
+    applyOptionalFrontmatter(frontmatterData, "hideEditPost", hideEditPost);
+    applyOptionalFrontmatter(frontmatterData, "timezone", timezone);
 
     // Use gray-matter to properly stringify frontmatter with content
     const fileContent = matter.stringify(content, frontmatterData);
@@ -242,12 +274,19 @@ export const POST: APIRoute = async context => {
 
 interface UpdatePostData {
   slug: string;
+  author?: string;
+  pubDatetime?: string;
+  modDatetime?: string | null;
   featured?: boolean;
   draft?: boolean;
   tags?: string[];
   title?: string;
   description?: string;
-  featured_image?: string;
+  ogImage?: string | null;
+  featured_image?: string | null;
+  canonicalURL?: string | null;
+  hideEditPost?: boolean;
+  timezone?: string;
   content?: string;
 }
 
@@ -262,12 +301,19 @@ export const PATCH: APIRoute = async context => {
     const body = await request.json();
     const {
       slug,
+      author,
+      pubDatetime,
+      modDatetime,
       featured,
       draft,
       tags,
       title,
       description,
+      ogImage,
       featured_image,
+      canonicalURL,
+      hideEditPost,
+      timezone,
       content,
     } = body as UpdatePostData;
 
@@ -288,11 +334,18 @@ export const PATCH: APIRoute = async context => {
     if (
       featured === undefined &&
       draft === undefined &&
+      author === undefined &&
+      pubDatetime === undefined &&
+      modDatetime === undefined &&
       !tags &&
       !title &&
       !description &&
-      !featured_image &&
-      !content
+      ogImage === undefined &&
+      featured_image === undefined &&
+      canonicalURL === undefined &&
+      hideEditPost === undefined &&
+      timezone === undefined &&
+      content === undefined
     ) {
       return new Response(
         JSON.stringify({
@@ -345,12 +398,22 @@ export const PATCH: APIRoute = async context => {
     if (description) {
       frontmatterData.description = description;
     }
-    if (featured_image) {
-      frontmatterData.ogImage = featured_image;
-    }
+    applyOptionalFrontmatter(frontmatterData, "author", author);
+    applyOptionalFrontmatter(frontmatterData, "pubDatetime", pubDatetime);
+    applyOptionalFrontmatter(frontmatterData, "modDatetime", modDatetime);
+    applyOptionalFrontmatter(
+      frontmatterData,
+      "ogImage",
+      ogImage !== undefined ? ogImage : featured_image
+    );
+    applyOptionalFrontmatter(frontmatterData, "canonicalURL", canonicalURL);
+    applyOptionalFrontmatter(frontmatterData, "hideEditPost", hideEditPost);
+    applyOptionalFrontmatter(frontmatterData, "timezone", timezone);
 
     // Add modDatetime to track the update
-    frontmatterData.modDatetime = new Date().toISOString();
+    if (modDatetime === undefined) {
+      frontmatterData.modDatetime = new Date().toISOString();
+    }
 
     // Use updated content if provided, otherwise keep original
     const updatedContent = content !== undefined ? content : originalContent;
