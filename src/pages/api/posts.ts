@@ -6,6 +6,7 @@ import matter from "gray-matter";
 import { submitToIndexNow } from "@/utils/indexnow";
 import { SITE } from "@/config";
 import { requireApiKey } from "@/utils/apiAuth";
+import { validateBlogVisualAssets } from "@/utils/blogVisualAssets";
 
 export const prerender = false;
 
@@ -36,6 +37,28 @@ const applyOptionalFrontmatter = (
   if (value !== undefined) {
     frontmatterData[key] = value;
   }
+};
+
+const blogVisualValidationErrorResponse = (content: string, slug: string) => {
+  const result = validateBlogVisualAssets(content, {
+    postSlug: slug,
+    publicDir: join(process.cwd(), "public"),
+  });
+
+  if (result.valid) {
+    return null;
+  }
+
+  return new Response(
+    JSON.stringify({
+      error: "Invalid blog visual asset reference",
+      details: result.issues,
+    }),
+    {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 };
 
 type PostRecord = Record<string, unknown> & {
@@ -208,6 +231,9 @@ export const POST: APIRoute = async context => {
 
     // Generate slug from title
     const slug = slugifyStr(title);
+
+    const validationError = blogVisualValidationErrorResponse(content, slug);
+    if (validationError) return validationError;
 
     // Generate filename
     const filename = `${slug}.md`;
@@ -417,6 +443,12 @@ export const PATCH: APIRoute = async context => {
 
     // Use updated content if provided, otherwise keep original
     const updatedContent = content !== undefined ? content : originalContent;
+
+    const validationError = blogVisualValidationErrorResponse(
+      updatedContent,
+      slug
+    );
+    if (validationError) return validationError;
 
     // Rebuild the file with updated frontmatter and content
     const updatedFile = matter.stringify(updatedContent, frontmatterData);
