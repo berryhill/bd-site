@@ -12,9 +12,10 @@ export const SITE = {
   showArchives: true,
   showBackButton: true, // show back button in post detail
   editPost: {
-    enabled: true,
-    text: "Edit page",
-    url: "https://github.com/berryhilldev/bd-site/edit/main/",
+    // Keep the public brand surface focused on readers, not upstream theme maintenance.
+    enabled: false,
+    text: "Suggest a correction",
+    url: "https://github.com/berryhill/bd-site/edit/main/",
   },
   dynamicOgImage: true,
   dir: "ltr", // "rtl" | "auto"
