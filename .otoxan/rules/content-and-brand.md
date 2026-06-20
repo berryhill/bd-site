@@ -46,6 +46,10 @@ Rules:
 - Global timezone is `Asia/Bangkok`; posts can override with `timezone`.
 - Do not publish under Matt's brand voice without preserving his positioning and review expectations.
 
+### Blog visual assets
+
+Diagrams should be real process artifacts or sourced/non-generative visuals, not generic AI stock tropes. Store durable repo-backed blog visuals under `public/assets/blog/<post-slug>/`, reference them in Markdown as `/assets/blog/<post-slug>/filename.svg` or `.png`, and include useful alt text plus a caption/title. Inline `data:image` URIs are forbidden.
+
 ## Content API caution
 
 The repository has API docs and implementation for post management. Before changing or using the API, compare:

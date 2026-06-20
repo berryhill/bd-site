@@ -7,12 +7,13 @@ Use `pnpm`, not npm or yarn, for normal repository work.
 Core validation commands:
 
 ```bash
+pnpm test
 pnpm run lint
 pnpm run format:check
 pnpm run build
 ```
 
-There is no formal test script in `package.json` at the time this pack was created. Treat lint, format check, and build as the default validation suite unless a task introduces a more specific check.
+`package.json` includes a scoped unit test script. Treat test, lint, format check, and build as the default validation suite unless a task narrows or expands validation.
 
 ## CI and package-manager baseline
 
@@ -41,6 +42,8 @@ Do not commit:
 - `.astro/`
 - `node_modules/`
 - `public/pagefind/`
+
+`public/assets/blog/` is commit-eligible source asset space for durable blog visuals; do not treat it like generated `dist/` or `public/pagefind/` output.
 
 `X_API_KEY` is a server-side secret for API routes. Never print, paste, or commit real key values.
 

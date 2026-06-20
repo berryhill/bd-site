@@ -27,7 +27,9 @@ Verified from repository files during onboarding:
 - `src/content.config.ts` — exports `BLOG_PATH`; live collections are defined elsewhere.
 - `src/live.config.ts` — live blog collection wiring.
 - `src/loaders/filesystem.ts` — custom recursive Markdown loader.
+- `src/utils/blogVisualAssets.ts` — validation for durable local blog visual references.
 - `src/data/blog/` — Markdown blog posts.
+- `public/assets/blog/<post-slug>/` — stable durable location for repo-backed blog visuals referenced as `/assets/blog/<post-slug>/...`.
 - `src/pages/api/posts.ts` — content API for post create/update/delete.
 - `src/pages/about.md` — about page content.
 - `.github/workflows/ci.yml` — CI validation.
@@ -55,6 +57,7 @@ Known cautions:
 - `pnpm-workspace.yaml` is present to approve install-time build scripts required by `@tailwindcss/oxide`, `esbuild`, and `sharp`; do not remove it as unrelated workspace noise.
 - Some upstream AstroPaper docs/templates remain in `.github/` and may not be fully bd-site-specific.
 - `API.md` and `src/pages/api/posts.ts` should be compared before API changes; docs and implementation have had shape/base-URL mismatches.
+- Blog visual references are enforced by both the filesystem loader and POST/PATCH API paths through `src/utils/blogVisualAssets.ts`; inline `data:image` URIs are rejected and local `/assets/blog/<post-slug>/...` references must have backing files plus alt text and caption/title.
 - `src/config.ts` edit URL currently references `berryhilldev/bd-site`; verify repo owner paths before changing public edit links.
 
 ## Brand frame
