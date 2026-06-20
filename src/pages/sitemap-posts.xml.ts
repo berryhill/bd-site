@@ -5,17 +5,35 @@ import { getPath } from "@/utils/getPath";
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
-  // Get all blog posts from live collection
-  const { entries: allPosts } = await getLiveCollection("liveBlog");
+type SitemapDateValue = Date | string | number | null | undefined;
 
-  // Filter out drafts and sort by date
+const getValidDate = (value: SitemapDateValue) => {
+  if (value === null || value === undefined || value === "") return undefined;
+
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isFinite(date.getTime()) ? date : undefined;
+};
+
+const getPostDate = (post: { data: Record<string, unknown> }) => {
+  return (
+    getValidDate(post.data.modDatetime as SitemapDateValue) ??
+    getValidDate(post.data.pubDatetime as SitemapDateValue)
+  );
+};
+
+export const GET: APIRoute = async () => {
+  // Get all blog posts from live collection. If the live loader returns an
+  // error-shaped response, emit an empty sitemap instead of throwing a 500.
+  const liveBlog = await getLiveCollection("liveBlog");
+  const allPosts = Array.isArray(liveBlog.entries) ? liveBlog.entries : [];
+
+  // Filter out drafts and sort by date, putting undated posts last.
   const publishedPosts = allPosts
     .filter(post => !post.data.draft)
     .sort((a, b) => {
-      const dateA = a.data.modDatetime || a.data.pubDatetime;
-      const dateB = b.data.modDatetime || b.data.pubDatetime;
-      return new Date(dateB).getTime() - new Date(dateA).getTime();
+      const dateA = getPostDate(a)?.getTime() ?? 0;
+      const dateB = getPostDate(b)?.getTime() ?? 0;
+      return dateB - dateA;
     });
 
   // Generate XML sitemap for posts
@@ -23,14 +41,11 @@ export const GET: APIRoute = async () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${publishedPosts
   .map(post => {
-    const url = `${SITE.website}${getPath({ post: post.id })}`;
-    const lastmod = (
-      post.data.modDatetime || post.data.pubDatetime
-    ).toISOString();
+    const url = `${SITE.website}${getPath(post.id, post.filePath)}`;
+    const lastmod = getPostDate(post)?.toISOString();
 
     return `  <url>
-    <loc>${url}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <loc>${url}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`;
