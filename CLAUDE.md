@@ -15,7 +15,7 @@ pnpm install
 # Start development server (runs on localhost:4321)
 pnpm run dev
 
-# Build for production (includes Astro check, build, and Pagefind indexing)
+# Build for production (package.json maps this to astro build)
 pnpm run build
 
 # Preview production build
@@ -25,6 +25,7 @@ pnpm run preview
 pnpm run sync        # Generate TypeScript types for Astro modules
 
 # Code quality
+pnpm test           # Run scoped unit tests
 pnpm run lint        # Run ESLint
 pnpm run format      # Format code with Prettier
 pnpm run format:check # Check formatting without writing
@@ -38,6 +39,7 @@ pnpm run format:check # Check formatting without writing
 - **Content Schema**: Defined in [src/content.config.ts](src/content.config.ts) using Astro's content collections API
 - **Post Filtering**: Posts with `draft: true` are hidden in production. Posts can be scheduled with `pubDatetime` and will appear after the scheduled time (with a 15-minute margin defined in `SITE.scheduledPostMargin`)
 - **Frontmatter**: Posts use YAML frontmatter with fields like `title`, `description`, `pubDatetime`, `modDatetime`, `tags`, `featured`, `draft`, `ogImage`, `canonicalURL`, `hideEditPost`, `timezone`
+- **Durable Blog Visuals**: Store repo-backed diagrams/assets under `public/assets/blog/<post-slug>/` and reference them from Markdown as `/assets/blog/<post-slug>/filename.svg` or `.png` with alt text and a caption/title. Inline `data:image` URIs are rejected.
 
 ### Routing Structure
 
@@ -94,11 +96,7 @@ import getSortedPosts from "@/utils/getSortedPosts";
 
 ### Build Process
 
-The build command runs these steps sequentially:
-1. `astro check` - Type checking
-2. `astro build` - Build static site to `dist/`
-3. `pagefind --site dist` - Generate search index
-4. `cp -r dist/pagefind public/` - Copy search index to public directory
+`pnpm run build` currently maps to `astro build` in `package.json`.
 
 ### Search Functionality
 
@@ -122,6 +120,7 @@ Search is powered by Pagefind, which indexes the built site and provides client-
 
 - The project uses pnpm as the package manager
 - Blog posts with filenames starting with `_` are ignored by the glob loader pattern
+- Durable local blog visuals must use normal Markdown image syntax with alt text and caption/title; do not inline `data:image` URIs.
 - Posts are timezone-aware; global timezone is set in `SITE.timezone` (IANA format), individual posts can override with frontmatter `timezone`
 - The edit post feature links to a GitHub repository URL (configurable in `SITE.editPost`)
 - Archives page visibility is controlled by `SITE.showArchives` in the sitemap filter

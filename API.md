@@ -170,6 +170,8 @@ Content-Type: application/json
 - `hideEditPost` (optional): Hide the edit link for this post
 - `timezone` (optional): IANA timezone override for datetime display
 
+**Content image references:** POST `content` may include normal external images. Repo-backed blog visuals must be referenced as `/assets/blog/<slug>/filename.svg` or `/assets/blog/<slug>/filename.png`, include alt text plus a caption/title in Markdown, and have an existing backing file under `public/assets/blog/<slug>/`. Inline `data:image` URIs are invalid.
+
 **Response (201 Created):**
 ```json
 {
@@ -231,6 +233,8 @@ Content-Type: application/json
 - `hideEditPost` (optional): Update whether the edit link is hidden
 - `timezone` (optional): Update IANA timezone override
 - `content` (optional): Update post content in Markdown
+
+**Content image references:** PATCH `content` may include normal external images. Repo-backed blog visuals must be referenced as `/assets/blog/<slug>/filename.svg` or `/assets/blog/<slug>/filename.png`, include alt text plus a caption/title in Markdown, and have an existing backing file under `public/assets/blog/<slug>/`. Inline `data:image` URIs are invalid.
 
 **Response (200 OK):**
 ```json
@@ -325,6 +329,20 @@ or
 ```json
 {
   "error": "Missing required parameter: [parameter_name]"
+}
+```
+
+Endpoint-specific validation failures may also return:
+
+```json
+{
+  "error": "Invalid blog visual asset reference",
+  "details": [
+    {
+      "src": "/assets/blog/my-post-slug/diagram.svg",
+      "reason": "Missing caption/title for local blog visual"
+    }
+  ]
 }
 ```
 

@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
+import { assertValidBlogVisualAssets } from "@/utils/blogVisualAssets";
 
 export interface FilesystemLoaderOptions {
   baseDir: string;
@@ -50,6 +51,11 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
               // Generate ID from file path relative to base directory
               const relativePath = path.relative(fullPath, itemPath);
               const id = relativePath.replace(/\.md$/, "");
+
+              assertValidBlogVisualAssets(content, {
+                postSlug: id,
+                publicDir: path.resolve("public"),
+              });
 
               const entry = {
                 id,
@@ -104,6 +110,11 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
           // Read and parse the file
           const fileContent = await fs.readFile(filePath, "utf-8");
           const { data, content } = matter(fileContent);
+
+          assertValidBlogVisualAssets(content, {
+            postSlug: filter,
+            publicDir: path.resolve("public"),
+          });
 
           return {
             entry: {

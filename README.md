@@ -71,6 +71,7 @@ This site runs as a server-side rendered (SSR) Astro application:
 │   ├── pages/              # Routes and API endpoints
 │   ├── styles/             # Global CSS and typography
 │   └── utils/              # Utility functions
+├── public/assets/blog/      # Durable blog visuals by post slug
 ├── Dockerfile              # Multi-stage Docker build for SSR
 ├── nginx.conf              # NGINX config (for reference)
 └── astro.config.ts         # Astro SSR configuration
@@ -94,7 +95,8 @@ pnpm run preview
 # Type checking
 pnpm run sync
 
-# Linting and formatting
+# Unit tests, linting, and formatting
+pnpm test
 pnpm run lint
 pnpm run format
 ```
@@ -168,6 +170,8 @@ NODE_ENV=production
 
 Blog posts are stored as Markdown files in `src/data/blog/`. In production, the posts directory is mounted as a PersistentVolume, allowing content updates without rebuilding the container.
 
+Durable local blog visuals belong under `public/assets/blog/<post-slug>/` and should be referenced from Markdown as `/assets/blog/<post-slug>/filename.svg` or `/assets/blog/<post-slug>/filename.png`. Use normal Markdown image syntax with useful alt text and a caption/title; inline `data:image` URIs are rejected.
+
 To update blog content in production:
 
 1. Content is stored on the PVC `bd-site-posts-pvc`
@@ -188,6 +192,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 - Zero-downtime rolling deployments
 - Automatic TLS certificate management
 - Persistent blog content storage
+- Durable repo-backed blog visuals under `/assets/blog/<post-slug>/`
 - Terminal-style typing animations
 - Interactive pillar modals
 - Dark/light mode toggle
