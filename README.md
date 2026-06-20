@@ -172,6 +172,26 @@ Blog posts are stored as Markdown files in `src/data/blog/`. In production, the 
 
 Durable local blog visuals belong under `public/assets/blog/<post-slug>/` and should be referenced from Markdown as `/assets/blog/<post-slug>/filename.svg` or `/assets/blog/<post-slug>/filename.png`. Use normal Markdown image syntax with useful alt text and a caption/title; inline `data:image` URIs are rejected.
 
+### Blog social preview checks
+
+Blog post pages emit `<title>`, meta description, Open Graph title/description/image, and Twitter card/title/description/image tags from the shared layout. Per-post `ogImage` frontmatter, or the API `ogImage` / `featured_image` field, is used directly when present. When a published post has no custom `ogImage` and `SITE.dynamicOgImage` is enabled, the post preview image resolves to `/posts/<slug>/index.png` and is generated dynamically. Draft posts and posts with a custom `ogImage` do not receive a dynamic `/index.png` image route.
+
+For future Luca publishing checks, verify the built or previewed post HTML before treating social previews as ready:
+
+```bash
+pnpm run build
+pnpm run preview
+pnpm run check:social-preview -- http://localhost:4321/posts/<post-slug>/
+```
+
+The check also accepts a built HTML file path, for example:
+
+```bash
+pnpm run check:social-preview -- dist/client/posts/<post-slug>/index.html
+```
+
+The command fails if required title/description/image metadata is missing or if Open Graph and Twitter values disagree.
+
 To update blog content in production:
 
 1. Content is stored on the PVC `bd-site-posts-pvc`
