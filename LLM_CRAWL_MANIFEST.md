@@ -113,9 +113,26 @@ Previously, only 6 static pages were included. Now ALL published blog posts are 
 3. Structured data baseline (BlogPosting schema on all posts)
 4. llms.txt manifest endpoint at `/llms.txt` (2026-06-21, PR #35)
 
+### ⚠️ Production Deployment Note (2026-06-21)
+
+The `src/pages/llms.txt.ts` implementation merged in PR #35 is correct and builds successfully. However, because the running pod's image tag is pinned to `0.0.42` in `helm/values.yaml` and the Helm chart was not re-deployed after the merge, `/llms.txt` may return 404 until the next deployment picks up the post-#35 build.
+
+To deploy SSR route changes (like `/llms.txt`):
+
+1. The `helm/values.yaml` image tag must be bumped to match the Docker build tag
+   (`DOCKER_TAG` in `.github/workflows/deploy.yaml`) and the Helm upgrade re-run.
+2. Alternatively, switch to `:latest` tag with `image.pullPolicy: Always`.
+
+**Verification after deployment:**
+```bash
+curl -si https://berryhill.dev/llms.txt | head -5
+# Expected: HTTP/2 200 + Content-Type: text/plain
+```
+
 ### 🔄 In Progress:
-1. Submit sitemap to Google Search Console
-2. Submit sitemap to Bing Webmaster Tools
+1. Verify `/llms.txt` is live in production after deployment
+2. Submit sitemap to Google Search Console
+3. Submit sitemap to Bing Webmaster Tools
 
 ### 📋 Planned:
 1. Add FAQPage schema if FAQ content is created
