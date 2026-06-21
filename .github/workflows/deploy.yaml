@@ -10,7 +10,7 @@ env:
   DOCKER_REGISTRY: ghcr.io
   DOCKER_ORG: berryhill
   DOCKER_IMAGE: bd-site
-  DOCKER_TAG: 0.0.42
+  DOCKER_TAG: 0.0.44
   GITHUB_USER: berryhill
   GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
   LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
@@ -61,3 +61,5 @@ jobs:
       - name: Deploy using Helm
         run: |
           helm upgrade --install bd-site ./helm -f ./helm/values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"
+          kubectl rollout status deployment/bd-site --timeout=180s
+          kubectl get pods -l app=bd-site -o wide
