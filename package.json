@@ -26,6 +26,7 @@
     "gray-matter": "^4.0.3",
     "lodash.kebabcase": "^4.1.1",
     "marked": "^16.4.1",
+    "mongodb": "^7.3.0",
     "remark-collapse": "^0.1.2",
     "remark-toc": "^9.0.0",
     "satori": "^0.15.2",

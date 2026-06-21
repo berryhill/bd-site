@@ -1,13 +1,10 @@
 import { defineLiveCollection } from "astro:content";
 import { z } from "astro/zod";
-import { filesystemLoader } from "@/loaders/filesystem";
+import { mongoBlogLoader } from "@/loaders/mongo";
 import { SITE } from "@/config";
-import { BLOG_PATH } from "@/content.config";
 
 const liveBlog = defineLiveCollection({
-  loader: filesystemLoader({
-    baseDir: `./${BLOG_PATH}`,
-  }),
+  loader: mongoBlogLoader(),
   schema: z.object({
     author: z.string().default(SITE.author),
     pubDatetime: z.coerce.date(),
