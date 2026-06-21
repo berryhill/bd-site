@@ -85,7 +85,10 @@ Allow: /
 User-agent: Omgilibot
 Allow: /
 
-Sitemap: ${new URL("sitemap.xml", sitemapURL.origin).href}
+Sitemap: ${new URL("sitemap-index.xml", sitemapURL.origin).href}
+
+# AI/LLM crawler manifest
+Allow: /llms.txt
 `;
 
 export const GET: APIRoute = ({ site }) => {
