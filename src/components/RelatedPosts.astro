@@ -1,0 +1,35 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getPath } from "@/utils/getPath";
+
+export interface Props {
+  posts: CollectionEntry<"liveBlog">[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+  posts.length > 0 && (
+    <aside class="related-posts" aria-labelledby="related-posts-heading">
+      <h2 id="related-posts-heading" class="mb-4 text-lg font-bold text-accent">
+        Related posts
+      </h2>
+      <ul class="space-y-3">
+        {posts.map(post => (
+          <li>
+            <a
+              href={getPath(post.id, post.filePath)}
+              class="group inline-flex items-center gap-2 transition-colors hover:text-accent"
+            >
+              <span class="text-accent opacity-0 transition-opacity group-hover:opacity-100">
+                →
+              </span>
+              <span>{post.data.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  )
+}

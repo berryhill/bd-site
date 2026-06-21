@@ -236,3 +236,8 @@ html {
 :target {
   scroll-margin-block: 5ex;
 }
+
+.related-posts {
+  margin-block: 1.5rem;
+  padding-block: 0.5rem;
+}
