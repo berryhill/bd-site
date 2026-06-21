@@ -52,10 +52,17 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
               const relativePath = path.relative(fullPath, itemPath);
               const id = relativePath.replace(/\.md$/, "");
 
-              assertValidBlogVisualAssets(content, {
-                postSlug: id,
-                publicDir: path.resolve("public"),
-              });
+              try {
+                assertValidBlogVisualAssets(content, {
+                  postSlug: id,
+                  publicDir: path.resolve("public"),
+                });
+              } catch (error) {
+                // Do not let one bad visual reference take down the entire blog.
+                // Surface the error for logs, but keep rendering the post list.
+                // eslint-disable-next-line no-console
+                console.error(`Blog visual validation failed for ${id}:`, error);
+              }
 
               const entry = {
                 id,
@@ -111,10 +118,16 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
           const fileContent = await fs.readFile(filePath, "utf-8");
           const { data, content } = matter(fileContent);
 
-          assertValidBlogVisualAssets(content, {
-            postSlug: filter,
-            publicDir: path.resolve("public"),
-          });
+          try {
+            assertValidBlogVisualAssets(content, {
+              postSlug: filter,
+              publicDir: path.resolve("public"),
+            });
+          } catch (error) {
+            // Keep the post route available even if one visual reference is bad.
+            // eslint-disable-next-line no-console
+            console.error(`Blog visual validation failed for ${filter}:`, error);
+          }
 
           return {
             entry: {
