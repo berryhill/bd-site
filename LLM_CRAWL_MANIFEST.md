@@ -77,18 +77,38 @@ Previously, only 6 static pages were included. Now ALL published blog posts are 
 
 ## Structured Data
 
-### Current Implementation:
-- **BlogPosting**: ✅ Implemented on all post pages
-  - headline
-  - image
-  - datePublished
-  - dateModified
-  - author (Person schema)
+### Current Implementation (Phase 3 — PR #43):
+All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `BlogPosting` baseline has been replaced with page-specific schema types. Values are stripped of `undefined`/`null` at build time.
+
+#### Page-specific schemas
+
+| Page | Schema Type | Key Fields |
+|---|---|---|
+| Homepage | `WebSite` | name, url, description, image, author (Person) |
+| About | `Person` | name, url, image, description |
+| Posts list, Tags, Archives | `CollectionPage` | name, description, url, isPartOf (WebSite) |
+| Post detail | `BlogPosting` | headline, description, url, mainEntityOfPage (WebPage), image, keywords (tags), datePublished, dateModified, author (Person array), publisher (Person) |
+
+#### BlogPosting enriched fields (post detail pages)
+- `headline` — post title
+- `description` — post description frontmatter field
+- `url` — canonical post URL
+- `mainEntityOfPage` — WebPage referencing the post URL
+- `image` — OG image URL (if present)
+- `keywords` — post tags as array
+- `datePublished` — ISO 8601 publication datetime
+- `dateModified` — ISO 8601 last-modified datetime (omitted if absent)
+- `author` — Person array with name and profile URL
+- `publisher` — Person with name and profile URL
+
+#### Implementation notes
+- Utility: `src/utils/structuredData.ts` — typed builders for each schema type
+- Layout wiring: `Layout.astro` accepts optional `jsonLd` prop, renders only when provided
+- Tests: `tests/structuredData.test.mjs` — validates schema types, required fields, and absence of undefined values
 
 ### Planned Additions:
 - FAQPage schema (if FAQ content is added)
 - Product schema (if relevant)
-- Article schema (enhanced version of BlogPosting)
 
 ## Content Features
 - **RSS Feed**: https://berryhill.dev/rss.xml ✅ **FULLY OPTIMIZED**
