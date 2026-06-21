@@ -111,6 +111,7 @@ Previously, only 6 static pages were included. Now ALL published blog posts are 
 1. robots.txt explicitly allows all major LLM crawlers (18+ bots)
 2. Sitemap generated and accessible
 3. Structured data baseline (BlogPosting schema on all posts)
+4. llms.txt manifest endpoint at `/llms.txt` (2026-06-21, PR #35)
 
 ### 🔄 In Progress:
 1. Submit sitemap to Google Search Console
@@ -119,7 +120,8 @@ Previously, only 6 static pages were included. Now ALL published blog posts are 
 ### 📋 Planned:
 1. Add FAQPage schema if FAQ content is created
 2. Monitor crawler activity in server logs
-3. Consider implementing llms.txt for AI-specific indexing
+3. Submit sitemap to Google Search Console
+4. Submit sitemap to Bing Webmaster Tools
 
 ## Notes
 - As of 2025, GPTBot accounts for ~30% of AI crawler traffic
