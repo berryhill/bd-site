@@ -100,6 +100,16 @@ Previously, only 6 static pages were included. Now ALL published blog posts are 
   - Language and editorial metadata
   - lastBuildDate for freshness indication
   - Optimal for LLM/aggregator consumption
+- **Atom Feed**: https://berryhill.dev/atom.xml ✅ **IMPLEMENTED** (PR #41, 2026-06-21)
+  - Valid Atom 1.0 format with `<entry>` elements
+  - Includes `<id>`, `<updated>`, `<published>`, `<summary>`, `<link>`, and `<category>` tags per entry
+  - Same post data as RSS feed
+- **Feed Alias**: https://berryhill.dev/feed.xml → 301 redirect to `/rss.xml` ✅ (PR #41)
+  - Common feed reader convention; stable redirect
+- **Feed Autodiscovery**: ✅ **IMPLEMENTED** (PR #41)
+  - `<link rel="alternate" type="application/rss+xml">` in site layout
+  - `<link rel="alternate" type="application/atom+xml">` in site layout
+  - All pages advertise both RSS and Atom feeds for feed readers and LLM crawlers
 - **Open Graph**: ✅ Configured with dark theme
 - **Twitter Cards**: ✅ summary_large_image
 - **Canonical URLs**: ✅ Set on all pages
@@ -162,6 +172,9 @@ Checks performed:
 | robots.txt | /robots.txt | Sitemap: directive or allow/disallow rules |
 | sitemap-index | /sitemap-index.xml | sitemap XML structure |
 | rss.xml | /rss.xml | RSS 2.0 channel element |
+| atom.xml | /atom.xml | Atom 1.0 feed with `<feed>` root |
+| feed.xml | /feed.xml | HTTP 301 redirect to /rss.xml |
+| autodiscovery | / | `<link rel="alternate">` tags for rss+xml and atom+xml |
 | llms.txt | /llms.txt | title + sitemap + RSS references (requires PR #35 deployed) |
 | post JSON-LD | /posts/{slug}/ | JSON-LD structured data (optional) |
 
@@ -173,6 +186,9 @@ Pagefind note: requires static-site build output (`public/pagefind/`). With SSR/
 - All major AI companies (OpenAI, Anthropic, Google, Meta, Apple, Amazon) are explicitly welcomed
 
 ## Changelog
+
+### 2026-06-21
+- ✅ **Atom Feed + Feed Aliases** (PR #41): Added `/atom.xml` (valid Atom 1.0), `/feed.xml` (301 → `/rss.xml`), and `<link rel="alternate">` autodiscovery tags for both RSS and Atom in the site layout. Updates LLM_CRAWL_MANIFEST.md.
 
 ### 2025-10-29
 - ✅ **RSS Feed Optimization**: Enhanced for LLM/aggregator consumption
