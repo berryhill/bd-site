@@ -11,7 +11,19 @@ const DEFAULT_COLLECTION_CANDIDATES = [
   "posts",
   "blog_posts",
   "blogPosts",
+  "published_posts",
   "content_posts",
+  "blog_post_reviews",
+  "blogPostReviews",
+  "content",
+  "contents",
+];
+
+const DEFAULT_DATABASE_CANDIDATES = [
+  "bd-site",
+  "bd_site",
+  "berryhill",
+  "luca",
 ];
 
 let cachedClient: MongoClient | null = null;
@@ -22,8 +34,10 @@ function getMongoUri(options: MongoBlogLoaderOptions) {
     options.uri ||
     import.meta.env.MONGO_URI ||
     import.meta.env.MONGODB_URI ||
+    import.meta.env.DATABASE_URL ||
     process.env.MONGO_URI ||
     process.env.MONGODB_URI ||
+    process.env.DATABASE_URL ||
     ""
   );
 }
@@ -34,11 +48,20 @@ function getMongoDatabase(options: MongoBlogLoaderOptions) {
     import.meta.env.MONGO_DB ||
     import.meta.env.MONGODB_DB ||
     import.meta.env.BLOG_MONGO_DB ||
+    import.meta.env.DB_NAME ||
     process.env.MONGO_DB ||
     process.env.MONGODB_DB ||
     process.env.BLOG_MONGO_DB ||
+    process.env.DB_NAME ||
     undefined
   );
+}
+
+function getDatabaseCandidates(options: MongoBlogLoaderOptions) {
+  const configured = getMongoDatabase(options);
+  return configured
+    ? [configured, ...DEFAULT_DATABASE_CANDIDATES.filter(name => name !== configured)]
+    : DEFAULT_DATABASE_CANDIDATES;
 }
 
 function getCollectionCandidates(options: MongoBlogLoaderOptions) {
@@ -46,8 +69,10 @@ function getCollectionCandidates(options: MongoBlogLoaderOptions) {
     options.collection ||
     import.meta.env.MONGO_POSTS_COLLECTION ||
     import.meta.env.BLOG_POSTS_COLLECTION ||
+    import.meta.env.CONTENT_COLLECTION ||
     process.env.MONGO_POSTS_COLLECTION ||
-    process.env.BLOG_POSTS_COLLECTION;
+    process.env.BLOG_POSTS_COLLECTION ||
+    process.env.CONTENT_COLLECTION;
 
   return configured
     ? [configured, ...DEFAULT_COLLECTION_CANDIDATES.filter(name => name !== configured)]
@@ -95,34 +120,48 @@ function docSlug(doc: Document) {
 
 function docBody(doc: Document) {
   return String(
-    doc.content || doc.body || doc.markdown || doc.md || doc.rawMarkdown || ""
+    doc.content ||
+      doc.body ||
+      doc.markdown ||
+      doc.md ||
+      doc.rawMarkdown ||
+      doc.artifact?.content ||
+      doc.artifact?.markdown ||
+      doc.review?.content ||
+      ""
   );
 }
 
 function docData(doc: Document) {
+  const source = {
+    ...(typeof doc.frontmatter === "object" && doc.frontmatter ? doc.frontmatter : {}),
+    ...(typeof doc.data === "object" && doc.data ? doc.data : {}),
+    ...doc,
+  } as Document;
+
   const pubDatetime =
-    coerceDate(doc.pubDatetime) ||
-    coerceDate(doc.publishedAt) ||
-    coerceDate(doc.createdAt) ||
+    coerceDate(source.pubDatetime) ||
+    coerceDate(source.publishedAt) ||
+    coerceDate(source.createdAt) ||
     new Date();
 
   return {
-    author: doc.author,
+    author: source.author,
     pubDatetime,
     modDatetime:
-      coerceDate(doc.modDatetime) ||
-      coerceDate(doc.updatedAt) ||
-      coerceDate(doc.modifiedAt) ||
+      coerceDate(source.modDatetime) ||
+      coerceDate(source.updatedAt) ||
+      coerceDate(source.modifiedAt) ||
       null,
-    title: String(doc.title || "Untitled"),
-    featured: Boolean(doc.featured),
-    draft: Boolean(doc.draft),
-    tags: coerceTags(doc.tags),
-    ogImage: doc.ogImage || doc.og_image || null,
-    description: String(doc.description || doc.excerpt || ""),
-    canonicalURL: doc.canonicalURL || doc.canonicalUrl || null,
-    hideEditPost: Boolean(doc.hideEditPost),
-    timezone: doc.timezone,
+    title: String(source.title || "Untitled"),
+    featured: Boolean(source.featured),
+    draft: Boolean(source.draft),
+    tags: coerceTags(source.tags),
+    ogImage: source.ogImage || source.og_image || null,
+    description: String(source.description || source.excerpt || ""),
+    canonicalURL: source.canonicalURL || source.canonicalUrl || null,
+    hideEditPost: Boolean(source.hideEditPost),
+    timezone: source.timezone,
   };
 }
 
@@ -132,13 +171,25 @@ function matchesFilter(doc: Document, filter: Record<string, unknown> | undefine
   return Object.entries(filter).every(([key, value]) => data[key] === value);
 }
 
-async function findPostsCollection(client: MongoClient, dbName: string | undefined, candidates: string[]) {
-  const db = dbName ? client.db(dbName) : client.db();
-  for (const name of candidates) {
-    const count = await db.collection(name).estimatedDocumentCount().catch(() => 0);
-    if (count > 0) return db.collection(name);
+async function findPostsCollection(client: MongoClient, dbNames: string[], candidates: string[]) {
+  for (const dbName of dbNames) {
+    const db = client.db(dbName);
+    for (const name of candidates) {
+      const firstPost = await db
+        .collection(name)
+        .findOne({
+          $or: [
+            { title: { $exists: true } },
+            { slug: { $exists: true } },
+            { content: { $exists: true } },
+            { markdown: { $exists: true } },
+          ],
+        })
+        .catch(() => null);
+      if (firstPost) return db.collection(name);
+    }
   }
-  return db.collection(candidates[0]);
+  return client.db(dbNames[0]).collection(candidates[0]);
 }
 
 export function mongoBlogLoader(options: MongoBlogLoaderOptions = {}) {
@@ -155,7 +206,7 @@ export function mongoBlogLoader(options: MongoBlogLoaderOptions = {}) {
         const client = await getClient(uri);
         const collection = await findPostsCollection(
           client,
-          getMongoDatabase(options),
+          getDatabaseCandidates(options),
           getCollectionCandidates(options)
         );
 
@@ -191,7 +242,7 @@ export function mongoBlogLoader(options: MongoBlogLoaderOptions = {}) {
         const client = await getClient(uri);
         const collection = await findPostsCollection(
           client,
-          getMongoDatabase(options),
+          getDatabaseCandidates(options),
           getCollectionCandidates(options)
         );
 
