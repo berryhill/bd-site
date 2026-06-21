@@ -10,6 +10,7 @@ import Card from "@/components/Card.astro";
 import Pagination from "@/components/Pagination.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { SITE } from "@/config";
+import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 
 const { page: pageParam } = Astro.params;
 
@@ -48,9 +49,15 @@ const page = {
       currentPage < totalPages ? `/posts/page/${currentPage + 1}` : undefined,
   },
 };
+const jsonLd = buildCollectionPageJsonLd({
+  title: `Posts | ${SITE.title}`,
+  description: "All the articles I've posted.",
+  url: new URL(Astro.url.pathname, Astro.url.origin).href,
+  isPartOf: SITE.title,
+});
 ---
 
-<Layout title={`Posts | ${SITE.title}`}>
+<Layout title={`Posts | ${SITE.title}`} jsonLd={jsonLd}>
   <Header />
   <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
     <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

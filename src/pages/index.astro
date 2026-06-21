@@ -15,15 +15,25 @@ import IconRss from "@/assets/icons/IconRss.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 import { SITE } from "@/config";
 import { SOCIALS } from "@/constants";
+import { buildWebSiteJsonLd } from "@/utils/structuredData";
 
 const { entries: posts } = await getLiveCollection("liveBlog");
 
 const sortedPosts = getSortedPosts(posts || []);
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const jsonLd = buildWebSiteJsonLd({
+  name: SITE.title,
+  url: SITE.website,
+  description: SITE.desc,
+  image: new URL(SITE.ogImage ? `/${SITE.ogImage}` : "/og.png", SITE.website)
+    .href,
+  author: SITE.author,
+  authorUrl: SITE.profile,
+});
 ---
 
-<Layout>
+<Layout jsonLd={jsonLd}>
   <Header />
   <main
     id="main-content"

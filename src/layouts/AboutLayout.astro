@@ -4,6 +4,7 @@ import Footer from "@/components/Footer.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import Layout from "./Layout.astro";
 import { SITE } from "@/config";
+import { buildPersonJsonLd } from "@/utils/structuredData";
 
 export interface Props {
   frontmatter: {
@@ -13,9 +14,15 @@ export interface Props {
 }
 
 const { frontmatter } = Astro.props;
+const jsonLd = buildPersonJsonLd({
+  name: SITE.author,
+  url: SITE.profile,
+  image: new URL("/matt_headshot.jpeg", SITE.website).href,
+  description: frontmatter.description ?? SITE.desc,
+});
 ---
 
-<Layout title={`${frontmatter.title} | ${SITE.title}`}>
+<Layout title={`${frontmatter.title} | ${SITE.title}`} jsonLd={jsonLd}>
   <Header />
   <Breadcrumb />
   <main id="main-content">
