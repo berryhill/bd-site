@@ -134,11 +134,38 @@ curl -si https://berryhill.dev/llms.txt | head -5
 2. Submit sitemap to Google Search Console
 3. Submit sitemap to Bing Webmaster Tools
 
+### ✅ Phase 5 (2026-06-25, PR pending):
+1. ✅ Added `scripts/checkSearchVisibility.mjs` verification harness
+2. ✅ Added `pnpm run check:search-visibility` package script
+3. ✅ Documented Pagefind SSR limitation
+4. ✅ Updated `LLM_CRAWL_MANIFEST.md` with verification section
+
 ### 📋 Planned:
 1. Add FAQPage schema if FAQ content is created
 2. Monitor crawler activity in server logs
 3. Submit sitemap to Google Search Console
 4. Submit sitemap to Bing Webmaster Tools
+
+## Verification Script
+
+A repeatable verification harness verifies all crawl surfaces in one command:
+
+```bash
+pnpm run check:search-visibility
+# Optional: point at a different base URL
+pnpm run check:search-visibility -- https://staging.berryhill.dev
+```
+
+Checks performed:
+| Check | Path | Assertion |
+|-------|------|-----------|
+| robots.txt | /robots.txt | Sitemap: directive or allow/disallow rules |
+| sitemap-index | /sitemap-index.xml | sitemap XML structure |
+| rss.xml | /rss.xml | RSS 2.0 channel element |
+| llms.txt | /llms.txt | title + sitemap + RSS references (requires PR #35 deployed) |
+| post JSON-LD | /posts/{slug}/ | JSON-LD structured data (optional) |
+
+Pagefind note: requires static-site build output (`public/pagefind/`). With SSR/standalone-node mode, Pagefind indexing runs post-build in CI. Verify with `curl -s https://berryhill.dev/search | grep pagefind`.
 
 ## Notes
 - As of 2025, GPTBot accounts for ~30% of AI crawler traffic
@@ -171,4 +198,4 @@ curl -si https://berryhill.dev/llms.txt | head -5
 - ✅ Created LLM Crawl Manifest documentation
 
 ## Last Updated
-2025-10-29
+2026-06-25

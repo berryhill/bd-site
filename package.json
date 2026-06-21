@@ -8,6 +8,7 @@
     "build": "astro build",
     "test": "node tests/blogVisualAssets.test.mjs && node tests/socialPreviewMeta.test.mjs",
     "check:social-preview": "node scripts/checkSocialPreview.mjs",
+    "check:search-visibility": "node scripts/checkSearchVisibility.mjs",
     "preview": "astro preview",
     "sync": "astro sync",
     "astro": "astro",
