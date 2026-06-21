@@ -109,6 +109,14 @@ function coerceTags(value: unknown) {
   return ["others"];
 }
 
+function coerceBoolean(value: unknown) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    return ["true", "1", "yes"].includes(value.toLowerCase());
+  }
+  return Boolean(value);
+}
+
 function docSlug(doc: Document) {
   return String(
     doc.slug ||
@@ -154,8 +162,8 @@ function docData(doc: Document) {
       coerceDate(source.modifiedAt) ||
       null,
     title: String(source.title || "Untitled"),
-    featured: Boolean(source.featured),
-    draft: Boolean(source.draft),
+    featured: coerceBoolean(source.featured),
+    draft: coerceBoolean(source.draft),
     tags: coerceTags(source.tags),
     ogImage: source.ogImage || source.og_image || null,
     description: String(source.description || source.excerpt || ""),
