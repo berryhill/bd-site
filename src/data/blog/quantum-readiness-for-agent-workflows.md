@@ -1,10 +1,10 @@
 ---
 title: "Quantum is coming. Agent workflows should start leaving breadcrumbs."
 description: "Quantum will matter for agent systems, but not by magically replacing LLM workflows. The useful move is to make today’s workflows measurable enough to route tomorrow’s hard subproblems."
-pubDatetime: 2026-06-20T09:00:00Z
+pubDatetime: 2026-06-21T01:07:50Z
 tags: ["quantum", "agentic", "automation", "infrastructure"]
 featured: false
-draft: true
+draft: false
 hideEditPost: false
 ---
 
