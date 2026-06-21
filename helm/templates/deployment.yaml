@@ -40,9 +40,11 @@ spec:
           env:
             - name: DOPPLER_TOKEN
               value: {{ .Values.dopplerToken | quote }}
+          {{ if .Values.volumes.postsContent.enabled }}
           volumeMounts:
             - name: posts-content
               mountPath: /app/src/data/blog
+          {{ end }}
           lifecycle:
             preStop:
               exec:
@@ -65,11 +67,9 @@ spec:
             timeoutSeconds: 3
             successThreshold: 1
             failureThreshold: 3
+      {{ if .Values.volumes.postsContent.enabled }}
       volumes:
         - name: posts-content
-          {{- if .Values.volumes.postsContent.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.volumes.postsContent.pvcName }}
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
+      {{ end }}

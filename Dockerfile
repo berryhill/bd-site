@@ -41,8 +41,10 @@ COPY --from=build /app/dist ./dist
 # Copy source files needed for live collections
 COPY --from=build /app/src ./src
 
-# Remove source blog directory and recreate it empty - will be mounted as volume
-RUN rm -rf ./src/data/blog && mkdir -p ./src/data/blog
+# Keep repo-backed blog content in the image. The live collection reads
+# ./src/data/blog at runtime; deleting it makes a healthy deploy appear empty
+# whenever the Kubernetes content PVC is empty, stale, or disabled.
+RUN mkdir -p ./src/data/blog
 
 # Set environment variables
 ENV PORT=80
