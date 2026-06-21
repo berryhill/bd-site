@@ -9,6 +9,7 @@ import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
 import getPostsByGroupCondition from "@/utils/getPostsByGroupCondition";
 import { SITE } from "@/config";
+import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 
 // Redirect to 404 page if `showArchives` config is false
 if (!SITE.showArchives) {
@@ -32,9 +33,15 @@ const months = [
   "November",
   "December",
 ];
+const jsonLd = buildCollectionPageJsonLd({
+  title: `Archives | ${SITE.title}`,
+  description: "All the articles I've archived.",
+  url: new URL(Astro.url.pathname, Astro.url.origin).href,
+  isPartOf: SITE.title,
+});
 ---
 
-<Layout title={`Archives | ${SITE.title}`}>
+<Layout title={`Archives | ${SITE.title}`} jsonLd={jsonLd}>
   <Header />
   <Main pageTitle="Archives" pageDesc="All the articles I've archived.">
     {

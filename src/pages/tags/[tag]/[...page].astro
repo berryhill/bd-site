@@ -11,6 +11,7 @@ import Pagination from "@/components/Pagination.astro";
 import getUniqueTags from "@/utils/getUniqueTags";
 import getPostsByTag from "@/utils/getPostsByTag";
 import { SITE } from "@/config";
+import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 
 const { tag, page: pageParam } = Astro.params;
 const currentPage = pageParam ? parseInt(pageParam) : 1;
@@ -54,9 +55,15 @@ const page = {
       currentPage < totalPages ? `/tags/${tag}/${currentPage + 1}` : undefined,
   },
 };
+const jsonLd = buildCollectionPageJsonLd({
+  title: `Tag: ${tagName} | ${SITE.title}`,
+  description: `All the articles with the tag "${tagName}".`,
+  url: new URL(Astro.url.pathname, Astro.url.origin).href,
+  isPartOf: SITE.title,
+});
 ---
 
-<Layout title={`Tag: ${tagName} | ${SITE.title}`}>
+<Layout title={`Tag: ${tagName} | ${SITE.title}`} jsonLd={jsonLd}>
   <Header />
   <Main
     pageTitle={[`Tag:`, `${tagName}`]}

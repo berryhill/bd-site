@@ -6,7 +6,7 @@
     "dev": "ENV=workstation astro dev",
     "dev:prod": "doppler run -- astro dev",
     "build": "astro build",
-    "test": "node tests/blogVisualAssets.test.mjs && node tests/socialPreviewMeta.test.mjs",
+    "test": "node tests/blogVisualAssets.test.mjs && node tests/socialPreviewMeta.test.mjs && node tests/structuredData.test.mjs",
     "check:social-preview": "node scripts/checkSocialPreview.mjs",
     "check:search-visibility": "node scripts/checkSearchVisibility.mjs",
     "preview": "astro preview",

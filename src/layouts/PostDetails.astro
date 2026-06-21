@@ -15,6 +15,7 @@ import { slugifyStr } from "@/utils/slugify";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
 import { SITE } from "@/config";
+import { buildBlogPostingJsonLd } from "@/utils/structuredData";
 
 export interface Props {
   post: CollectionEntry<"liveBlog">;
@@ -58,6 +59,22 @@ const ogImage = ogImageUrl
   ? new URL(ogImageUrl, Astro.url.origin).href
   : undefined;
 
+const postUrl = canonicalURL
+  ? new URL(canonicalURL, Astro.url.origin).href
+  : new URL(getPath(post.id, post.filePath), Astro.url.origin).href;
+
+const jsonLd = buildBlogPostingJsonLd({
+  title,
+  description,
+  url: postUrl,
+  image: ogImage,
+  author: author ?? SITE.author,
+  authorUrl: SITE.profile,
+  pubDatetime,
+  modDatetime,
+  tags,
+});
+
 const layoutProps = {
   title: `${title} | ${SITE.title}`,
   author,
@@ -67,6 +84,7 @@ const layoutProps = {
   canonicalURL: canonicalURL ?? undefined,
   ogImage,
   scrollSmooth: true,
+  jsonLd,
 };
 
 /* ========== Prev/Next Posts ========== */
