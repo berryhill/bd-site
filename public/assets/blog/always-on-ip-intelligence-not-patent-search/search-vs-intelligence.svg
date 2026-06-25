@@ -1,0 +1,37 @@
+<svg viewBox="0 0 920 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side-by-side comparison showing patent search as query-led retrieval and always-on IP intelligence as continuous monitoring, context, triage, and routed review." style="display:block;max-width:100%;height:auto;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <title>Patent search versus always-on IP intelligence</title>
+  <desc>The left side shows patent search beginning with a known query and ending in retrieved documents. The right side shows always-on IP intelligence continuously monitoring signals, connecting context, triaging relevance, and routing a review packet to humans.</desc>
+  <defs>
+    <marker id="arr-search-intel" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#800020"/>
+    </marker>
+  </defs>
+  <rect x="24" y="24" width="400" height="252" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+  <rect x="496" y="24" width="400" height="252" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+  <text x="224" y="58" text-anchor="middle" font-size="18" font-weight="700" fill="#1c1917">Patent search</text>
+  <text x="696" y="58" text-anchor="middle" font-size="18" font-weight="700" fill="#1c1917">Always-on IP intelligence</text>
+  <text x="224" y="86" text-anchor="middle" font-size="14" fill="#57534e">Answers the question you knew to ask</text>
+  <text x="696" y="86" text-anchor="middle" font-size="14" fill="#57534e">Notices the question becoming important</text>
+  <rect x="64" y="126" width="116" height="54" rx="6" fill="#fffbeb" stroke="#1c1917" stroke-width="1"/>
+  <text x="122" y="148" text-anchor="middle" font-size="14" font-weight="600" fill="#1c1917">Known query</text>
+  <text x="122" y="166" text-anchor="middle" font-size="12" fill="#57534e">keywords, classes</text>
+  <rect x="268" y="126" width="116" height="54" rx="6" fill="#fffbeb" stroke="#1c1917" stroke-width="1"/>
+  <text x="326" y="148" text-anchor="middle" font-size="14" font-weight="600" fill="#1c1917">Documents</text>
+  <text x="326" y="166" text-anchor="middle" font-size="12" fill="#57534e">results to inspect</text>
+  <line x1="180" y1="153" x2="262" y2="153" stroke="#800020" stroke-width="1.5" marker-end="url(#arr-search-intel)"/>
+  <text x="224" y="226" text-anchor="middle" font-size="15" font-weight="600" fill="#800020">Necessary substrate</text>
+  <text x="224" y="248" text-anchor="middle" font-size="13" fill="#57534e">but weak as the whole awareness model</text>
+  <rect x="524" y="126" width="96" height="54" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+  <text x="572" y="148" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1917">Monitor</text>
+  <text x="572" y="166" text-anchor="middle" font-size="12" fill="#57534e">signals</text>
+  <rect x="644" y="126" width="96" height="54" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+  <text x="692" y="148" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1917">Connect</text>
+  <text x="692" y="166" text-anchor="middle" font-size="12" fill="#57534e">context</text>
+  <rect x="764" y="126" width="96" height="54" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+  <text x="812" y="148" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1917">Route</text>
+  <text x="812" y="166" text-anchor="middle" font-size="12" fill="#57534e">review</text>
+  <line x1="620" y1="153" x2="638" y2="153" stroke="#800020" stroke-width="1.5" marker-end="url(#arr-search-intel)"/>
+  <line x1="740" y1="153" x2="758" y2="153" stroke="#800020" stroke-width="1.5" marker-end="url(#arr-search-intel)"/>
+  <text x="696" y="226" text-anchor="middle" font-size="15" font-weight="600" fill="#800020">Durable product layer</text>
+  <text x="696" y="248" text-anchor="middle" font-size="13" fill="#57534e">source-backed change routed to qualified humans</text>
+</svg>
