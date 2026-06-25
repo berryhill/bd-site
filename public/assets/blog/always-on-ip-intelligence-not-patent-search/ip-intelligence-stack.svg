@@ -1,0 +1,28 @@
+<svg viewBox="0 0 920 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Five-layer stack showing corpus access, signal monitoring, context graph, relevance triage, and human review workflow as the operating layers of always-on IP intelligence." style="display:block;max-width:100%;height:auto;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <title>The IP Intelligence Stack</title>
+  <desc>A vertical stack of five layers. Corpus access is the base. Above it are signal monitoring, context graph, relevance triage, and human review workflow. A side label marks the shift from retrieval to review-ready action.</desc>
+  <rect x="40" y="28" width="720" height="396" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+  <text x="400" y="64" text-anchor="middle" font-size="20" font-weight="700" fill="#1c1917">The IP Intelligence Stack</text>
+  <text x="400" y="90" text-anchor="middle" font-size="14" fill="#57534e">What has to exist after the search box</text>
+  <rect x="96" y="336" width="608" height="58" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+  <text x="136" y="371" text-anchor="middle" font-size="16" font-weight="700" fill="#800020">1</text>
+  <text x="184" y="359" font-size="16" font-weight="700" fill="#1c1917">Corpus access</text>
+  <text x="184" y="379" font-size="13" fill="#57534e">Patents, legal status, publications, non-patent literature, compliant feeds</text>
+  <rect x="96" y="270" width="608" height="58" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+  <text x="136" y="305" text-anchor="middle" font-size="16" font-weight="700" fill="#800020">2</text>
+  <text x="184" y="293" font-size="16" font-weight="700" fill="#1c1917">Signal monitoring</text>
+  <text x="184" y="313" font-size="13" fill="#57534e">Persistent watches across patents, products, companies, research, markets</text>
+  <rect x="96" y="204" width="608" height="58" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+  <text x="136" y="239" text-anchor="middle" font-size="16" font-weight="700" fill="#800020">3</text>
+  <text x="184" y="227" font-size="16" font-weight="700" fill="#1c1917">Context graph</text>
+  <text x="184" y="247" font-size="13" fill="#57534e">Assignees, inventors, claims, products, roadmaps, customers, jurisdictions</text>
+  <rect x="96" y="138" width="608" height="58" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+  <text x="136" y="173" text-anchor="middle" font-size="16" font-weight="700" fill="#800020">4</text>
+  <text x="184" y="161" font-size="16" font-weight="700" fill="#1c1917">Relevance triage</text>
+  <text x="184" y="181" font-size="13" fill="#57534e">Priority, confidence, ambiguity, business impact, escalation reason</text>
+  <rect x="96" y="104" width="608" height="26" rx="6" fill="#800020"/>
+  <text x="400" y="122" text-anchor="middle" font-size="15" font-weight="700" fill="#fffbeb">5 · Human review workflow: provenance, handoff, expert review, decisions</text>
+  <path d="M800 356 C850 320 850 190 800 116" fill="none" stroke="#800020" stroke-width="1.5"/>
+  <path d="M795,116 L805,116 L800,104 z" fill="#800020"/>
+  <text x="824" y="218" font-size="15" font-weight="700" fill="#800020" transform="rotate(90 824 218)">from retrieval to action</text>
+</svg>
