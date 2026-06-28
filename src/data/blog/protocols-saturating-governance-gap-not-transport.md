@@ -2,7 +2,14 @@
 title: "Protocols are saturating; the operator's gap is governance, not transport"
 description: "MCP, A2A, and ACP are solving transport. But authority, review, memory, and handoff — the governance layer no spec hands you — is what makes a stack safe."
 pubDatetime: 2026-06-28T13:00:00Z
-tags: ["agentic-ai", "agent-protocols", "multi-agent-systems", "governance", "operating-notes"]
+tags:
+  [
+    "agentic-ai",
+    "agent-protocols",
+    "multi-agent-systems",
+    "governance",
+    "operating-notes",
+  ]
 featured: false
 draft: false
 ---

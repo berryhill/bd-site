@@ -19,12 +19,7 @@ const DEFAULT_COLLECTION_CANDIDATES = [
   "contents",
 ];
 
-const DEFAULT_DATABASE_CANDIDATES = [
-  "bd-site",
-  "bd_site",
-  "berryhill",
-  "luca",
-];
+const DEFAULT_DATABASE_CANDIDATES = ["bd-site", "bd_site", "berryhill", "luca"];
 
 let cachedClient: MongoClient | null = null;
 let cachedUri: string | null = null;
@@ -60,7 +55,10 @@ function getMongoDatabase(options: MongoBlogLoaderOptions) {
 function getDatabaseCandidates(options: MongoBlogLoaderOptions) {
   const configured = getMongoDatabase(options);
   return configured
-    ? [configured, ...DEFAULT_DATABASE_CANDIDATES.filter(name => name !== configured)]
+    ? [
+        configured,
+        ...DEFAULT_DATABASE_CANDIDATES.filter(name => name !== configured),
+      ]
     : DEFAULT_DATABASE_CANDIDATES;
 }
 
@@ -75,7 +73,10 @@ function getCollectionCandidates(options: MongoBlogLoaderOptions) {
     process.env.CONTENT_COLLECTION;
 
   return configured
-    ? [configured, ...DEFAULT_COLLECTION_CANDIDATES.filter(name => name !== configured)]
+    ? [
+        configured,
+        ...DEFAULT_COLLECTION_CANDIDATES.filter(name => name !== configured),
+      ]
     : DEFAULT_COLLECTION_CANDIDATES;
 }
 
@@ -142,7 +143,9 @@ function docBody(doc: Document) {
 
 function docData(doc: Document) {
   const source = {
-    ...(typeof doc.frontmatter === "object" && doc.frontmatter ? doc.frontmatter : {}),
+    ...(typeof doc.frontmatter === "object" && doc.frontmatter
+      ? doc.frontmatter
+      : {}),
     ...(typeof doc.data === "object" && doc.data ? doc.data : {}),
     ...doc,
   } as Document;
@@ -173,13 +176,20 @@ function docData(doc: Document) {
   };
 }
 
-function matchesFilter(doc: Document, filter: Record<string, unknown> | undefined) {
+function matchesFilter(
+  doc: Document,
+  filter: Record<string, unknown> | undefined
+) {
   if (!filter) return true;
   const data = docData(doc) as Record<string, unknown>;
   return Object.entries(filter).every(([key, value]) => data[key] === value);
 }
 
-async function findPostsCollection(client: MongoClient, dbNames: string[], candidates: string[]) {
+async function findPostsCollection(
+  client: MongoClient,
+  dbNames: string[],
+  candidates: string[]
+) {
   for (const dbName of dbNames) {
     const db = client.db(dbName);
     for (const name of candidates) {
@@ -204,7 +214,9 @@ export function mongoBlogLoader(options: MongoBlogLoaderOptions = {}) {
   return {
     name: "mongo-blog-loader",
 
-    async loadCollection({ filter }: { filter?: Record<string, unknown> } = {}) {
+    async loadCollection({
+      filter,
+    }: { filter?: Record<string, unknown> } = {}) {
       try {
         const uri = getMongoUri(options);
         if (!uri) {
@@ -218,7 +230,10 @@ export function mongoBlogLoader(options: MongoBlogLoaderOptions = {}) {
           getCollectionCandidates(options)
         );
 
-        const docs = await collection.find({}).sort({ pubDatetime: -1, publishedAt: -1 }).toArray();
+        const docs = await collection
+          .find({})
+          .sort({ pubDatetime: -1, publishedAt: -1 })
+          .toArray();
         const entries = docs
           .filter(doc => matchesFilter(doc, filter))
           .map(doc => {
@@ -239,7 +254,9 @@ export function mongoBlogLoader(options: MongoBlogLoaderOptions = {}) {
       }
     },
 
-    async loadEntry({ filter }: { filter?: string | Record<string, unknown> } = {}) {
+    async loadEntry({
+      filter,
+    }: { filter?: string | Record<string, unknown> } = {}) {
       try {
         const uri = getMongoUri(options);
         if (!uri) {
