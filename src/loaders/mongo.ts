@@ -231,13 +231,8 @@ export function mongoBlogLoader(options: MongoBlogLoaderOptions = {}) {
             };
           });
 
-        console.info(
-          `Mongo blog loader: db=${collection.dbName} collection=${collection.collectionName} docs=${docs.length} entries=${entries.length}`
-        );
-
         return { entries };
       } catch (error) {
-        console.error("Error loading Mongo blog collection:", error);
         return {
           error: error instanceof Error ? error : new Error(String(error)),
         };
@@ -281,7 +276,6 @@ export function mongoBlogLoader(options: MongoBlogLoaderOptions = {}) {
           },
         };
       } catch (error) {
-        console.error("Error loading Mongo blog entry:", error);
         return {
           error: error instanceof Error ? error : new Error(String(error)),
         };
