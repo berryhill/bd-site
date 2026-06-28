@@ -4,7 +4,7 @@ description: "MCP, A2A, and ACP are solving transport. But authority, review, me
 pubDatetime: 2026-06-28T13:00:00Z
 tags: ["agentic-ai", "agent-protocols", "multi-agent-systems", "governance", "operating-notes"]
 featured: false
-draft: true
+draft: false
 ---
 
 Everyone is shipping agent-to-agent protocols. MCP, A2A, ACP — the story is that agents can now talk to each other, and the frontier is moving fast. That story is not wrong. It is incomplete in a way that matters, and the incompleteness is where the next year of real work lives.
