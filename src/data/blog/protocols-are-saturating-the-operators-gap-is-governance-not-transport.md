@@ -53,7 +53,7 @@ A2A's first design principle states that agents operate "without shared memory/t
 A handoff is not a chat event. It is a state-transfer problem: the receiving agent needs task state, context, authority boundaries, and evidence of prior work. OWASP's Insecure Inter-Agent Communication and Cascading Failures categories describe what happens when the protocol makes the message arrive but the handoff is structurally unsound — a single bad output propagates through the chain, and the blast radius is the entire downstream path.
 
 <figure class="diagram">
-<img src="/assets/blog/protocols-saturating-governance-gap-not-transport/governance-layer-tree.svg" alt="Vertical tree showing the governance layer decomposed into authority, review, memory, and handoff, sitting above the solved protocol layer with a gap labeled no spec hands you the above." title="Protocols solve how messages move. Governance solves who is allowed to act, who checks the result, how state persists, and what survives a handoff. No spec hands you the second layer." />
+<img src="/assets/blog/protocols-are-saturating-the-operators-gap-is-governance-not-transport/governance-layer-tree.svg" alt="Vertical tree showing the governance layer decomposed into authority, review, memory, and handoff, sitting above the solved protocol layer with a gap labeled no spec hands you the above." title="Protocols solve how messages move. Governance solves who is allowed to act, who checks the result, how state persists, and what survives a handoff. No spec hands you the second layer." />
 <figcaption>Protocols solve how messages move. Governance solves who is allowed to act, who checks the result, how state persists, and what survives a handoff. No spec hands you the second layer.</figcaption>
 </figure>
 
@@ -98,7 +98,7 @@ The [OWASP Top 10 for Agentic Applications](https://genai.owasp.org/resource/owa
 **4. Handoff.** When one agent hands work to another, does the receiving agent inherit task state, authority boundaries, and evidence of prior work? If the handoff is a message and not a state transfer, context is lost and the failure is invisible.
 
 <figure class="diagram">
-<img src="/assets/blog/protocols-saturating-governance-gap-not-transport/governance-questions-checklist.svg" alt="Numbered checklist of four governance questions for agent stack deployment: authority, review, memory, and handoff, each with a concrete verification prompt." title="Four questions to ask before deploying any agent stack. If you cannot answer all four in enforceable terms, you do not have governance, you have suggestions." />
+<img src="/assets/blog/protocols-are-saturating-the-operators-gap-is-governance-not-transport/governance-questions-checklist.svg" alt="Numbered checklist of four governance questions for agent stack deployment: authority, review, memory, and handoff, each with a concrete verification prompt." title="Four questions to ask before deploying any agent stack. If you cannot answer all four in enforceable terms, you do not have governance, you have suggestions." />
 <figcaption>Four questions to ask before deploying any agent stack. If you cannot answer all four in enforceable terms, you do not have governance — you have suggestions.</figcaption>
 </figure>
 
