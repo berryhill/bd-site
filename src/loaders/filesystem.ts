@@ -61,7 +61,10 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
                 // Do not let one bad visual reference take down the entire blog.
                 // Surface the error for logs, but keep rendering the post list.
                 // eslint-disable-next-line no-console
-                console.error(`Blog visual validation failed for ${id}:`, error);
+                console.error(
+                  `Blog visual validation failed for ${id}:`,
+                  error
+                );
               }
 
               const entry = {
@@ -126,7 +129,10 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
           } catch (error) {
             // Keep the post route available even if one visual reference is bad.
             // eslint-disable-next-line no-console
-            console.error(`Blog visual validation failed for ${filter}:`, error);
+            console.error(
+              `Blog visual validation failed for ${filter}:`,
+              error
+            );
           }
 
           return {

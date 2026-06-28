@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 370" role="img" aria-labelledby="glt-title glt-desc" font-family="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+  <title id="glt-title">The governance layer above the protocol layer</title>
+  <desc id="glt-desc">Vertical tree showing the governance layer decomposed into four dimensions — authority, review, memory, and handoff — sitting above the solved protocol layer. A dashed gap separates the two, annotated "no spec hands you the above."</desc>
+
+  <defs>
+    <marker id="glt-arr" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,0 L5,10 z" fill="#800020"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas -->
+  <rect width="920" height="370" fill="#fffbeb"/>
+
+  <!-- Parent: Governance Layer (emphasized) -->
+  <rect x="170" y="20" width="580" height="64" rx="6" fill="#800020"/>
+  <text x="460" y="48" text-anchor="middle" font-size="16" font-weight="700" fill="#fffbeb" letter-spacing="1.5">GOVERNANCE LAYER</text>
+  <text x="460" y="70" text-anchor="middle" font-size="12.5" fill="#fef3c7">what no protocol solves</text>
+
+  <!-- Tree connectors: parent to 4 children -->
+  <line x1="460" y1="84" x2="460" y2="118" stroke="#800020" stroke-width="1.5"/>
+  <line x1="169" y1="118" x2="751" y2="118" stroke="#800020" stroke-width="1.5"/>
+  <line x1="169" y1="118" x2="169" y2="154" stroke="#800020" stroke-width="1.5" marker-end="url(#glt-arr)"/>
+  <line x1="363" y1="118" x2="363" y2="154" stroke="#800020" stroke-width="1.5" marker-end="url(#glt-arr)"/>
+  <line x1="557" y1="118" x2="557" y2="154" stroke="#800020" stroke-width="1.5" marker-end="url(#glt-arr)"/>
+  <line x1="751" y1="118" x2="751" y2="154" stroke="#800020" stroke-width="1.5" marker-end="url(#glt-arr)"/>
+
+  <!-- Child 1: Authority -->
+  <rect x="89" y="158" width="160" height="88" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+  <text x="169" y="186" text-anchor="middle" font-size="15" font-weight="600" fill="#800020">Authority</text>
+  <text x="169" y="208" text-anchor="middle" font-size="12" fill="#57534e">who is allowed</text>
+  <text x="169" y="224" text-anchor="middle" font-size="12" fill="#57534e">to do what</text>
+
+  <!-- Child 2: Review -->
+  <rect x="283" y="158" width="160" height="88" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+  <text x="363" y="186" text-anchor="middle" font-size="15" font-weight="600" fill="#800020">Review</text>
+  <text x="363" y="208" text-anchor="middle" font-size="12" fill="#57534e">who checks the</text>
+  <text x="363" y="224" text-anchor="middle" font-size="12" fill="#57534e">result</text>
+
+  <!-- Child 3: Memory -->
+  <rect x="477" y="158" width="160" height="88" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+  <text x="557" y="186" text-anchor="middle" font-size="15" font-weight="600" fill="#800020">Memory</text>
+  <text x="557" y="208" text-anchor="middle" font-size="12" fill="#57534e">how state and</text>
+  <text x="557" y="224" text-anchor="middle" font-size="12" fill="#57534e">context persist</text>
+
+  <!-- Child 4: Handoff -->
+  <rect x="671" y="158" width="160" height="88" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+  <text x="751" y="186" text-anchor="middle" font-size="15" font-weight="600" fill="#800020">Handoff</text>
+  <text x="751" y="208" text-anchor="middle" font-size="12" fill="#57534e">how task state</text>
+  <text x="751" y="224" text-anchor="middle" font-size="12" fill="#57534e">and authority transfer</text>
+
+  <!-- Gap annotation -->
+  <line x1="120" y1="280" x2="800" y2="280" stroke="#78716c" stroke-width="1" stroke-dasharray="6 4"/>
+  <rect x="340" y="270" width="240" height="20" fill="#fffbeb"/>
+  <text x="460" y="284" text-anchor="middle" font-size="12" font-style="italic" fill="#78716c">no spec hands you the above</text>
+
+  <!-- Protocol Layer (plain) -->
+  <rect x="80" y="298" width="760" height="56" rx="6" fill="#fffbeb" stroke="#1c1917" stroke-width="1"/>
+  <text x="460" y="322" text-anchor="middle" font-size="15" font-weight="600" fill="#1c1917" letter-spacing="1.5">PROTOCOL LAYER</text>
+  <text x="460" y="344" text-anchor="middle" font-size="12" fill="#57534e">solved: transport &#183; schema &#183; interoperability</text>
+</svg>
