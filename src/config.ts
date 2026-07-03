@@ -2,7 +2,7 @@ export const SITE = {
   website: "https://berryhill.dev/", // replace this with your deployed domain
   author: "Berryhill",
   profile: "https://berryhill.dev/",
-  desc: "Exploring agentic-first development, AI/ML systems, blockchain, crypto markets, digital music, and intelligent automation.",
+  desc: "Field notes on AI-native discovery systems, agent governance, provenance, review gates, protocol boundaries, and the operator work required to turn agent output into shipped proof.",
   title: "berryhill.dev",
   ogImage: "",
   lightAndDarkMode: false,

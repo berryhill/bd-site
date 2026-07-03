@@ -44,27 +44,24 @@ const jsonLd = buildWebSiteJsonLd({
     <section id="hero" class="relative max-w-4xl pt-8 pb-4">
       <div class="hero-content relative">
         <h1
-          class="mb-4 flex flex-wrap items-center gap-1 font-mono text-lg font-bold tracking-tight md:text-xl"
+          class="mb-4 text-3xl leading-tight font-bold tracking-tight md:text-5xl"
         >
-          <span class="terminal-prompt">$</span>
-          <span id="typed-text" class="ml-2"></span>
-          <span class="cursor-blink" id="typing-cursor"> _</span>
+          Matt Berryhill builds AI-native discovery systems.
         </h1>
 
         <div class="mb-4 space-y-2">
           <p class="text-skin-base text-base leading-relaxed md:text-lg">
-            Welcome to my corner of the internet where I explore agentic-first
-            development, AI/ML systems, blockchain technologies, crypto markets,
-            digital music, and intelligent automation.
+            Berryhill.dev is his public field notebook on agentic workflows,
+            governance, provenance, and the operator judgment required to turn
+            AI work into shipped proof.
           </p>
           <p class="text-skin-muted text-sm leading-relaxed md:text-base">
-            Beyond the stack lies the shift — a new cultural operating system
-            where creativity, governance, and decision-making are rewritten by
-            agentic systems. The question isn't just what we build, but what
-            kind of world that code creates. As the barrier between intent and
-            manifestation dissolves, the act of creation itself becomes
-            instantaneous — transforming how we design, trade, teach, and
-            govern.
+            Most AI content stops at tools, prompts, and demos. The harder
+            problem is building systems that know who owns the work, what
+            evidence was used, what changed, what shipped, and where a human
+            must stay in the loop. This site tracks that layer: the workflows,
+            protocols, review gates, and operating habits that make agentic
+            systems useful outside the demo.
           </p>
         </div>
 
@@ -199,6 +196,18 @@ const jsonLd = buildWebSiteJsonLd({
     <Hr />
 
     {
+      sortedPosts.length > 0 && (
+        <section id="start-here" class="section-animate pt-4 pb-2">
+          <p class="text-skin-muted max-w-3xl text-sm leading-relaxed md:text-base">
+            Start with the operating layer: agent governance, shipped-work
+            proof, protocol boundaries, small named fleets, continuity, and the
+            systems that keep AI work accountable.
+          </p>
+        </section>
+      )
+    }
+
+    {
       featuredPosts.length > 0 && (
         <>
           <section id="featured" class="section-animate pt-4 pb-4">
@@ -331,7 +340,8 @@ const jsonLd = buildWebSiteJsonLd({
     <!-- View All Posts CTA -->
     <div class="my-12 text-center">
       <LinkButton href="/posts/" class="px-8 py-3 text-lg">
-        View All Posts
+        Read the field notes, then bring the operating questions to a
+        conversation.
         <IconArrowRight class="ml-2 inline-block rtl:-rotate-180" />
       </LinkButton>
     </div>

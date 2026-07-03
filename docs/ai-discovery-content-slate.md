@@ -2,9 +2,9 @@
 
 ## Strategic Goal
 
-Make berryhill.dev legible to search engines and AI agents as a technical source on **agentic-first development, AI automation infrastructure, and operator workflows**. The site must read as a builder's notebook — not a news aggregator or hype surface.
+Align berryhill.dev around Matt Berryhill's work building **AI-native discovery systems**: agent governance, provenance, review gates, protocol boundaries, shipped-work proof, and the operator judgment required to turn agent output into accountable public work.
 
-The audit found the corpus is technically functional but thin and loosely connected. Agents and search systems need repeated, interlinked, on-lane content before the site builds recognizable authority.
+The site should read as a public field notebook on useful agentic systems outside the demo — not a news aggregator, product-marketing surface, or generic AI tooling blog. The audit found the corpus is technically functional but thin and loosely connected. Agents, search systems, and human readers need repeated, interlinked, on-lane content that shows how workflows, protocols, evidence, and operating habits make AI work verifiable.
 
 ## Authority Model
 
