@@ -22,7 +22,11 @@ const jsonLd = buildPersonJsonLd({
 });
 ---
 
-<Layout title={`${frontmatter.title} | ${SITE.title}`} jsonLd={jsonLd}>
+<Layout
+  title={`${frontmatter.title} | ${SITE.title}`}
+  description={frontmatter.description ?? SITE.desc}
+  jsonLd={jsonLd}
+>
   <Header />
   <Breadcrumb />
   <main id="main-content">
