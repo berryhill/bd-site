@@ -3,6 +3,7 @@ import { getLiveCollection } from "astro:content";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
+import { CANONICAL_SITEMAP_PATH } from "@/utils/crawlSignals";
 
 export const prerender = false;
 
@@ -24,7 +25,7 @@ export const GET: APIRoute = async () => {
     `- [Posts](${new URL("posts/", website).href})`,
     `- [About](${new URL("about/", website).href})`,
     `- [RSS](${new URL("rss.xml", website).href})`,
-    `- [Sitemap](${new URL("sitemap-index.xml", website).href})`,
+    `- [Sitemap](${new URL(CANONICAL_SITEMAP_PATH, website).href})`,
     "",
     "## Representative posts",
     ...sortedPosts.map(post => {

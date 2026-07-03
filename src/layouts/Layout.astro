@@ -5,6 +5,7 @@ import {
   PUBLIC_GA_MEASUREMENT_ID,
 } from "astro:env/client";
 import { SITE } from "@/config";
+import { getLayoutSitemapHref } from "@/utils/crawlSignals";
 import "@/styles/global.css";
 
 export interface Props {
@@ -34,6 +35,7 @@ const {
 
 const socialImageURL = new URL(ogImage, Astro.url);
 const jsonLdItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const sitemapHref = getLayoutSitemapHref();
 
 const gaInitScript = `
 window.dataLayer = window.dataLayer || [];
@@ -76,7 +78,7 @@ document.addEventListener("astro:page-load", () => {
     <meta name="title" content={title} />
     <meta name="description" content={description} />
     <meta name="author" content={author} />
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="sitemap" href={sitemapHref} />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
