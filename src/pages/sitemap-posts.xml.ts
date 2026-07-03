@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { getLiveCollection } from "astro:content";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
+import { toPostUrl } from "@/utils/url";
 
 export const prerender = false;
 
@@ -41,7 +42,7 @@ export const GET: APIRoute = async () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${publishedPosts
   .map(post => {
-    const url = `${SITE.website}${getPath(post.id, post.filePath)}`;
+    const url = toPostUrl(getPath(post.id, post.filePath), SITE.website);
     const lastmod = getPostDate(post)?.toISOString();
 
     return `  <url>

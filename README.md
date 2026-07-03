@@ -174,7 +174,7 @@ Durable local blog visuals belong under `public/assets/blog/<post-slug>/` and sh
 
 ### Blog social preview checks
 
-Blog post pages emit `<title>`, meta description, Open Graph title/description/image, and Twitter card/title/description/image tags from the shared layout. Per-post `ogImage` frontmatter, or the API `ogImage` / `featured_image` field, is used directly when present. When a published post has no custom `ogImage` and `SITE.dynamicOgImage` is enabled, the post preview image resolves to `/posts/<slug>/index.png` and is generated dynamically. Draft posts and posts with a custom `ogImage` do not receive a dynamic `/index.png` image route.
+Blog post pages emit `<title>`, meta description, Open Graph title/description/image, and Twitter card/title/description/image tags from the shared layout. Per-post `ogImage` frontmatter, or the API `ogImage` / `featured_image` field, is rendered through `SITE.website`-normalized absolute URLs when it is relative or site-relative; custom absolute external image URLs remain absolute. When a published post has no custom `ogImage` and `SITE.dynamicOgImage` is enabled, the post preview image still resolves to `/posts/<slug>/index.png` and is generated dynamically. Draft posts and posts with a custom `ogImage` do not receive a dynamic `/index.png` image route.
 
 For future Luca publishing checks, verify the built or previewed post HTML before treating social previews as ready:
 

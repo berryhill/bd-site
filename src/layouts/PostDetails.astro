@@ -18,6 +18,7 @@ import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
 import { SITE } from "@/config";
 import { buildBlogPostingJsonLd } from "@/utils/structuredData";
+import { toAbsoluteSiteUrl, toPostUrl } from "@/utils/url";
 
 export interface Props {
   post: CollectionEntry<"liveBlog">;
@@ -58,12 +59,12 @@ if (!ogImageUrl && SITE.dynamicOgImage) {
 
 // Resolve OG image URL (or fallback to SITE.ogImage / default `og.png`)
 const ogImage = ogImageUrl
-  ? new URL(ogImageUrl, Astro.url.origin).href
+  ? toAbsoluteSiteUrl(ogImageUrl, SITE.website)
   : undefined;
 
 const postUrl = canonicalURL
-  ? new URL(canonicalURL, Astro.url.origin).href
-  : new URL(getPath(post.id, post.filePath), Astro.url.origin).href;
+  ? toAbsoluteSiteUrl(canonicalURL, SITE.website, { trailingSlash: true })
+  : toPostUrl(getPath(post.id, post.filePath), SITE.website);
 
 const jsonLd = buildBlogPostingJsonLd({
   title,
@@ -83,7 +84,7 @@ const layoutProps = {
   description,
   pubDatetime,
   modDatetime,
-  canonicalURL: canonicalURL ?? undefined,
+  canonicalURL: postUrl,
   ogImage,
   scrollSmooth: true,
   jsonLd,

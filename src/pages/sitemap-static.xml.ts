@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { SITE } from "@/config";
+import { normalizeSiteWebsite, toAbsoluteSiteUrl } from "@/utils/url";
 
 export const prerender = false;
 
@@ -18,7 +19,9 @@ export const GET: APIRoute = async () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticPages
   .map(page => {
-    const url = page ? `${SITE.website}${page}/` : SITE.website;
+    const url = page
+      ? toAbsoluteSiteUrl(page, SITE.website, { trailingSlash: true })
+      : normalizeSiteWebsite(SITE.website);
     return `  <url>
     <loc>${url}</loc>
     <changefreq>daily</changefreq>

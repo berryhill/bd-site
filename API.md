@@ -172,7 +172,7 @@ Content-Type: application/json
 
 **Content image references:** POST `content` may include normal external images. Repo-backed blog visuals must be referenced as `/assets/blog/<slug>/filename.svg` or `/assets/blog/<slug>/filename.png`, include alt text plus a caption/title in Markdown, and have an existing backing file under `public/assets/blog/<slug>/`. Inline `data:image` URIs are invalid.
 
-**Social preview behavior:** `ogImage` is written to frontmatter and becomes the post's `og:image`, `twitter:image`, and JSON-LD image. `featured_image` is only a backward-compatible alias; `ogImage` wins when both are supplied. If no `ogImage` is stored and the post is not a draft, the site falls back to the dynamic `/posts/<slug>/index.png` image route when `SITE.dynamicOgImage` is enabled.
+**Social preview behavior:** `ogImage` is written to frontmatter and becomes the rendered post's `og:image`, `twitter:image`, and JSON-LD image. Stored `ogImage` values may be absolute URLs, site-relative paths, or relative paths; rendered post metadata normalizes site-relative and relative values to absolute URLs using `SITE.website` without mutating the stored frontmatter value. `featured_image` is only a backward-compatible alias; `ogImage` wins when both are supplied. If no `ogImage` is stored and the post is not a draft, the site falls back to the dynamic `/posts/<slug>/index.png` image route when `SITE.dynamicOgImage` is enabled.
 
 **Social preview verification:** after building or running preview, check a post page with:
 
@@ -246,7 +246,7 @@ Content-Type: application/json
 
 **Content image references:** PATCH `content` may include normal external images. Repo-backed blog visuals must be referenced as `/assets/blog/<slug>/filename.svg` or `/assets/blog/<slug>/filename.png`, include alt text plus a caption/title in Markdown, and have an existing backing file under `public/assets/blog/<slug>/`. Inline `data:image` URIs are invalid.
 
-**Social preview behavior:** PATCH follows the same `ogImage` / `featured_image` precedence as create: `ogImage` is stored in frontmatter when supplied, `featured_image` is only a backward-compatible alias, and `ogImage` wins when both are supplied. Updated post pages can be verified with `pnpm run check:social-preview -- http://localhost:4321/posts/<slug>/` after building or running preview.
+**Social preview behavior:** PATCH follows the same `ogImage` / `featured_image` precedence as create: `ogImage` is stored in frontmatter when supplied, `featured_image` is only a backward-compatible alias, and `ogImage` wins when both are supplied. Stored `ogImage` values may be absolute URLs, site-relative paths, or relative paths; rendered post metadata normalizes site-relative and relative values to absolute URLs using `SITE.website` without mutating the stored frontmatter value. Updated post pages can be verified with `pnpm run check:social-preview -- http://localhost:4321/posts/<slug>/` after building or running preview.
 
 **Response (200 OK):**
 ```json
