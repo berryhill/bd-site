@@ -1,12 +1,13 @@
 ---
 layout: ../layouts/AboutLayout.astro
 title: "About"
+description: "Matt Berryhill is an agentic-first builder focused on AI-native systems, agent workflows, governance, provenance, and the operating discipline required to turn intelligent automation into shipped work."
 ---
 
 <div class="about-hero">
   <div class="about-intro">
     <p class="intro-text">
-      <span class="drop-cap">M</span>att Berryhill is an agentic-first digital builder focused on creating intelligent products at the intersection of AI, machine learning, blockchain, crypto, and digital music. Passionate about crafting elegant systems and exploring technical frontiers, he works on how emerging technologies are reshaping the way software—and creators—evolve in an increasingly agentic world.
+      <span class="drop-cap">M</span>att Berryhill is an agentic-first builder focused on the operating layer of AI-native systems.
     </p>
   </div>
 
@@ -18,15 +19,15 @@ title: "About"
   </div>
 </div>
 
-## A Little Bit More About Matt (Like Anyone Cares)
+## The Work
 
-Matt is passionate about the cutting edge of software development — from AI-powered systems to the frameworks and tools shaping the next generation of digital products. He's particularly drawn to the intersection of technology, design, and culture — where ideas become systems, and systems become stories.
+He works where intelligent products, agent workflows, governance, and technical culture meet: the place where ideas stop being demos and start becoming systems people can review, trust, and ship.
 
-As an agentic-first digital builder, Matt focuses on creating products and teams that evolve intelligently. He's learned that great teams aren't built overnight — they're living systems that thrive on collaboration, experimentation, and shared purpose. Skill matters, but mindset matters more. Hunger, curiosity, and the ability to think differently are what move teams — and products — forward.
+Berryhill.dev is where Matt writes through that work in public. The through-line is not that every tool is new. The through-line is that agentic systems need operating discipline: authority, provenance, review, handoffs, memory, escalation, and proof that the work actually landed.
 
-Leadership, for Matt, is about presence, consistency, and momentum. Culture comes from the top but thrives when everyone contributes. He believes the best teams balance autonomy with alignment, reward outcomes over optics, and grow through shared achievement rather than individual heroics.
+Matt thinks about products and teams as living systems. Skill matters, but mindset matters more: hunger, curiosity, consistency, and the ability to notice where the workflow is lying to you. The best teams balance autonomy with alignment, reward outcomes over optics, and make progress visible enough to inspect.
 
-If you want to talk ideas, projects, or potential collaborations — <a href="https://calendly.com/matt-berryhill/30min" target="_blank" rel="noopener noreferrer">schedule a call</a>.
+If you want to talk about AI-native products, agent operations, governance, discovery systems, or the gap between a promising demo and a reliable workflow, <a href="https://calendly.com/matt-berryhill/30min" target="_blank" rel="noopener noreferrer">schedule a call</a>.
 
 <style>
   .about-hero {
