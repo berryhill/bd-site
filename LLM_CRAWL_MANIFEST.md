@@ -12,6 +12,7 @@
   - `/sitemap.xml` - Master index
   - `/sitemap-static.xml` - Static pages
   - `/sitemap-posts.xml` - All blog posts with lastmod dates
+- **URL normalization**: Static page `<loc>` values in `/sitemap-static.xml` and post `<loc>` values in `/sitemap-posts.xml` are normalized through the shared URL helper using `SITE.website`.
 - **Update Frequency**: Real-time (generated on-demand)
 - **Submission Status**:
   - Google Search Console: Pending
@@ -92,9 +93,9 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 #### BlogPosting enriched fields (post detail pages)
 - `headline` — post title
 - `description` — post description frontmatter field
-- `url` — canonical post URL
+- `url` — canonical post URL normalized through the shared URL helper using `SITE.website`
 - `mainEntityOfPage` — WebPage referencing the post URL
-- `image` — OG image URL (if present)
+- `image` — OG image URL normalized through the shared URL helper using `SITE.website` (if present)
 - `keywords` — post tags as array
 - `datePublished` — ISO 8601 publication datetime
 - `dateModified` — ISO 8601 last-modified datetime (omitted if absent)
@@ -132,7 +133,8 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
   - All pages advertise both RSS and Atom feeds for feed readers and LLM crawlers
 - **Open Graph**: ✅ Configured with dark theme
 - **Twitter Cards**: ✅ summary_large_image
-- **Canonical URLs**: ✅ Set on all pages
+- **Canonical URLs**: ✅ Set on all pages; post canonical URLs are normalized through the shared URL helper
+- **Post URL normalization**: ✅ Post canonical, OG image, and JSON-LD URL fields share the same `SITE.website` normalization path
 - **Meta Descriptions**: ✅ Unique per page
 
 ## LLM Optimization Status (Phase 1)
@@ -198,6 +200,8 @@ Checks performed:
 | llms.txt | /llms.txt | title + sitemap + RSS references (requires PR #35 deployed) |
 | post JSON-LD | /posts/{slug}/ | JSON-LD structured data (optional) |
 
+URL readback should confirm that `/sitemap-static.xml` and `/sitemap-posts.xml` emit absolute `<loc>` values using `SITE.website`, and that post detail pages emit canonical, Open Graph, and JSON-LD URLs through the shared URL helper.
+
 Pagefind note: requires static-site build output (`public/pagefind/`). With SSR/standalone-node mode, Pagefind indexing runs post-build in CI. Verify with `curl -s https://berryhill.dev/search | grep pagefind`.
 
 ## Notes
@@ -206,6 +210,9 @@ Pagefind note: requires static-site build output (`public/pagefind/`). With SSR/
 - All major AI companies (OpenAI, Anthropic, Google, Meta, Apple, Amazon) are explicitly welcomed
 
 ## Changelog
+
+### 2026-07-03
+- ✅ **URL Normalization Reconciliation** (Issue #57): Documented shared URL-helper normalization for static/post sitemap `<loc>` values and post canonical, Open Graph, and JSON-LD URLs. The sitemap index still uses the existing route behavior and is not claimed as normalized here.
 
 ### 2026-06-21
 - ✅ **Atom Feed + Feed Aliases** (PR #41): Added `/atom.xml` (valid Atom 1.0), `/feed.xml` (301 → `/rss.xml`), and `<link rel="alternate">` autodiscovery tags for both RSS and Atom in the site layout. Updates LLM_CRAWL_MANIFEST.md.
