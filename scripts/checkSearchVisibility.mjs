@@ -40,8 +40,8 @@ const CHECKS = [
     assertLabel: "Sitemap: directive or allow/disallow rules present",
   },
   {
-    name: "sitemap-index",
-    path: "/sitemap-index.xml",
+    name: "sitemap",
+    path: "/sitemap.xml",
     status: 200,
     assert(text) {
       return text.includes("sitemap");
