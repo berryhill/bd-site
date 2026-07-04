@@ -9,9 +9,10 @@
 - **Sitemap URL**: https://berryhill.dev/sitemap.xml
 - **Sitemap Type**: Custom dynamic sitemap (SSR)
 - **Sitemaps**:
-  - `/sitemap.xml` - Master index
-  - `/sitemap-static.xml` - Static pages
+  - `/sitemap.xml` - Canonical crawler-facing master index. Robots.txt, layout metadata, `/llms.txt`, and verification checks advertise this URL directly.
+  - `/sitemap-static.xml` - Real static content pages only (`/`, `/about/`, `/posts/`, `/tags/`, `/search/`, and `/archives/` when enabled); redirect-only endpoints such as `/sitemap-index.xml` are excluded.
   - `/sitemap-posts.xml` - All blog posts with lastmod dates
+  - `/sitemap-index.xml` - Backward-compatibility redirect only; not an advertised sitemap surface.
 - **URL normalization**: Static page `<loc>` values in `/sitemap-static.xml` and post `<loc>` values in `/sitemap-posts.xml` are normalized through the shared URL helper using `SITE.website`.
 - **Update Frequency**: Real-time (generated on-demand)
 - **Submission Status**:
@@ -75,6 +76,11 @@ Previously, only 6 static pages were included. Now ALL published blog posts are 
 
 **General:**
 - ✅ * (All other crawlers allowed by default)
+
+### Generated asset/index policy
+- All crawler groups allow `/` and explicitly allow `/llms.txt`.
+- All crawler groups disallow crawl-noisy generated/static asset paths: `/pagefind/`, `/_astro/`, `/assets/`, CSS, JS, source maps, JSON files, images, SVGs, WebP files, and icons.
+- `Sitemap:` points to `https://berryhill.dev/sitemap.xml`.
 
 ## Structured Data
 
@@ -144,6 +150,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 2. Sitemap generated and accessible
 3. Structured data baseline (BlogPosting schema on all posts)
 4. llms.txt manifest endpoint at `/llms.txt` (2026-06-21, PR #35)
+5. Issue #58 crawl-signal reconciliation (2026-07-03): canonical `/sitemap.xml` signals in robots/layout/llms/check script, robots asset/index noise reduction, static sitemap redirect exclusion, and search visibility check alignment
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -192,7 +199,7 @@ Checks performed:
 | Check | Path | Assertion |
 |-------|------|-----------|
 | robots.txt | /robots.txt | Sitemap: directive or allow/disallow rules |
-| sitemap-index | /sitemap-index.xml | sitemap XML structure |
+| sitemap | /sitemap.xml | sitemap XML structure |
 | rss.xml | /rss.xml | RSS 2.0 channel element |
 | atom.xml | /atom.xml | Atom 1.0 feed with `<feed>` root |
 | feed.xml | /feed.xml | HTTP 301 redirect to /rss.xml |
@@ -202,7 +209,7 @@ Checks performed:
 
 URL readback should confirm that `/sitemap-static.xml` and `/sitemap-posts.xml` emit absolute `<loc>` values using `SITE.website`, and that post detail pages emit canonical, Open Graph, and JSON-LD URLs through the shared URL helper.
 
-Pagefind note: requires static-site build output (`public/pagefind/`). With SSR/standalone-node mode, Pagefind indexing runs post-build in CI. Verify with `curl -s https://berryhill.dev/search | grep pagefind`.
+Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` index assets are intentionally disallowed in robots.txt as crawl noise. `pnpm run build` currently maps to `astro build`, and CI does not generate Pagefind index assets unless package scripts or CI are explicitly changed. Verify Pagefind index presence only in environments that actually generate `public/pagefind/`.
 
 ## Notes
 - As of 2025, GPTBot accounts for ~30% of AI crawler traffic
@@ -212,6 +219,7 @@ Pagefind note: requires static-site build output (`public/pagefind/`). With SSR/
 ## Changelog
 
 ### 2026-07-03
+- ✅ **Static Sitemap, Robots, and Search Indexing Signals** (Issue #58): Canonical `/sitemap.xml` signals now flow through robots.txt, layout metadata, `/llms.txt`, and `check:search-visibility`; `/sitemap-static.xml` excludes redirect-only paths such as `/sitemap-index.xml`; robots.txt keeps the AI crawler allowlist while disallowing generated asset/index noise; shared `crawlSignals` and `staticSitemap` utilities and tests cover the policy.
 - ✅ **URL Normalization Reconciliation** (Issue #57): Documented shared URL-helper normalization for static/post sitemap `<loc>` values and post canonical, Open Graph, and JSON-LD URLs. The sitemap index still uses the existing route behavior and is not claimed as normalized here.
 
 ### 2026-06-21
@@ -241,4 +249,4 @@ Pagefind note: requires static-site build output (`public/pagefind/`). With SSR/
 - ✅ Created LLM Crawl Manifest documentation
 
 ## Last Updated
-2026-06-25
+2026-07-03

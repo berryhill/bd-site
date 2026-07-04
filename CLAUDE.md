@@ -49,7 +49,7 @@ pnpm run format:check # Check formatting without writing
 - `/tags/` - Tag index page
 - `/tags/[tag]/[page]` - Posts filtered by tag (paginated)
 - `/archives/` - Archive view (controlled by `SITE.showArchives`)
-- `/search` - Client-side search powered by Pagefind
+- `/search` - Client-side search powered by Pagefind; generated Pagefind index assets under `/pagefind/` are not a crawler target and are disallowed in robots.txt as generated search-index noise
 - `/about` - About page (Markdown file at `src/pages/about.md`)
 
 ### Configuration
@@ -77,6 +77,8 @@ pnpm run format:check # Check formatting without writing
   - Post OG images: `/posts/[slug]/index.png.ts`
   - Site OG image: `/og.png.ts`
 - **URL Normalization**: [src/utils/url.ts](src/utils/url.ts) - Normalizes `SITE.website`, site-relative paths, post URLs, and post asset URLs to absolute URLs for post metadata and custom sitemap routes
+- **Crawl Signals**: [src/utils/crawlSignals.ts](src/utils/crawlSignals.ts) - Shared source for canonical sitemap path, robots.txt crawler groups, generated asset disallow policy, and Layout sitemap href
+- **Static Sitemap**: [src/utils/staticSitemap.ts](src/utils/staticSitemap.ts) - Shared source for static sitemap page selection and XML generation
 - **Tag Management**: `getUniqueTags.ts`, `getPostsByTag.ts` for tag-based filtering
 - **Slugification**: `slugify.ts` uses lodash.kebabcase for URL-friendly slugs
 
@@ -97,11 +99,11 @@ import getSortedPosts from "@/utils/getSortedPosts";
 
 ### Build Process
 
-`pnpm run build` currently maps to `astro build` in `package.json`.
+`pnpm run build` currently maps to `astro build` in `package.json`. The build does not generate Pagefind index assets unless package scripts or CI are explicitly changed.
 
 ### Search Functionality
 
-Search is powered by Pagefind, which indexes the built site and provides client-side fuzzy search. The search UI is at `/search` and uses `@pagefind/default-ui`.
+Search is powered by Pagefind, which indexes the built site and provides client-side fuzzy search. The search UI is at `/search` and uses `@pagefind/default-ui`. `/search` is crawlable and discoverable; `/pagefind/` index assets are generated implementation files and intentionally not advertised for crawling.
 
 ### Styling
 
@@ -114,8 +116,8 @@ Search is powered by Pagefind, which indexes the built site and provides client-
 
 - **Dynamic OG Images**: Automatically generated for posts if `SITE.dynamicOgImage` is true
 - **RSS Feed**: Generated at `/rss.xml` using `@astrojs/rss`
-- **Sitemap**: Custom SSR sitemap routes generate `/sitemap.xml`, `/sitemap-static.xml`, and `/sitemap-posts.xml`; `/sitemap-index.xml` redirects to `/sitemap.xml` for backward compatibility
-- **Robots.txt**: Dynamically generated at `/robots.txt.ts`
+- **Sitemap**: Custom SSR sitemap routes generate canonical crawler-facing `/sitemap.xml`, `/sitemap-static.xml` for real static pages only, and `/sitemap-posts.xml` for posts; `/sitemap-index.xml` redirects only for backward compatibility and should not be newly advertised
+- **Robots.txt**: Dynamically generated at `/robots.txt.ts` from shared crawlSignals rules, including explicit crawler groups and generated asset/index disallows
 
 ## Important Notes
 

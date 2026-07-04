@@ -35,7 +35,7 @@ Uses Doppler for secrets management (same as production).
 **Framework** - [Astro](https://astro.build/) with SSR (Node adapter)
 **Type Checking** - [TypeScript](https://www.typescriptlang.org/)
 **Styling** - [TailwindCSS 4.x](https://tailwindcss.com/)
-**Search** - [Pagefind](https://pagefind.app/)
+**Search** - [Pagefind](https://pagefind.app/) powers `/search`; generated `/pagefind/` assets are search-index implementation output, not crawler-facing content
 **Deployment** - Kubernetes on Linode (LKE)
 **Container** - Docker with Node.js runtime
 **CI/CD** - GitHub Actions
@@ -99,7 +99,12 @@ pnpm run sync
 pnpm test
 pnpm run lint
 pnpm run format
+
+# Crawl/search visibility validation
+pnpm run check:search-visibility
 ```
+
+`pnpm run check:search-visibility` checks robots.txt, canonical `/sitemap.xml`, rss.xml, llms.txt, and representative JSON-LD.
 
 ## 🐳 Docker
 
@@ -216,8 +221,8 @@ GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 - Terminal-style typing animations
 - Interactive pillar modals
 - Dark/light mode toggle
-- Fuzzy search with Pagefind
-- RSS feed and sitemap
+- Fuzzy search with Pagefind (`/search`; generated `/pagefind/` assets are not crawler-facing content)
+- RSS feed plus canonical `/sitemap.xml` crawler surface (`/sitemap-index.xml` redirects only for compatibility)
 - Dynamic OG image generation
 
 ## 📜 License
