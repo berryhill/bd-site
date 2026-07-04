@@ -13,6 +13,7 @@ const { noMarginTop = false } = Astro.props;
 <footer class="site-footer" class:list={{ "no-margin": noMarginTop }}>
   <div class="footer-content">
     <div class="footer-info">
+      <p class="footer-cta">Bring the operating questions to a conversation.</p>
       <p>© {currentYear} All rights reserved.</p>
     </div>
     <Socials centered />
@@ -44,5 +45,11 @@ const { noMarginTop = false } = Astro.props;
   .footer-info p {
     color: var(--foreground-muted);
     font-size: var(--text-sm);
+  }
+
+  .footer-info .footer-cta {
+    margin-bottom: 0.35rem;
+    color: var(--foreground);
+    font-weight: 700;
   }
 </style>

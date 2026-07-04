@@ -33,17 +33,23 @@ const months = [
   "November",
   "December",
 ];
+const archivesDescription =
+  "A chronological evidence trail of field notes, shipped-work arguments, and operating-manual entries.";
 const jsonLd = buildCollectionPageJsonLd({
   title: `Archives | ${SITE.title}`,
-  description: "All the articles I've archived.",
+  description: archivesDescription,
   url: new URL(Astro.url.pathname, Astro.url.origin).href,
   isPartOf: SITE.title,
 });
 ---
 
-<Layout title={`Archives | ${SITE.title}`} jsonLd={jsonLd}>
+<Layout
+  title={`Archives | ${SITE.title}`}
+  description={archivesDescription}
+  jsonLd={jsonLd}
+>
   <Header />
-  <Main pageTitle="Archives" pageDesc="All the articles I've archived.">
+  <Main pageTitle="Archives" pageDesc={archivesDescription}>
     {
       Object.entries(
         getPostsByGroupCondition(posts, post =>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "./typography.css";
 
-/* Clean, Minimal Blog Theme */
+/* Field-notes surface: warm, minimal, and copy-led. */
 
 :root,
 html[data-theme="light"] {

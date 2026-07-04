@@ -14,17 +14,23 @@ import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 const { entries: posts } = await getLiveCollection("liveBlog");
 
 const tags = getUniqueTags(posts || []);
+const tagsDescription =
+  "Use the tag map as an index of operating questions: governance, protocols, provenance, continuity, and shipped-work proof.";
 const jsonLd = buildCollectionPageJsonLd({
   title: `Tags | ${SITE.title}`,
-  description: "All the tags used in posts.",
+  description: tagsDescription,
   url: new URL(Astro.url.pathname, Astro.url.origin).href,
   isPartOf: SITE.title,
 });
 ---
 
-<Layout title={`Tags | ${SITE.title}`} jsonLd={jsonLd}>
+<Layout
+  title={`Tags | ${SITE.title}`}
+  description={tagsDescription}
+  jsonLd={jsonLd}
+>
   <Header />
-  <Main pageTitle="Tags" pageDesc="All the tags used in posts.">
+  <Main pageTitle="Tags" pageDesc={tagsDescription}>
     <ul class="flex flex-wrap gap-2">
       {tags.map(({ tag, tagName }) => <Tag {tag} {tagName} size="lg" />)}
     </ul>
