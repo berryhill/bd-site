@@ -89,8 +89,8 @@ test("static sitemap URL collection excludes redirect-only sitemap-index.xml", (
   const withArchives = getStaticSitemapPaths({ showArchives: true });
   const withoutArchives = getStaticSitemapPaths({ showArchives: false });
 
-  assert.deepEqual(withArchives, ["", "about", "posts", "tags", "search", "archives"]);
-  assert.deepEqual(withoutArchives, ["", "about", "posts", "tags", "search"]);
+  assert.deepEqual(withArchives, ["", "about", "posts", "tags", "archives"]);
+  assert.deepEqual(withoutArchives, ["", "about", "posts", "tags"]);
 
   for (const redirectPath of REDIRECT_ONLY_SITEMAP_PATHS) {
     assert.equal(withArchives.includes(redirectPath), false);
@@ -106,7 +106,7 @@ test("static sitemap XML includes canonical static pages and omits redirect/stal
 
   assert.match(xml, /<loc>https:\/\/berryhill\.dev\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/berryhill\.dev\/about\/<\/loc>/);
-  assert.match(xml, /<loc>https:\/\/berryhill\.dev\/search\/<\/loc>/);
+  assert.doesNotMatch(xml, /<loc>https:\/\/berryhill\.dev\/search\/<\/loc>/);
   assert.doesNotMatch(xml, /sitemap-index\.xml/);
   assert.doesNotMatch(xml, /pagefind/);
 });

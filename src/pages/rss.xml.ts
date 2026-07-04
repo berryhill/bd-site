@@ -3,6 +3,7 @@ import { getLiveCollection } from "astro:content";
 import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { SITE } from "@/config";
+import { toAbsoluteSiteUrl, toPostUrl } from "@/utils/url";
 
 export async function GET() {
   const { entries: posts } = await getLiveCollection("liveBlog");
@@ -15,7 +16,15 @@ export async function GET() {
       // RSS readers and LLMs can handle markdown format
       const content = body || data.description;
 
-      const postUrl = getPath(id, filePath);
+      const postUrl = toPostUrl(getPath(id, filePath), SITE.website);
+      const canonicalUrl = data.canonicalURL
+        ? toAbsoluteSiteUrl(data.canonicalURL, SITE.website, {
+            trailingSlash: true,
+          })
+        : postUrl;
+      const ogImageUrl = data.ogImage
+        ? toAbsoluteSiteUrl(data.ogImage, SITE.website)
+        : undefined;
 
       return {
         link: postUrl,
@@ -30,14 +39,9 @@ export async function GET() {
         categories: data.tags || [],
         // Custom data for additional metadata
         customData: [
-          // Canonical URL if specified
-          data.canonicalURL
-            ? `<link rel="canonical" href="${data.canonicalURL}"/>`
-            : "",
+          `<link rel="canonical" href="${canonicalUrl}"/>`,
           // OG image as enclosure
-          data.ogImage
-            ? `<enclosure url="${data.ogImage}" type="image/png"/>`
-            : "",
+          ogImageUrl ? `<enclosure url="${ogImageUrl}" type="image/png"/>` : "",
           // Permanent GUID
           `<guid isPermaLink="true">${postUrl}</guid>`,
         ]
@@ -54,7 +58,7 @@ export async function GET() {
     items: items,
     // Add atom:link for self-reference (RSS 2.0 best practice)
     // Also include language, build date, and editorial metadata
-    customData: `<atom:link href="${SITE.website}rss.xml" rel="self" type="application/rss+xml" xmlns:atom="http://www.w3.org/2005/Atom"/>
+    customData: `<atom:link href="${new URL("rss.xml", SITE.website).href}" rel="self" type="application/rss+xml" xmlns:atom="http://www.w3.org/2005/Atom"/>
   <language>${SITE.lang}</language>
   <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
   <managingEditor>noreply@berryhill.dev (${SITE.author})</managingEditor>
