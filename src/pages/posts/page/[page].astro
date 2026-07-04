@@ -32,6 +32,12 @@ const totalPages = Math.ceil(sortedPosts.length / pageSize);
 const start = (currentPage - 1) * pageSize;
 const end = start + pageSize;
 const paginatedPosts = sortedPosts.slice(start, end);
+const postsDeck =
+  "Field notes on agentic systems, governance, protocols, provenance, IP intelligence, continuity, and the operator work that turns AI output into shipped proof.";
+const postsIntro =
+  "Read these as a developing operating manual. Some pieces are tactical checklists. Some are system maps. Some are arguments about where AI-native work is actually bottlenecked: not in model access, but in authority, review, memory, handoffs, and accountability.";
+const postsMetadataDescription =
+  "Essays and field notes from Matt Berryhill on agent governance, AI-native workflows, protocol boundaries, continuity layers, IP intelligence, and shipped-work proof.";
 
 // Create page object similar to Astro's paginate
 const page = {
@@ -51,15 +57,22 @@ const page = {
 };
 const jsonLd = buildCollectionPageJsonLd({
   title: `Posts | ${SITE.title}`,
-  description: "All the articles I've posted.",
+  description: postsMetadataDescription,
   url: new URL(Astro.url.pathname, Astro.url.origin).href,
   isPartOf: SITE.title,
 });
 ---
 
-<Layout title={`Posts | ${SITE.title}`} jsonLd={jsonLd}>
+<Layout
+  title={`Posts | ${SITE.title}`}
+  description={postsMetadataDescription}
+  jsonLd={jsonLd}
+>
   <Header />
-  <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
+  <Main pageTitle="Posts" pageDesc={postsDeck}>
+    <p class="text-skin-base mb-8 max-w-3xl text-lg leading-8">
+      {postsIntro}
+    </p>
     <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {page.data.map(data => <Card variant="h3" {...data} />)}
     </ul>
