@@ -11,7 +11,7 @@
 - **Sitemaps**:
   - `/sitemap.xml` - Canonical crawler-facing master index. Robots.txt, layout metadata, `/llms.txt`, and verification checks advertise this URL directly.
   - `/sitemap-static.xml` - Real static content pages only (`/`, `/about/`, `/posts/`, `/tags/`, `/search/`, and `/archives/` when enabled); redirect-only endpoints such as `/sitemap-index.xml` are excluded.
-  - `/sitemap-posts.xml` - All blog posts with lastmod dates
+  - `/sitemap-posts.xml` - Public blog posts only, excluding drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
   - `/sitemap-index.xml` - Backward-compatibility redirect only; not an advertised sitemap surface.
 - **URL normalization**: Static page `<loc>` values in `/sitemap-static.xml` and post `<loc>` values in `/sitemap-posts.xml` are normalized through the shared URL helper using `SITE.website`.
 - **Update Frequency**: Real-time (generated on-demand)
@@ -24,7 +24,7 @@
   - Supports bulk submission (up to 10,000 URLs)
 
 ### ✅ **FIXED: Blog Posts Now in Sitemap!**
-Previously, only 6 static pages were included. Now ALL published blog posts are discoverable by search engines and LLM crawlers.
+Previously, only 6 static pages were included. Now public blog posts that pass the shared filter are discoverable by search engines and LLM crawlers, excluding drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
 
 ## Robots.txt Permissions
 - **Location**: https://berryhill.dev/robots.txt
@@ -126,11 +126,12 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
   - atom:link self-reference
   - Language and editorial metadata
   - lastBuildDate for freshness indication
+  - Uses shared `getSortedPosts`/`getPublicPosts` filtering with Atom, `/llms.txt`, and `/sitemap-posts.xml` so machine-readable surfaces expose the same public corpus.
   - Optimal for LLM/aggregator consumption
 - **Atom Feed**: https://berryhill.dev/atom.xml ✅ **IMPLEMENTED** (PR #41, 2026-06-21)
   - Valid Atom 1.0 format with `<entry>` elements
   - Includes `<id>`, `<updated>`, `<published>`, `<summary>`, `<link>`, and `<category>` tags per entry
-  - Same post data as RSS feed
+  - Same shared public post data as RSS feed, `/llms.txt`, and `/sitemap-posts.xml` through `getSortedPosts`/`getPublicPosts`.
 - **Feed Alias**: https://berryhill.dev/feed.xml → 301 redirect to `/rss.xml` ✅ (PR #41)
   - Common feed reader convention; stable redirect
 - **Feed Autodiscovery**: ✅ **IMPLEMENTED** (PR #41)
@@ -151,6 +152,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 3. Structured data baseline (BlogPosting schema on all posts)
 4. llms.txt manifest endpoint at `/llms.txt` (2026-06-21, PR #35)
 5. Issue #58 crawl-signal reconciliation (2026-07-03): canonical `/sitemap.xml` signals in robots/layout/llms/check script, robots asset/index noise reduction, static sitemap redirect exclusion, and search visibility check alignment
+6. Issue #59 public-post filtering reconciliation (2026-07-03): RSS, Atom, `/llms.txt`, and `/sitemap-posts.xml` share `getSortedPosts`/`getPublicPosts` so machine-readable surfaces expose the same public corpus.
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -199,15 +201,15 @@ Checks performed:
 | Check | Path | Assertion |
 |-------|------|-----------|
 | robots.txt | /robots.txt | Sitemap: directive or allow/disallow rules |
-| sitemap | /sitemap.xml | sitemap XML structure |
-| rss.xml | /rss.xml | RSS 2.0 channel element |
-| atom.xml | /atom.xml | Atom 1.0 feed with `<feed>` root |
+| sitemap | /sitemap.xml | sitemap XML structure and shared public corpus coverage |
+| rss.xml | /rss.xml | RSS 2.0 channel element and shared public corpus coverage |
+| atom.xml | /atom.xml | Atom 1.0 feed with `<feed>` root and shared public corpus coverage |
 | feed.xml | /feed.xml | HTTP 301 redirect to /rss.xml |
 | autodiscovery | / | `<link rel="alternate">` tags for rss+xml and atom+xml |
-| llms.txt | /llms.txt | title + sitemap + RSS references (requires PR #35 deployed) |
+| llms.txt | /llms.txt | title + sitemap + RSS references and shared public corpus alignment (requires PR #35 deployed) |
 | post JSON-LD | /posts/{slug}/ | JSON-LD structured data (optional) |
 
-URL readback should confirm that `/sitemap-static.xml` and `/sitemap-posts.xml` emit absolute `<loc>` values using `SITE.website`, and that post detail pages emit canonical, Open Graph, and JSON-LD URLs through the shared URL helper.
+URL readback should confirm that `/sitemap-static.xml` and `/sitemap-posts.xml` emit absolute `<loc>` values using `SITE.website`, that sitemap/feed/llms checks validate the shared public corpus rather than XML shape alone, and that post detail pages emit canonical, Open Graph, and JSON-LD URLs through the shared URL helper.
 
 Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` index assets are intentionally disallowed in robots.txt as crawl noise. `pnpm run build` currently maps to `astro build`, and CI does not generate Pagefind index assets unless package scripts or CI are explicitly changed. Verify Pagefind index presence only in environments that actually generate `public/pagefind/`.
 
@@ -219,6 +221,7 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 ## Changelog
 
 ### 2026-07-03
+- ✅ **Public Post Filtering Reconciliation** (Issue #59): RSS, Atom, `/llms.txt`, and `/sitemap-posts.xml` now share public-post filtering for drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
 - ✅ **Static Sitemap, Robots, and Search Indexing Signals** (Issue #58): Canonical `/sitemap.xml` signals now flow through robots.txt, layout metadata, `/llms.txt`, and `check:search-visibility`; `/sitemap-static.xml` excludes redirect-only paths such as `/sitemap-index.xml`; robots.txt keeps the AI crawler allowlist while disallowing generated asset/index noise; shared `crawlSignals` and `staticSitemap` utilities and tests cover the policy.
 - ✅ **URL Normalization Reconciliation** (Issue #57): Documented shared URL-helper normalization for static/post sitemap `<loc>` values and post canonical, Open Graph, and JSON-LD URLs. The sitemap index still uses the existing route behavior and is not claimed as normalized here.
 
