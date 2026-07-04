@@ -26,25 +26,66 @@ const backUrl = SITE.showBackButton ? Astro.url.pathname : "/";
   id="main-content"
   class="mx-auto w-full max-w-app px-4 pb-4"
 >
-  {
-    "titleTransition" in props ? (
-      <h1 class="mb-4 inline-block border-b-6 border-accent pb-2 text-4xl font-black tracking-tight uppercase sm:text-5xl">
-        {props.pageTitle[0]}
-        <span transition:name={props.titleTransition}>
-          {props.pageTitle[1]}
-        </span>
-      </h1>
-    ) : (
-      <h1 class="mb-4 inline-block border-b-6 border-accent pb-2 text-4xl font-black tracking-tight uppercase sm:text-5xl">
-        {props.pageTitle}
-      </h1>
-    )
-  }
-  <p class="mt-2 mb-8 font-mono text-sm font-bold tracking-wider uppercase">
-    {props.pageDesc}
-  </p>
+  <header class="page-shell">
+    <p class="page-shell-kicker">Operating manual</p>
+    {
+      "titleTransition" in props ? (
+        <h1 class="page-shell-title">
+          {props.pageTitle[0]}
+          <span transition:name={props.titleTransition}>
+            {props.pageTitle[1]}
+          </span>
+        </h1>
+      ) : (
+        <h1 class="page-shell-title">{props.pageTitle}</h1>
+      )
+    }
+    {props.pageDesc && <p class="page-shell-deck">{props.pageDesc}</p>}
+  </header>
   <slot />
 </main>
+
+<style>
+  .page-shell {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-shell-kicker {
+    margin: 0 0 0.85rem;
+    color: var(--accent);
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .page-shell-title {
+    display: inline-block;
+    margin: 0;
+    padding-bottom: 0.45rem;
+    border-bottom: 6px solid var(--accent);
+    font-size: clamp(2.4rem, 1.9rem + 2.4vw, 4.5rem);
+    font-weight: 900;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .page-shell-deck {
+    max-width: 46rem;
+    margin: 1rem 0 0;
+    color: var(--fg-secondary);
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.18rem);
+    font-weight: 600;
+    line-height: 1.65;
+  }
+</style>
 
 <script>
   document.addEventListener("astro:page-load", () => {

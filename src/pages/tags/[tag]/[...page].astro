@@ -28,6 +28,7 @@ if (!tagData) {
 }
 
 const { tagName } = tagData;
+const tagDescription = `A focused reading path for ${tagName}: related field notes, evidence trails, and operating questions from the archive.`;
 
 // Get posts for this tag
 const tagPosts = getPostsByTag(posts, tag);
@@ -57,18 +58,22 @@ const page = {
 };
 const jsonLd = buildCollectionPageJsonLd({
   title: `Tag: ${tagName} | ${SITE.title}`,
-  description: `All the articles with the tag "${tagName}".`,
+  description: tagDescription,
   url: new URL(Astro.url.pathname, Astro.url.origin).href,
   isPartOf: SITE.title,
 });
 ---
 
-<Layout title={`Tag: ${tagName} | ${SITE.title}`} jsonLd={jsonLd}>
+<Layout
+  title={`Tag: ${tagName} | ${SITE.title}`}
+  description={tagDescription}
+  jsonLd={jsonLd}
+>
   <Header />
   <Main
     pageTitle={[`Tag:`, `${tagName}`]}
     titleTransition={tag}
-    pageDesc={`All the articles with the tag "${tagName}".`}
+    pageDesc={tagDescription}
   >
     <h1 slot="title" transition:name={tag}>{`Tag:${tag}`}</h1>
     <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
