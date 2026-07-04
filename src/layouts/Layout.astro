@@ -19,6 +19,7 @@ export interface Props {
   modDatetime?: Date | null;
   scrollSmooth?: boolean;
   jsonLd?: object | object[];
+  noindex?: boolean;
 }
 
 const {
@@ -31,6 +32,7 @@ const {
   modDatetime,
   scrollSmooth = false,
   jsonLd,
+  noindex = false,
 } = Astro.props;
 
 const socialImageURL = new URL(ogImage, Astro.url);
@@ -78,6 +80,7 @@ document.addEventListener("astro:page-load", () => {
     <meta name="title" content={title} />
     <meta name="description" content={description} />
     <meta name="author" content={author} />
+    {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="sitemap" href={sitemapHref} />
 
     <!-- Open Graph / Facebook -->

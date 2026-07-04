@@ -2,6 +2,7 @@ import { getLiveCollection } from "astro:content";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
+import { normalizeSiteWebsite, toPostUrl } from "@/utils/url";
 
 export const prerender = false;
 
@@ -9,17 +10,14 @@ export async function GET() {
   const { entries: posts } = await getLiveCollection("liveBlog");
   const sortedPosts = getSortedPosts(posts || []);
 
-  const website = SITE.website.endsWith("/")
-    ? SITE.website
-    : `${SITE.website}/`;
+  const website = normalizeSiteWebsite(SITE.website);
 
-  const now = new Date().toUTCString();
+  const now = new Date().toISOString();
   const feedUrl = `${website}atom.xml`;
 
   const entries = await Promise.all(
     sortedPosts.map(async ({ data, id, filePath }) => {
-      const postUrl = getPath(id, filePath);
-      const fullUrl = new URL(postUrl, website).href;
+      const postUrl = toPostUrl(getPath(id, filePath), website);
       const pubDate = new Date(data.modDatetime ?? data.pubDatetime);
 
       const summary = data.description ?? "";
@@ -30,11 +28,11 @@ export async function GET() {
 
       return `    <entry>
       <title>${escapeXml(data.title ?? "")}</title>
-      <id>${escapeXml(fullUrl)}</id>
+      <id>${escapeXml(postUrl)}</id>
       <updated>${pubDate.toISOString()}</updated>
       <published>${pubDate.toISOString()}</published>
       <summary type="text">${escapeXml(summary)}</summary>
-      <link href="${escapeXml(fullUrl)}" rel="alternate" type="text/html" />
+      <link href="${escapeXml(postUrl)}" rel="alternate" type="text/html" />
 ${tags}
     </entry>`;
     })

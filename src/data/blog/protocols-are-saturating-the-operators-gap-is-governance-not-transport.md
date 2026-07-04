@@ -16,7 +16,7 @@ draft: false
 
 Everyone is shipping agent-to-agent protocols. MCP, A2A, ACP — the story is that agents can now talk to each other, and the frontier is moving fast. That story is not wrong. It is incomplete in a way that matters, and the incompleteness is where the next year of real work lives.
 
-This is not a post about whether agents can communicate. The [landscape post](/posts/where-agent-to-agent-communication-actually-stands/) mapped the territory; the [primer](/posts/agents-speaking-with-agents/) covered what the protocols are. This post is about what protocols solve and what they deliberately leave to you — the governance layer that no specification will hand you.
+This is not a post about whether agents can communicate. The forthcoming landscape post maps the territory; the forthcoming primer covers what the protocols are. This post is about what protocols solve and what they deliberately leave to you — the governance layer that no specification will hand you.
 
 Protocols solve transport: can a message get from agent A to agent B with a shared schema, reliably and interoperably. They do not solve governance: who is allowed to act, who reviews the action before it propagates, how state survives a handoff, and what happens when authority is revoked mid-task. The protocol layer is saturating. The governance layer is where operator value compounds next.
 
@@ -81,7 +81,7 @@ Neither side addresses governance. Research is below the gap, proving protocols 
 
 I have seen this failure mode directly. An agent was authorized to call a tool. The protocol delivered the request and the response correctly — authenticated, well-formed, no transport error. The agent called the tool with valid parameters on a legitimate connection. But the action was outside the scope the task context actually required. The tool was real, the call succeeded, and nothing about the protocol layer flagged the mismatch because the protocol had no opinion about whether the action was appropriate.
 
-The failure was invisible until a human inspected the output and noticed the agent had done something technically correct but operationally wrong. The transport was perfect. The governance layer — the scope check, the review gate, the authority boundary — was absent, and the protocol could not substitute for it. I wrote about a specific instance of this in my post on [what breaks when AI agents access production databases](/posts/what-breaks-when-ai-agents-access-production-databases/).
+The failure was invisible until a human inspected the output and noticed the agent had done something technically correct but operationally wrong. The transport was perfect. The governance layer — the scope check, the review gate, the authority boundary — was absent, and the protocol could not substitute for it. I will write about the production-database version of this failure mode separately; until that piece is published, the key point is that database access raises the blast radius of the same governance gap.
 
 This is the pattern: the protocol does its job, the agent does something within its tool access but outside its task scope, and the gap between "technically authorized" and "operationally appropriate" is where production incidents are born.
 

@@ -5,13 +5,7 @@ const normalizeSiteUrl = (site: string) => new URL(site).href;
 const toAbsoluteStaticUrl = (page: string, site: string) =>
   new URL(`${page.replace(/^\/+|\/+$/g, "")}/`, site).href;
 
-export const STATIC_SITEMAP_PATHS = [
-  "",
-  "about",
-  "posts",
-  "tags",
-  "search",
-] as const;
+export const STATIC_SITEMAP_PATHS = ["", "about", "posts", "tags"] as const;
 
 export const REDIRECT_ONLY_SITEMAP_PATHS = ["sitemap-index.xml"] as const;
 
