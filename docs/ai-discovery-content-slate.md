@@ -197,6 +197,7 @@ This slate should be reviewed quarterly or after every 3–5 new published posts
 - Add new candidate posts as the content corpus grows
 - Update /llms.txt representative section when new qualifying posts publish
 - Adjust cluster boundaries if the content strategy shifts
+- Verify archive, tag, and card/page-shell framing still presents the corpus as field notes, operating questions, and evidence trails rather than generic blog inventory.
 
 ---
 
@@ -214,6 +215,6 @@ This slate should be reviewed quarterly or after every 3–5 new published posts
 
 ---
 
-*Last updated: 2026-06-25*
+*Last updated: 2026-07-03*
 *Owner: Luca Vale (brand architect)*
 *Next review: after 3 new posts publish or Q3 2026*
