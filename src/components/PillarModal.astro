@@ -361,85 +361,83 @@
 </style>
 
 <script>
-  // Pillar data
+  // Field-note module data. These entries are interface framing only, not live telemetry.
   const pillarData = {
-    spec: {
-      icon: "📐",
-      title: "spec",
-      description: "Every great system starts with a clear vision",
+    governance: {
+      icon: "☑️",
+      title: "Reading path",
+      description:
+        "Start with the review gates that keep agent work accountable.",
       details: `
         <ul>
-          <li>Define the problem space and desired outcomes</li>
-          <li>Create architectural blueprints and requirements</li>
-          <li>Plan for scale, performance, and maintainability</li>
-          <li>Document assumptions and constraints</li>
+          <li>Governance checklists define ownership before output volume.</li>
+          <li>Review gates separate useful autonomy from unsupervised drift.</li>
+          <li>Decision notes make the operator's judgment visible.</li>
         </ul>
         <p style="margin-top: 1rem; font-style: italic;">
-          "Weeks of coding can save you hours of planning."
+          Interface metaphor, not live telemetry.
         </p>
       `,
     },
-    build: {
-      icon: "🔨",
-      title: "build",
-      description: "Transform ideas into tangible, working systems",
+    proof: {
+      icon: "🧾",
+      title: "Evidence trail",
+      description: "Follow the receipts that connect claims to shipped work.",
       details: `
         <ul>
-          <li>Write clean, maintainable, and tested code</li>
-          <li>Iterate rapidly with continuous integration</li>
-          <li>Leverage modern tools and frameworks</li>
-          <li>Build with automation and AI assistance</li>
+          <li>Shipped proof beats demo language.</li>
+          <li>Provenance shows what evidence shaped the work.</li>
+          <li>Readbacks matter because they expose what changed.</li>
         </ul>
         <p style="margin-top: 1rem; font-style: italic;">
-          "Make it work, make it right, make it fast."
+          Interface metaphor, not live telemetry.
         </p>
       `,
     },
-    play: {
-      icon: "🎮",
-      title: "play",
-      description: "Experiment, explore, and push boundaries",
+    protocol: {
+      icon: "🧭",
+      title: "Field note",
+      description:
+        "Map the boundary between protocol promise and operator reality.",
       details: `
         <ul>
-          <li>Test assumptions in production-like environments</li>
-          <li>Gather real-world feedback and metrics</li>
-          <li>Explore edge cases and failure modes</li>
-          <li>Learn through hands-on experimentation</li>
+          <li>Protocol boundaries are strongest when they name failure modes.</li>
+          <li>Agent-readable surfaces still need human-readable accountability.</li>
+          <li>Claims stay narrower than the evidence available to readers.</li>
         </ul>
         <p style="margin-top: 1rem; font-style: italic;">
-          "The best way to learn is by doing."
+          Interface metaphor, not live telemetry.
         </p>
       `,
     },
-    destroy: {
-      icon: "💥",
-      title: "destroy",
-      description: "Break it down to build it better",
+    continuity: {
+      icon: "🧵",
+      title: "What this changes",
+      description:
+        "See how memory, context, and source-of-truth rules compound.",
       details: `
         <ul>
-          <li>Analyze what worked and what didn't</li>
-          <li>Remove technical debt and anti-patterns</li>
-          <li>Refactor ruthlessly for clarity</li>
-          <li>Embrace creative destruction</li>
+          <li>Continuity keeps each field note from resetting the conversation.</li>
+          <li>Source-of-truth rules prevent stale context from sounding current.</li>
+          <li>The public layer should clarify the system without pretending to be the system.</li>
         </ul>
         <p style="margin-top: 1rem; font-style: italic;">
-          "Sometimes you need to tear down to rebuild stronger."
+          Interface metaphor, not live telemetry.
         </p>
       `,
     },
-    repeat: {
-      icon: "🔄",
-      title: "repeat",
-      description: "Continuous improvement through iteration",
+    conversation: {
+      icon: "💬",
+      title: "Operator question",
+      description: "Bring the operating question to a human conversation.",
       details: `
         <ul>
-          <li>Apply lessons learned to the next cycle</li>
-          <li>Compound knowledge over time</li>
-          <li>Refine processes and workflows</li>
-          <li>Never stop learning and evolving</li>
+          <li>Which parts of the workflow need evidence before automation?</li>
+          <li>Where should review gates be explicit instead of implied?</li>
+          <li>What would count as shipped proof for this system?</li>
         </ul>
         <p style="margin-top: 1rem; font-style: italic;">
-          "Excellence is not a destination, it's a continuous journey."
+          Interface metaphor, not live telemetry.
         </p>
       `,
     },
@@ -548,7 +546,9 @@
     // Attach click handlers to pillar words
     const pillarWords = document.querySelectorAll(".cycle-word");
     pillarWords.forEach(word => {
-      const pillarName = word.textContent?.trim().toLowerCase();
+      const pillarName =
+        (word as HTMLElement).dataset.pillar ??
+        word.textContent?.trim().toLowerCase();
       if (pillarName && pillarData[pillarName as keyof typeof pillarData]) {
         word.classList.add("pillar-clickable");
         word.addEventListener("click", () => openModal(pillarName));

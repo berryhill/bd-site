@@ -91,11 +91,132 @@ const jsonLd = buildWebSiteJsonLd({
       </div>
     </section>
 
+    <section
+      id="field-notes-terminal"
+      class="section-animate py-4"
+      aria-labelledby="field-notes-terminal-title"
+    >
+      <div class="terminal-interface rounded-2xl border p-4 md:p-5">
+        <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p
+              id="field-notes-terminal-title"
+              class="terminal-prompt font-mono text-sm md:text-base"
+            >
+              berryhill.dev / field-notes
+            </p>
+            <p
+              class="terminal-status mt-2 text-sm leading-relaxed md:text-base"
+            >
+              Public notes on AI-native systems, agent governance, provenance,
+              and shipped proof.
+            </p>
+          </div>
+          <p class="safety-label rounded-full px-3 py-1 font-mono text-xs">
+            Interface metaphor, not live telemetry.
+          </p>
+        </div>
+
+        <ul class="terminal-command-list grid list-none gap-2 md:grid-cols-2">
+          <li>
+            <button
+              type="button"
+              class="cycle-word pillar-clickable terminal-command"
+              data-pillar="governance"
+            >
+              open governance checklist
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="cycle-word pillar-clickable terminal-command"
+              data-pillar="proof"
+            >
+              inspect shipped-work proof
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="cycle-word pillar-clickable terminal-command"
+              data-pillar="protocol"
+            >
+              trace protocol boundaries
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="cycle-word pillar-clickable terminal-command"
+              data-pillar="continuity"
+            >
+              read continuity layer notes
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="cycle-word pillar-clickable terminal-command"
+              data-pillar="conversation"
+            >
+              schedule operator conversation
+            </button>
+          </li>
+        </ul>
+      </div>
+    </section>
+
     <style>
+      .terminal-interface {
+        border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+        background: color-mix(in srgb, var(--background) 92%, var(--accent));
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
+      }
+
       .terminal-prompt {
         color: var(--accent);
         font-weight: 700;
         text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      }
+
+      .terminal-status {
+        color: var(--foreground);
+      }
+
+      .safety-label {
+        border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+        color: var(--foreground-muted);
+        background: rgba(0, 0, 0, 0.08);
+      }
+
+      .terminal-command-list {
+        margin: 0;
+        padding: 0;
+      }
+
+      .terminal-command {
+        width: 100%;
+        border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+        border-radius: 0.75rem;
+        padding: 0.75rem 0.9rem;
+        background: rgba(0, 0, 0, 0.08);
+        color: var(--foreground);
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        text-align: left;
+      }
+
+      .terminal-command::before {
+        content: "$ ";
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .terminal-command:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
       }
 
       .cycle-word {
@@ -356,91 +477,6 @@ const jsonLd = buildWebSiteJsonLd({
       ?.dataset?.layout;
     if (indexLayout) {
       sessionStorage.setItem("backUrl", "/");
-    }
-
-    // Typing animation
-    const typedTextElement = document.getElementById("typed-text");
-    const cursorElement = document.getElementById("typing-cursor");
-
-    if (typedTextElement && cursorElement) {
-      const words = [
-        { text: "spec", class: "cycle-word pillar-clickable", pillar: "spec" },
-        { text: " → ", class: "arrow" },
-        {
-          text: "build",
-          class: "cycle-word pillar-clickable",
-          pillar: "build",
-        },
-        { text: " → ", class: "arrow" },
-        { text: "play", class: "cycle-word pillar-clickable", pillar: "play" },
-        { text: " → ", class: "arrow" },
-        { text: "repeat", class: "cycle-word highlight" },
-      ];
-
-      let wordIndex = 0;
-      let charIndex = 0;
-      const typingSpeed = 40; // milliseconds per character
-      const wordDelay = 50; // pause between words
-
-      function typeText() {
-        if (wordIndex < words.length) {
-          const currentWord = words[wordIndex];
-
-          if (charIndex === 0) {
-            // Create a new span for this word/arrow
-            const span = document.createElement("span");
-            span.className = currentWord.class;
-            span.dataset.wordIndex = wordIndex.toString();
-
-            // Add pillar data attribute if this is a clickable pillar
-            if (currentWord.pillar) {
-              span.dataset.pillar = currentWord.pillar;
-            }
-
-            typedTextElement?.appendChild(span);
-          }
-
-          const currentSpan = typedTextElement?.querySelector(
-            `[data-word-index="${wordIndex}"]`
-          ) as HTMLElement;
-
-          if (currentSpan && charIndex < currentWord.text.length) {
-            currentSpan.textContent += currentWord.text[charIndex];
-            charIndex++;
-            setTimeout(typeText, typingSpeed);
-          } else {
-            // Move to next word
-            charIndex = 0;
-            wordIndex++;
-            setTimeout(typeText, wordDelay);
-          }
-        } else {
-          // Animation complete - keep cursor blinking and attach click handlers
-          cursorElement?.classList.add("cursor-blink");
-          attachPillarClickHandlers();
-        }
-      }
-
-      function attachPillarClickHandlers() {
-        const pillarWords = document.querySelectorAll(".pillar-clickable");
-        pillarWords.forEach(word => {
-          word.addEventListener("click", () => {
-            const pillar = (word as HTMLElement).dataset.pillar;
-            if (pillar) {
-              const event = new CustomEvent("open-pillar-modal", {
-                detail: { pillar },
-              });
-              window.dispatchEvent(event);
-            }
-          });
-        });
-      }
-
-      // Start typing animation after a brief delay
-      setTimeout(() => {
-        cursorElement?.classList.remove("cursor-blink");
-        typeText();
-      }, 300);
     }
   });
 </script>
