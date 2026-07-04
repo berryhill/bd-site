@@ -3,6 +3,7 @@ import { getLiveCollection } from "astro:content";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
 import { toPostUrl } from "@/utils/url";
+import getSortedPosts from "@/utils/getSortedPosts";
 
 export const prerender = false;
 
@@ -28,14 +29,7 @@ export const GET: APIRoute = async () => {
   const liveBlog = await getLiveCollection("liveBlog");
   const allPosts = Array.isArray(liveBlog.entries) ? liveBlog.entries : [];
 
-  // Filter out drafts and sort by date, putting undated posts last.
-  const publishedPosts = allPosts
-    .filter(post => !post.data.draft)
-    .sort((a, b) => {
-      const dateA = getPostDate(a)?.getTime() ?? 0;
-      const dateB = getPostDate(b)?.getTime() ?? 0;
-      return dateB - dateA;
-    });
+  const publishedPosts = getSortedPosts(allPosts);
 
   // Generate XML sitemap for posts
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
