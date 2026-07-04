@@ -161,13 +161,13 @@ Example section:
 
 The `/llms.txt` manifest should include posts that:
 
-1. Are **published** (not draft)
+1. Pass the shared public-post filter: **not draft**, not an underscore/private path, valid publish date, and not scheduled beyond the configured margin.
 2. Cover a **distinct sub-topic** within one of the defined clusters
 3. Are **specific and technical** — not overview or opinion pieces without substance
 4. Have **cited sources** or **original analysis** — not just framing
 5. Have **visible internal links** to other berryhill.dev posts
 
-Posts that meet all five criteria should be added to the representative section of `llms.txt.ts` and the LLM_CRAWL_MANIFEST.md representative listing.
+Posts that meet all five criteria must first pass the shared public-post filter before being added to the representative section of `llms.txt.ts` and the LLM_CRAWL_MANIFEST.md representative listing.
 
 **Current candidates for /llms.txt representative listing:**
 - `what-breaks-when-ai-agents-access-production-databases` — specific failure taxonomy, Zartis citation, clear technical content
