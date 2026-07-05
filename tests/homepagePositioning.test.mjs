@@ -44,7 +44,7 @@ test("homepage keeps existing post lists and reader links present", () => {
   assert.match(homepageSource, /recentPosts\.length > 0/);
   assert.match(homepageSource, /href="\/rss\.xml"/);
   assert.match(homepageSource, /<Socials \/>/);
-  assert.match(homepageSource, /<LinkButton href="\/posts\/"/);
+  assert.match(homepageSource, /href="\/posts\/"/);
 });
 test("terminal commands remain keyboard-accessible modal triggers", () => {
   assert.match(homepageSource, /<button\s+type="button"/);

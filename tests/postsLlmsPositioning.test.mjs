@@ -24,7 +24,7 @@ const expectedLlmsDescription = "Field notes on AI-native discovery systems, age
 const forbidden = ["MCP server", "telemetry product", "fleet dashboard", "production queue", "API surface"];
 
 test("posts index renders terminal browsing surface", () => {
-  assert.match(postsPageSource, /pageTitle="Posts"/);
+  assert.match(postsPageSource, /posts-terminal-title/);
   includesCollapsed(postsPageSource, "Posts as artifacts from the operating system.");
   includesCollapsed(postsPageSource, "Read these as a developing operating manual: agent governance, discovery systems, protocol boundaries, verification loops, and the human decisions that keep autonomous work accountable.");
   includesCollapsed(postsPageSource, "ls ~/berryhill.dev/posts --group-by lane");

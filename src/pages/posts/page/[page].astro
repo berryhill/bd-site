@@ -2,7 +2,6 @@
 export const prerender = false;
 
 import { getLiveCollection } from "astro:content";
-import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -14,11 +13,8 @@ import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 
 const { page: pageParam } = Astro.params;
 
-// This route handles /posts/[number] - validate it's actually a number
 const currentPage = parseInt(pageParam);
 if (isNaN(currentPage) || !pageParam.match(/^\d+$/)) {
-  // Not a valid page number, this must be a post slug
-  // Return 404 so the [...slug] route can handle it
   return new Response(null, { status: 404 });
 }
 
@@ -26,19 +22,34 @@ const { entries: allPosts } = await getLiveCollection("liveBlog");
 const posts = (allPosts || []).filter(({ data }) => !data.draft);
 const sortedPosts = getSortedPosts(posts);
 
-// Calculate pagination
 const pageSize = SITE.postPerPage;
 const totalPages = Math.ceil(sortedPosts.length / pageSize);
 const start = (currentPage - 1) * pageSize;
 const end = start + pageSize;
 const paginatedPosts = sortedPosts.slice(start, end);
+const totalWords = sortedPosts.reduce(
+  (sum, post) =>
+    sum + (post.body || "").trim().split(/\s+/).filter(Boolean).length,
+  0
+);
+const uniqueTags = Array.from(
+  new Set(sortedPosts.flatMap(({ data }) => data.tags ?? []))
+).slice(0, 12);
+const firstPost = sortedPosts.at(-1)?.data.pubDatetime;
+const lastPost = sortedPosts[0]?.data.pubDatetime;
+const formatDate = (value: Date | string | undefined) => {
+  if (!value) return "pending";
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "pending"
+    : date.toISOString().slice(0, 10);
+};
 const postsDeck = "Posts as artifacts from the operating system.";
 const postsIntro =
   "Read these as a developing operating manual: agent governance, discovery systems, protocol boundaries, verification loops, and the human decisions that keep autonomous work accountable.";
 const postsMetadataDescription =
   "Essays and field notes from Matt Berryhill on agent governance, AI-native workflows, protocol boundaries, continuity layers, IP intelligence, and shipped-work proof.";
 
-// Create page object similar to Astro's paginate
 const page = {
   data: paginatedPosts,
   start,
@@ -68,46 +79,97 @@ const jsonLd = buildCollectionPageJsonLd({
   jsonLd={jsonLd}
 >
   <Header />
-  <Main pageTitle="Posts" pageDesc={postsDeck}>
+  <main id="main-content" class="terminal-page px-4 pb-12 sm:px-6">
+    <section class="pt-8 pb-6" aria-labelledby="posts-terminal-title">
+      <div class="terminal-shell">
+        <div class="terminal-chrome" aria-hidden="true">
+          <span class="terminal-dots">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+          </span>
+          <span>matt@berryhill: ~/berryhill.dev/posts</span>
+          <span>page {currentPage}/{Math.max(totalPages, 1)}</span>
+        </div>
+        <div class="terminal-body">
+          <p class="terminal-path text-sm md:text-base">
+            ls ~/berryhill.dev/posts --group-by lane
+          </p>
+          <h1
+            id="posts-terminal-title"
+            class="mt-4 text-4xl font-bold md:text-6xl"
+          >
+            posts / archive
+          </h1>
+          <p
+            class="text-skin-base mt-4 max-w-3xl text-base leading-8 md:text-lg"
+          >
+            {postsDeck}
+            {postsIntro}
+          </p>
+
+          <div class="mt-6 grid gap-3 md:grid-cols-4">
+            <div class="terminal-stat">
+              <strong>{sortedPosts.length}</strong>
+              <span>posts</span>
+            </div>
+            <div class="terminal-stat">
+              <strong>{totalWords.toLocaleString()}</strong>
+              <span>words</span>
+            </div>
+            <div class="terminal-stat">
+              <strong>{formatDate(firstPost)}</strong>
+              <span>first post</span>
+            </div>
+            <div class="terminal-stat">
+              <strong>{formatDate(lastPost)}</strong>
+              <span>latest post</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section
-      class="terminal-shell mb-8 p-4 md:p-5"
-      aria-labelledby="posts-terminal-title"
+      class="terminal-panel mb-6 p-4 md:p-5"
+      aria-labelledby="tag-filter-title"
     >
-      <p class="terminal-path text-sm md:text-base">
-        ls ~/berryhill.dev/posts --group-by lane
-      </p>
-      <h2 id="posts-terminal-title" class="mt-3 text-2xl font-semibold">
-        Essays, field notes, and system maps from AI-native work.
+      <p class="terminal-command text-sm">cat lanes.md</p>
+      <h2 id="tag-filter-title" class="mt-2 text-2xl font-bold">
+        Public lanes
       </h2>
-      <p class="text-skin-base mt-3 max-w-3xl text-base leading-8">
-        {postsIntro}
-      </p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="terminal-safe-note">all</span>
+        {
+          uniqueTags.map(tag => (
+            <span class="border-skin-line text-skin-muted rounded-full border px-3 py-1 font-mono text-xs">
+              {tag}
+            </span>
+          ))
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="archive-list-title">
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="terminal-command text-sm">find . -name "*.md" -type f</p>
+          <h2 id="archive-list-title" class="mt-2 text-2xl font-bold">
+            Current page artifacts
+          </h2>
+        </div>
+        <p class="text-skin-muted font-mono text-sm">
+          showing {page.start + 1}-{page.end} of {page.total}
+        </p>
+      </div>
+
       <ul
-        class="mt-4 grid gap-2 text-sm md:grid-cols-2"
-        aria-label="Primary lanes"
+        class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
       >
-        <li>
-          <span class="text-skin-accent font-mono">agents/</span> workflows, handoffs,
-          review
-        </li>
-        <li>
-          <span class="text-skin-accent font-mono">discovery/</span> claims, evidence,
-          continuity
-        </li>
-        <li>
-          <span class="text-skin-accent font-mono">systems/</span> protocols, governance,
-          provenance
-        </li>
-        <li>
-          <span class="text-skin-accent font-mono">field-notes/</span>
-          practical operator lessons
-        </li>
+        {page.data.map(data => <Card variant="h3" {...data} />)}
       </ul>
     </section>
-    <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {page.data.map(data => <Card variant="h3" {...data} />)}
-    </ul>
-  </Main>
+  </main>
 
   <Pagination {page} />
 

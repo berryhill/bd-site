@@ -40,24 +40,20 @@ const {
   hideEditPost,
 } = post.data;
 
-// Live collections don't support render(), so we manually parse markdown
 const htmlContent = await marked.parse(post.body || "");
 
 let ogImageUrl: string | undefined;
 
-// Determine OG image source
 if (typeof initOgImage === "string") {
-  ogImageUrl = initOgImage; // Remote OG image (absolute URL)
+  ogImageUrl = initOgImage;
 } else if (initOgImage?.src) {
-  ogImageUrl = initOgImage.src; // Local asset
+  ogImageUrl = initOgImage.src;
 }
 
-// Use dynamic OG image if enabled and no remote|local ogImage
 if (!ogImageUrl && SITE.dynamicOgImage) {
   ogImageUrl = `${getPath(post.id, post.filePath)}/index.png`;
 }
 
-// Resolve OG image URL (or fallback to SITE.ogImage / default `og.png`)
 const ogImage = ogImageUrl
   ? toAbsoluteSiteUrl(ogImageUrl, SITE.website)
   : undefined;
@@ -90,8 +86,6 @@ const layoutProps = {
   jsonLd,
 };
 
-/* ========== Prev/Next Posts ========== */
-
 const allPosts = posts.map(({ data: { title }, id, filePath }) => ({
   id,
   title,
@@ -99,10 +93,11 @@ const allPosts = posts.map(({ data: { title }, id, filePath }) => ({
 }));
 
 const currentPostIndex = allPosts.findIndex(a => a.id === post.id);
-
-const prevPost = currentPostIndex !== 0 ? allPosts[currentPostIndex - 1] : null;
+const prevPost = currentPostIndex > 0 ? allPosts[currentPostIndex - 1] : null;
 const nextPost =
-  currentPostIndex !== allPosts.length ? allPosts[currentPostIndex + 1] : null;
+  currentPostIndex >= 0 && currentPostIndex < allPosts.length - 1
+    ? allPosts[currentPostIndex + 1]
+    : null;
 
 const relatedPosts = getRelatedPosts(post, posts);
 const wordCount = (post.body || "").trim().split(/\s+/).filter(Boolean).length;
@@ -120,8 +115,15 @@ const frontmatterPreview = [
   ["updated", formatDate(modDatetime)],
   ["lane", lane],
   ["read", `${readMinutes} min`],
+  ["words", wordCount.toLocaleString()],
+  ["slug", post.id],
   ["status", "published"],
 ].filter(([, value]) => Boolean(value));
+const toc = Array.from((post.body || "").matchAll(/^##\s+(.+)$/gm))
+  .map(match => String(match[1]).replace(/#+$/, "").trim())
+  .filter(Boolean)
+  .slice(0, 8)
+  .map(label => ({ label, href: `#${slugifyStr(label)}` }));
 ---
 
 <Layout {...layoutProps}>
@@ -130,93 +132,115 @@ const frontmatterPreview = [
   <main
     id="main-content"
     class:list={[
-      "mx-auto w-full max-w-app px-4 pb-12",
+      "terminal-page w-full px-4 pb-12 sm:px-6",
       { "mt-8": !SITE.showBackButton },
     ]}
     data-pagefind-body
   >
-    <header class="terminal-shell mt-4 p-4 md:p-6">
-      <p class="terminal-path text-sm md:text-base">
-        cat ~/berryhill.dev/posts/{post.id}.md
-      </p>
-      <p
-        class="text-skin-muted mt-4 font-mono text-xs tracking-widest uppercase"
-      >
-        post.yaml
-      </p>
-      <pre
-        class="border-skin-line bg-skin-card mt-2 overflow-x-auto rounded-lg border p-4 text-xs leading-6"><code>{frontmatterPreview.map(([key, value]) => `${key}: ${value}`).join("\n")}</code></pre>
-      <p
-        class="text-skin-muted mt-5 font-mono text-xs tracking-widest uppercase"
-      >
-        essay · artifact
-      </p>
-      <h1
-        transition:name={slugifyStr(title)}
-        class="mt-2 max-w-4xl text-3xl font-bold tracking-tight md:text-5xl"
-      >
-        {title}
-      </h1>
-      <p class="text-skin-base mt-4 max-w-3xl text-lg leading-8">
-        {description}
-      </p>
-      <div class="operator-read mt-5 max-w-3xl">
-        <p class="text-skin-muted font-mono text-xs tracking-widest uppercase">
-          operator read
-        </p>
-        <p class="text-skin-base mt-2 text-sm leading-7">{description}</p>
+    <header class="terminal-shell mt-4">
+      <div class="terminal-chrome" aria-hidden="true">
+        <span class="terminal-dots">
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+        </span>
+        <span>matt@berryhill: ~/berryhill.dev/posts/{post.id}.md</span>
+        <span>{readMinutes} min read</span>
       </div>
-      <div class="mt-5 flex items-center gap-2">
-        <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />
-        <span
-          aria-hidden="true"
-          class:list={[
-            "max-sm:hidden",
-            { hidden: !SITE.editPost.enabled || hideEditPost },
-          ]}>|</span
+      <div class="terminal-body">
+        <p class="terminal-path text-sm md:text-base">
+          cat ~/berryhill.dev/posts/{post.id}.md
+        </p>
+        <p class="terminal-kicker mt-5">post.yaml</p>
+        <pre
+          class="terminal-panel mt-2 overflow-x-auto p-4 text-xs leading-6"><code>{frontmatterPreview.map(([key, value]) => `${key}: ${value}`).join("\n")}</code></pre>
+        <p class="terminal-kicker mt-6">essay · artifact</p>
+        <h1
+          transition:name={slugifyStr(title)}
+          class="mt-2 max-w-5xl text-4xl font-bold tracking-tight md:text-6xl"
         >
-        <EditPost {hideEditPost} {post} class="max-sm:hidden" />
+          {title}
+        </h1>
+        <p class="text-skin-base mt-4 max-w-3xl text-lg leading-8">
+          {description}
+        </p>
+        <div class="operator-read mt-5 max-w-3xl">
+          <p class="terminal-kicker">operator read</p>
+          <p class="text-skin-base mt-2 text-sm leading-7">
+            Read this as a working artifact: what changed, what evidence
+            matters, where the system boundary sits, and what an operator should
+            do next.
+          </p>
+        </div>
+        <div class="mt-5 flex flex-wrap items-center gap-2 text-sm">
+          <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />
+          <span
+            aria-hidden="true"
+            class:list={[
+              "max-sm:hidden",
+              { hidden: !SITE.editPost.enabled || hideEditPost },
+            ]}>|</span
+          >
+          <EditPost {hideEditPost} {post} class="max-sm:hidden" />
+        </div>
       </div>
     </header>
-    <article
-      id="article"
-      class="app-prose terminal-article mx-auto mt-8 max-w-3xl prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
-    >
-      <div set:html={htmlContent} />
-    </article>
 
-    <hr class="my-8 border-dashed" />
+    <div class="post-terminal-layout mt-8">
+      {
+        toc.length > 0 && (
+          <aside class="terminal-panel post-toc p-4" data-pagefind-ignore>
+            <p class="terminal-command text-sm">grep -n "^##" {post.id}.md</p>
+            <h2 class="mt-3 text-base font-bold">On this page</h2>
+            <ol class="mt-3 space-y-2 text-sm">
+              {toc.map(item => (
+                <li>
+                  <a href={item.href}>{item.label}</a>
+                </li>
+              ))}
+            </ol>
+          </aside>
+        )
+      }
 
-    <EditPost class="sm:hidden" {hideEditPost} {post} />
+      <article
+        id="article"
+        class="app-prose terminal-article terminal-prose-shell max-w-none prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
+      >
+        <div set:html={htmlContent} />
+      </article>
+    </div>
 
-    <ul class="mt-4 mb-8 sm:my-8">
-      {tags.map(tag => <Tag tag={slugifyStr(tag)} tagName={tag} />)}
-    </ul>
+    <div class="terminal-panel mt-8 p-4 md:p-5">
+      <EditPost class="sm:hidden" {hideEditPost} {post} />
 
-    <BackToTopButton />
+      <ul class="mt-2 mb-6 flex flex-wrap gap-2">
+        {tags.map(tag => <Tag tag={slugifyStr(tag)} tagName={tag} />)}
+      </ul>
 
-    <ShareLinks />
+      <BackToTopButton />
+      <ShareLinks />
+    </div>
 
-    <hr class="my-6 border-dashed" />
-
-    <div data-pagefind-ignore>
+    <div class="mt-8" data-pagefind-ignore>
       <RelatedPosts posts={relatedPosts} />
     </div>
 
-    <hr class="my-6 border-dashed" />
-
-    <!-- Previous/Next Post Buttons -->
-    <div data-pagefind-ignore class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <nav
+      data-pagefind-ignore
+      class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2"
+      aria-label="Previous and next posts"
+    >
       {
         prevPost && (
           <a
             href={getPath(prevPost.id, prevPost.filePath)}
-            class="flex w-full gap-1 hover:opacity-75"
+            class="terminal-panel p-4 hover:opacity-100"
           >
-            <IconChevronLeft class="inline-block flex-none rtl:rotate-180" />
-            <div>
-              <span>Previous Post</span>
-              <div class="text-sm text-accent/85">{prevPost.title}</div>
+            <span class="terminal-kicker">previous</span>
+            <div class="text-skin-accent mt-2 flex gap-2">
+              <IconChevronLeft class="inline-block flex-none rtl:rotate-180" />
+              <span>{prevPost.title}</span>
             </div>
           </a>
         )
@@ -225,45 +249,60 @@ const frontmatterPreview = [
         nextPost && (
           <a
             href={getPath(nextPost.id, nextPost.filePath)}
-            class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"
+            class="terminal-panel p-4 text-end hover:opacity-100 sm:col-start-2"
           >
-            <div>
-              <span>Next Post</span>
-              <div class="text-sm text-accent/85">{nextPost.title}</div>
+            <span class="terminal-kicker">next</span>
+            <div class="text-skin-accent mt-2 flex justify-end gap-2">
+              <span>{nextPost.title}</span>
+              <IconChevronRight class="inline-block flex-none rtl:rotate-180" />
             </div>
-            <IconChevronRight class="inline-block flex-none rtl:rotate-180" />
           </a>
         )
       }
-    </div>
+    </nav>
   </main>
   <Footer />
 </Layout>
 
+<style>
+  .post-terminal-layout {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    .post-terminal-layout {
+      grid-template-columns: 16rem minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .post-toc {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
+  .post-toc ol {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+</style>
+
 <script is:inline data-astro-rerun>
-  /** Create a progress indicator
-   *  at the top */
   function createProgressBar() {
-    // Create the main container div
     const progressContainer = document.createElement("div");
     progressContainer.className =
       "progress-container fixed top-0 z-10 h-1 w-full bg-background";
 
-    // Create the progress bar div
     const progressBar = document.createElement("div");
     progressBar.className = "progress-bar h-1 w-0 bg-accent";
     progressBar.id = "myBar";
 
-    // Append the progress bar to the progress container
     progressContainer.appendChild(progressBar);
-
-    // Append the progress container to the document body or any other desired parent element
     document.body.appendChild(progressContainer);
   }
   createProgressBar();
 
-  /** Update the progress bar
-   *  when user scrolls */
   function updateScrollProgress() {
     document.addEventListener("scroll", () => {
       const winScroll =
@@ -282,8 +321,6 @@ const frontmatterPreview = [
   }
   updateScrollProgress();
 
-  /** Attaches links to headings in the document,
-   *  allowing sharing of sections easily */
   function addHeadingLinks() {
     const headings = Array.from(
       document.querySelectorAll("h2, h3, h4, h5, h6")
@@ -304,8 +341,6 @@ const frontmatterPreview = [
   }
   addHeadingLinks();
 
-  /** Attaches copy buttons to code blocks in the document,
-   * allowing users to copy code easily. */
   function attachCopyButtons() {
     const copyButtonLabel = "Copy";
     const codeBlocks = Array.from(document.querySelectorAll("pre"));
@@ -314,12 +349,9 @@ const frontmatterPreview = [
       const wrapper = document.createElement("div");
       wrapper.style.position = "relative";
 
-      // Check if --file-name-offset custom property exists
       const computedStyle = getComputedStyle(codeBlock);
       const hasFileNameOffset =
         computedStyle.getPropertyValue("--file-name-offset").trim() !== "";
-
-      // Determine the top positioning class
       const topClass = hasFileNameOffset
         ? "top-(--file-name-offset)"
         : "-top-3";
@@ -330,7 +362,6 @@ const frontmatterPreview = [
       codeBlock.setAttribute("tabindex", "0");
       codeBlock.appendChild(copyButton);
 
-      // wrap codebock with relative parent element
       codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
       wrapper.appendChild(codeBlock);
 
@@ -344,8 +375,6 @@ const frontmatterPreview = [
       const text = code?.innerText;
 
       await navigator.clipboard.writeText(text ?? "");
-
-      // visual feedback that task is completed
       button.innerText = "Copied";
 
       setTimeout(() => {
@@ -355,7 +384,6 @@ const frontmatterPreview = [
   }
   attachCopyButtons();
 
-  /* Go to page start after page swap */
   document.addEventListener("astro:after-swap", () =>
     window.scrollTo({ left: 0, top: 0, behavior: "instant" })
   );

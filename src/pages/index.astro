@@ -6,13 +6,10 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Socials from "@/components/Socials.astro";
-import LinkButton from "@/components/LinkButton.astro";
 import Card from "@/components/Card.astro";
-import Hr from "@/components/Hr.astro";
 import PillarModal from "@/components/PillarModal.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import IconRss from "@/assets/icons/IconRss.svg";
-import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 import { SITE } from "@/config";
 import { SOCIALS } from "@/constants";
 import { buildWebSiteJsonLd } from "@/utils/structuredData";
@@ -22,6 +19,18 @@ const { entries: posts } = await getLiveCollection("liveBlog");
 const sortedPosts = getSortedPosts(posts || []);
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const visibleRecentPosts = recentPosts.slice(0, SITE.postPerIndex);
+const totalWords = sortedPosts.reduce(
+  (sum, post) =>
+    sum + (post.body || "").trim().split(/\s+/).filter(Boolean).length,
+  0
+);
+const tagCount = new Set(sortedPosts.flatMap(({ data }) => data.tags ?? []))
+  .size;
+const lastPostDate = sortedPosts[0]?.data?.pubDatetime;
+const lastPostLabel = lastPostDate
+  ? new Date(lastPostDate).toISOString().slice(0, 10)
+  : "pending";
 const jsonLd = buildWebSiteJsonLd({
   name: SITE.title,
   url: SITE.website,
@@ -38,448 +47,235 @@ const jsonLd = buildWebSiteJsonLd({
   <main
     id="main-content"
     data-layout="index"
-    class="mx-auto max-w-6xl px-4 sm:px-6"
+    class="terminal-page px-4 pb-16 sm:px-6"
   >
-    <!-- Hero Section -->
-    <section id="hero" class="relative max-w-5xl pt-8 pb-6">
-      <div class="hero-content terminal-shell relative p-4 md:p-6">
-        <p class="terminal-path text-sm md:text-base">whoami</p>
-        <h1
-          id="home-terminal-title"
-          class="mt-3 mb-4 text-3xl leading-tight font-bold tracking-tight md:text-5xl"
-        >
-          Matt Berryhill builds AI-native operating systems in public.
-        </h1>
+    <section id="hero" class="pt-8 pb-6" aria-labelledby="home-terminal-title">
+      <div class="terminal-shell">
+        <div class="terminal-chrome" aria-hidden="true">
+          <span class="terminal-dots">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+          </span>
+          <span>matt@berryhill: ~/berryhill.dev</span>
+          <span>human-led</span>
+        </div>
 
-        <div class="mb-4 space-y-3">
-          <p class="text-skin-base max-w-3xl text-base leading-8 md:text-lg">
+        <div class="terminal-body">
+          <p class="terminal-path text-sm md:text-base">whoami --verbose</p>
+          <h1
+            id="home-terminal-title"
+            class="mt-4 max-w-4xl text-4xl leading-tight font-bold tracking-tight md:text-6xl"
+          >
+            Matt Berryhill builds AI-native operating systems in public.
+          </h1>
+          <p
+            class="text-skin-base mt-5 max-w-3xl text-base leading-8 md:text-lg"
+          >
             Berryhill.dev is the public surface for agent workflows, discovery
             systems, governance, provenance, and the operator judgment required
-            to turn AI output into shipped proof.
+            to turn AI output into shipped proof. The new shell makes that
+            surface feel like a working terminal, not a brochure.
           </p>
-          <div class="operator-read max-w-3xl">
-            <p
-              class="text-skin-muted font-mono text-xs tracking-widest uppercase"
-            >
-              operator read
-            </p>
+
+          <div class="mt-6 grid gap-3 md:grid-cols-3" aria-label="Site state">
+            <div class="terminal-stat">
+              <strong>{sortedPosts.length}</strong>
+              <span>published artifacts</span>
+            </div>
+            <div class="terminal-stat">
+              <strong>{tagCount}</strong>
+              <span>public lanes</span>
+            </div>
+            <div class="terminal-stat">
+              <strong>{lastPostLabel}</strong>
+              <span>latest post</span>
+            </div>
+          </div>
+
+          <div class="operator-read mt-6 max-w-3xl">
+            <p class="terminal-kicker">operator read</p>
             <p class="text-skin-base mt-2 text-sm leading-7">
               The useful question is not whether agents can produce more output.
               It is whether the system can preserve context, ownership,
               verification, and memory long enough for the work to compound.
             </p>
           </div>
-          <p class="text-skin-muted text-sm leading-relaxed md:text-base">
+
+          <div class="mt-6 flex flex-wrap items-center gap-3 text-sm">
+            <a
+              target="_blank"
+              href="/rss.xml"
+              class="inline-flex items-center gap-1.5"
+              aria-label="rss feed"
+            >
+              <IconRss width={16} height={16} />
+              <span>rss.xml</span>
+            </a>
+            {
+              SOCIALS.length > 0 && (
+                <>
+                  <span class="text-skin-muted">|</span>
+                  <Socials />
+                </>
+              )
+            }
+            <span class="terminal-safe-note"
+              >Terminal metaphor. Real claims only.</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="system-map" class="py-4" aria-labelledby="system-map-title">
+      <div class="terminal-grid cols-2">
+        <div class="terminal-panel p-4 md:p-5">
+          <p class="terminal-command text-sm">cat manifesto.md</p>
+          <h2 id="system-map-title" class="mt-3 text-2xl font-semibold">
+            Not a nicer blog. A public interface into the operating layer.
+          </h2>
+          <p class="text-skin-muted mt-3 text-sm leading-7 md:text-base">
             Most AI content stops at tools, prompts, and demos. The harder
             problem is building systems that know who owns the work, what
             evidence was used, what changed, what shipped, and where a human
-            must stay in the loop. This site tracks that layer: workflows,
-            protocols, review gates, and operating habits that make agentic
-            systems useful outside the demo.
+            must stay in the loop.
           </p>
         </div>
 
-        <!-- RSS Feed and Social Links -->
-        <div class="link-container flex flex-wrap items-center gap-3 text-sm">
-          <a
-            target="_blank"
-            href="/rss.xml"
-            class="link-hover inline-flex items-center gap-1.5"
-            aria-label="rss feed"
-          >
-            <IconRss width={16} height={16} />
-            <span>RSS Feed</span>
-          </a>
-          {
-            SOCIALS.length > 0 && (
-              <>
-                <span class="text-skin-muted">|</span>
-                <div class="flex items-center gap-2">
-                  <span class="text-skin-muted">Follow:</span>
-                  <Socials />
-                </div>
-              </>
-            )
-          }
-        </div>
-      </div>
-    </section>
-
-    <section
-      id="field-notes-terminal"
-      class="section-animate py-4"
-      aria-labelledby="field-notes-terminal-title"
-    >
-      <div class="terminal-interface rounded-2xl border p-4 md:p-5">
-        <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p
-              id="field-notes-terminal-title"
-              class="terminal-prompt font-mono text-sm md:text-base"
-            >
-              berryhill.dev / operating-surface
-            </p>
-            <p
-              class="terminal-status mt-2 text-sm leading-relaxed md:text-base"
-            >
-              Public notes on AI-native systems, agent governance, provenance,
-              and shipped proof: the public operating surface for the work.
-            </p>
-          </div>
-          <p class="safety-label rounded-full px-3 py-1 font-mono text-xs">
-            Terminal metaphor. Real claims only.
-          </p>
-        </div>
-
-        <ul class="terminal-command-list grid list-none gap-2 md:grid-cols-2">
-          <li>
-            <button
-              type="button"
-              class="cycle-word pillar-clickable terminal-command"
-              data-pillar="governance"
-            >
-              open governance checklist
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              class="cycle-word pillar-clickable terminal-command"
-              data-pillar="proof"
-            >
-              inspect shipped-work proof
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              class="cycle-word pillar-clickable terminal-command"
-              data-pillar="protocol"
-            >
-              trace protocol boundaries
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              class="cycle-word pillar-clickable terminal-command"
-              data-pillar="continuity"
-            >
-              read continuity layer notes
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              class="cycle-word pillar-clickable terminal-command"
-              data-pillar="conversation"
-            >
-              schedule operator conversation
-            </button>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <style>
-      .terminal-interface {
-        border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-        background: color-mix(in srgb, var(--background) 92%, var(--accent));
-        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
-      }
-
-      .terminal-prompt {
-        color: var(--accent);
-        font-weight: 700;
-        text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-      }
-
-      .terminal-status {
-        color: var(--foreground);
-      }
-
-      .safety-label {
-        border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-        color: var(--foreground-muted);
-        background: rgba(0, 0, 0, 0.08);
-      }
-
-      .terminal-command-list {
-        margin: 0;
-        padding: 0;
-      }
-
-      .terminal-command {
-        width: 100%;
-        border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
-        border-radius: 0.75rem;
-        padding: 0.75rem 0.9rem;
-        background: rgba(0, 0, 0, 0.08);
-        color: var(--foreground);
-        font-family: "Courier New", monospace;
-        font-size: 0.95rem;
-        line-height: 1.4;
-        text-align: left;
-      }
-
-      .terminal-command::before {
-        content: "$ ";
-        color: var(--accent);
-        font-weight: 700;
-      }
-
-      .terminal-command:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 3px;
-      }
-
-      .cycle-word {
-        color: var(--foreground);
-        position: relative;
-        transition: all 0.3s ease;
-      }
-
-      .highlight-word {
-        color: #d91c5c !important;
-        font-weight: 700;
-      }
-
-      .cycle-word:hover {
-        color: var(--accent);
-        transform: translateY(-2px);
-      }
-
-      .cycle-word.pillar-clickable {
-        cursor: pointer;
-        user-select: none;
-      }
-
-      .cycle-word.pillar-clickable:hover {
-        text-decoration: underline;
-        text-underline-offset: 4px;
-      }
-
-      .cycle-word.highlight {
-        color: #d91c5c !important;
-        font-weight: 700;
-      }
-
-      .arrow {
-        color: var(--foreground-muted);
-        opacity: 0.4;
-        font-size: 0.9em;
-      }
-
-      .cursor-blink {
-        color: var(--accent);
-        animation: blink 1s step-end infinite;
-        font-weight: 700;
-      }
-
-      @keyframes blink {
-        0%,
-        50% {
-          opacity: 1;
-        }
-        51%,
-        100% {
-          opacity: 0;
-        }
-      }
-
-      .link-hover {
-        color: var(--accent);
-        transition: all 0.2s ease;
-        position: relative;
-      }
-
-      .link-hover::after {
-        content: "";
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        width: 0;
-        height: 2px;
-        background: var(--accent);
-        transition: width 0.3s ease;
-      }
-
-      .link-hover:hover::after {
-        width: 100%;
-      }
-
-      .link-hover:hover {
-        transform: translateX(2px);
-      }
-
-      .hero-content {
-        animation: fadeInUp 0.6s ease-out;
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-    </style>
-
-    <Hr />
-
-    {
-      sortedPosts.length > 0 && (
-        <section id="start-here" class="section-animate pt-4 pb-2">
-          <p class="text-skin-muted max-w-3xl text-sm leading-relaxed md:text-base">
+        <div class="terminal-panel p-4 md:p-5">
+          <p class="terminal-command text-sm">ls operating-layer/</p>
+          <p class="text-skin-muted mt-3 text-sm leading-7">
             Start with the operating layer: agent governance, shipped-work
             proof, protocol boundaries, discovery systems, continuity, and the
             public operating models that keep AI work accountable.
           </p>
+          <ul
+            class="mt-4 grid list-none gap-2 p-0 text-sm leading-6 md:text-base"
+          >
+            <li>
+              <button
+                type="button"
+                class="cycle-word pillar-clickable terminal-command"
+                data-pillar="governance"
+              >
+                open governance checklist
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="cycle-word pillar-clickable terminal-command"
+                data-pillar="proof"
+              >
+                inspect shipped-work proof
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="cycle-word pillar-clickable terminal-command"
+                data-pillar="protocol"
+              >
+                trace protocol boundaries
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="cycle-word pillar-clickable terminal-command"
+                data-pillar="continuity"
+              >
+                read continuity layer notes
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="cycle-word pillar-clickable terminal-command"
+                data-pillar="conversation"
+              >
+                schedule operator conversation
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    {
+      featuredPosts.length > 0 && (
+        <section id="featured" class="py-6" aria-labelledby="featured-title">
+          <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="terminal-command text-sm">cat featured.md</p>
+              <h2 id="featured-title" class="mt-2 text-2xl font-bold">
+                Author-picked artifacts
+              </h2>
+            </div>
+            <p class="text-skin-muted max-w-lg text-sm leading-6">
+              Featured means editorially selected by Matt/Luca, not popularity
+              metrics or fake social proof.
+            </p>
+          </div>
+
+          <ul class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+            {featuredPosts.map(data => (
+              <Card variant="h2" {...data} />
+            ))}
+          </ul>
         </section>
       )
     }
 
     {
-      featuredPosts.length > 0 && (
-        <>
-          <section id="featured" class="section-animate pt-4 pb-4">
-            <h2 class="text-skin-accent mb-4 text-xl font-bold">
-              Featured Posts
-            </h2>
-
-            <ul class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-              {featuredPosts.map(data => (
-                <Card variant="h2" {...data} />
-              ))}
-            </ul>
-          </section>
-          <Hr />
-        </>
-      )
-    }
-
-    {
       recentPosts.length > 0 && (
-        <>
-          <section id="recent-posts" class="section-animate pt-4 pb-4">
-            <h2 class="text-skin-accent mb-4 text-xl font-bold">
-              Recent Posts
-            </h2>
+        <section id="recent-posts" class="py-6" aria-labelledby="recent-title">
+          <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="terminal-command text-sm">ls -la recent/</p>
+              <h2 id="recent-title" class="mt-2 text-2xl font-bold">
+                Recent field notes
+              </h2>
+            </div>
+            <p class="text-skin-muted font-mono text-sm">
+              {totalWords.toLocaleString()} real words indexed
+            </p>
+          </div>
 
-            <ul class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {recentPosts.map(
-                (data, index) =>
-                  index < SITE.postPerIndex && <Card variant="h3" {...data} />
-              )}
-            </ul>
-          </section>
-        </>
+          <ul class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {visibleRecentPosts.map(data => (
+              <Card variant="h3" {...data} />
+            ))}
+          </ul>
+        </section>
       )
     }
 
-    <style>
-      .section-animate {
-        animation: slideInUp 0.5s ease-out;
-      }
-
-      @keyframes slideInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .section-header-fancy {
-        margin-bottom: 1.5rem;
-      }
-
-      .gradient-title {
-        background: linear-gradient(
-          135deg,
-          var(--accent) 0%,
-          var(--foreground) 50%,
-          var(--accent) 100%
-        );
-        background-size: 200% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: shimmer 3s linear infinite;
-        position: relative;
-        padding-bottom: 0.5rem;
-      }
-
-      .gradient-title::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: linear-gradient(90deg, var(--accent), transparent);
-        animation: expandWidth 1s ease-out;
-      }
-
-      .title-glow {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 120%;
-        height: 120%;
-        background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-        opacity: 0.15;
-        filter: blur(20px);
-        z-index: -1;
-        animation: pulse 2s ease-in-out infinite;
-      }
-
-      @keyframes shimmer {
-        0% {
-          background-position: 0% center;
-        }
-        100% {
-          background-position: 200% center;
-        }
-      }
-
-      @keyframes expandWidth {
-        from {
-          width: 0%;
-        }
-        to {
-          width: 100%;
-        }
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 0.15;
-          transform: translate(-50%, -50%) scale(1);
-        }
-        50% {
-          opacity: 0.25;
-          transform: translate(-50%, -50%) scale(1.1);
-        }
-      }
-    </style>
-
-    <!-- View All Posts CTA -->
-    <div class="my-12 text-center">
-      <LinkButton href="/posts/" class="px-8 py-3 text-lg">
-        Read the field notes, then bring the operating questions to a
+    <section
+      class="terminal-panel my-8 p-4 md:p-5"
+      aria-labelledby="contact-title"
+    >
+      <p class="terminal-command text-sm">cat .env</p>
+      <h2 id="contact-title" class="mt-2 text-2xl font-bold">
+        Bring the operating questions.
+      </h2>
+      <p class="text-skin-muted mt-3 max-w-3xl text-sm leading-7 md:text-base">
+        If you want to talk about AI-native products, agent operations,
+        governance, discovery systems, or the gap between a promising demo and a
+        reliable workflow, start with the posts and then schedule a
         conversation.
-        <IconArrowRight class="ml-2 inline-block rtl:-rotate-180" />
-      </LinkButton>
-    </div>
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 font-mono text-sm">
+        <a href="/posts/">POSTS=/posts/</a>
+        <a href="/about/">ABOUT=/about/</a>
+        <a
+          href="https://calendly.com/matt-berryhill/30min"
+          target="_blank"
+          rel="noopener noreferrer">CAL=/30min</a
+        >
+      </div>
+    </section>
   </main>
   <Footer />
   <PillarModal />
