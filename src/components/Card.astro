@@ -9,154 +9,149 @@ export interface Props extends CollectionEntry<"liveBlog"> {
 
 const { variant = "h2", data, id, filePath } = Astro.props;
 
-const { title, description, pubDatetime, modDatetime, timezone, ogImage } =
-  data;
+const { title, description, pubDatetime, modDatetime, timezone, tags } = data;
+const href = getPath(id, filePath);
+const lane = tags?.[0] ?? "field-note";
+const filename = `${id}.md`;
 ---
 
-<li class="card-fancy">
-  <div class="card-glow-effect"></div>
-  <div class="card-content">
-    <div class="card-kicker">Field note</div>
+<li class="terminal-post-card">
+  <a href={href} class="terminal-post-card__link" aria-label={`Read ${title}`}>
+    <div class="terminal-post-card__meta">
+      <span class="terminal-post-card__lane">{lane}/</span>
+      <Datetime
+        {pubDatetime}
+        {modDatetime}
+        {timezone}
+        class="terminal-post-card__date"
+      />
+    </div>
+
+    <div class="terminal-post-card__path">{filename}</div>
+
     {
-      ogImage && (
-        <div class="card-image-wrapper">
-          <img src={ogImage} alt={title} class="card-image" />
-        </div>
+      variant === "h2" ? (
+        <h2 class="terminal-post-card__title">{title}</h2>
+      ) : (
+        <h3 class="terminal-post-card__title">{title}</h3>
       )
     }
 
-    <a href={getPath(id, filePath)} class="card-title-link">
-      {
-        variant === "h2" ? (
-          <h2 class="card-title">{title}</h2>
-        ) : (
-          <h3 class="card-title">{title}</h3>
-        )
-      }
-    </a>
-
-    <Datetime {pubDatetime} {modDatetime} {timezone} class="card-date" />
-
-    <p class="card-description">{description}</p>
-
-    <div class="card-corner-accent"></div>
-  </div>
+    <p class="terminal-post-card__description">{description}</p>
+    <span class="terminal-post-card__cta">open artifact →</span>
+  </a>
 </li>
 
 <style>
-  .card-fancy {
-    position: relative;
+  .terminal-post-card {
     height: 100%;
-    border-radius: 12px;
+    list-style: none;
   }
 
-  .card-glow-effect {
-    display: none;
-  }
-
-  .card-content {
+  .terminal-post-card__link {
     position: relative;
-    height: 100%;
     display: flex;
-    flex-direction: column;
-    padding: 1.35rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
-    transition: all 0.2s ease;
-  }
-
-  .card-fancy:hover .card-content {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
-
-  .card-kicker {
-    margin-bottom: 0.85rem;
-    color: var(--accent);
-    font-family:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-      "Courier New", monospace;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-
-  .card-title-link {
-    text-decoration: none;
-    display: block;
-    min-height: 6.1rem;
-    margin-bottom: 0.65rem;
-  }
-
-  .card-title {
-    font-size: clamp(1.08rem, 1rem + 0.35vw, 1.25rem);
-    font-weight: 700;
-    color: var(--foreground);
-    transition: color 0.2s ease;
-    margin: 0;
-    line-height: 1.32;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .card-fancy:hover .card-title {
-    color: var(--accent);
-  }
-
-  .card-date {
-    font-size: 0.8rem;
-    opacity: 0.65;
-    margin-bottom: 0.85rem;
-    font-weight: 500;
-    display: block;
-  }
-
-  .card-description {
-    font-size: 0.9375rem;
-    color: var(--foreground-muted);
-    line-height: 1.7;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-  }
-
-  @media (min-width: 768px) {
-    .card-content {
-      padding: 1.5rem;
-    }
-  }
-
-  .card-corner-accent {
-    display: none;
-  }
-
-  .card-image-wrapper {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-  }
-
-  .card-image {
-    width: 100%;
     height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
+    min-height: 17rem;
+    flex-direction: column;
+    gap: 0.85rem;
+    border: 1px solid var(--terminal-border);
+    border-radius: 1rem;
+    padding: 1.1rem;
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.025), transparent),
+      var(--terminal-panel);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+    color: var(--terminal-fg);
+    text-decoration: none;
+    transition:
+      border-color 180ms ease,
+      transform 180ms ease,
+      background 180ms ease;
   }
 
-  .card-fancy:hover .card-image {
-    transform: scale(1.05);
+  .terminal-post-card__link::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      circle at 18% 0%,
+      color-mix(in srgb, var(--terminal-accent) 10%, transparent),
+      transparent 34%
+    );
+    opacity: 0.75;
+  }
+
+  .terminal-post-card__link:hover,
+  .terminal-post-card__link:focus-visible {
+    border-color: color-mix(in srgb, var(--terminal-accent) 70%, transparent);
+    transform: translateY(-2px);
+    opacity: 1;
+  }
+
+  .terminal-post-card__meta,
+  .terminal-post-card__path,
+  .terminal-post-card__cta {
+    position: relative;
+    z-index: 1;
+    font-family: var(--terminal-font);
+  }
+
+  .terminal-post-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    color: var(--terminal-muted);
+    font-size: 0.78rem;
+  }
+
+  .terminal-post-card__lane {
+    color: var(--terminal-warn);
+  }
+
+  .terminal-post-card__date {
+    color: var(--terminal-muted);
+    font-size: 0.78rem;
+  }
+
+  .terminal-post-card__path {
+    color: var(--terminal-accent);
+    font-size: 0.82rem;
+    overflow-wrap: anywhere;
+  }
+
+  .terminal-post-card__title {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: var(--terminal-fg);
+    font-size: clamp(1.12rem, 1rem + 0.35vw, 1.34rem);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+
+  .terminal-post-card__description {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: var(--terminal-muted);
+    font-size: 0.94rem;
+    line-height: 1.65;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .terminal-post-card__cta {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    color: var(--terminal-accent);
+    font-size: 0.82rem;
   }
 </style>

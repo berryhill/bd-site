@@ -43,11 +43,12 @@ const forbiddenGenericShellCopy = [
   "Clean, Minimal Blog Theme",
 ];
 
-test("card treatment keeps long titles and descriptions more readable", () => {
-  assert.match(cardSource, /<div class="card-kicker">Field note<\/div>/);
-  assert.match(cardSource, /min-height:\s*6\.1rem;/);
-  assert.match(cardSource, /font-size:\s*clamp\(1\.08rem, 1rem \+ 0\.35vw, 1\.25rem\);/);
-  assert.equal((cardSource.match(/-webkit-line-clamp:\s*4;/g) || []).length, 2);
+test("card treatment keeps terminal file cards readable", () => {
+  assert.match(cardSource, /class="terminal-post-card"/);
+  assert.match(cardSource, /terminal-post-card__path/);
+  assert.match(cardSource, /open artifact →/);
+  assert.match(cardSource, /font-size:\s*clamp\(1\.12rem, 1rem \+ 0\.35vw, 1\.34rem\);/);
+  assert.match(cardSource, /-webkit-line-clamp:\s*4;/);
   assert.doesNotMatch(cardSource, /height:\s*5\.6rem;/);
 });
 
