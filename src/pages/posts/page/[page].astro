@@ -32,10 +32,9 @@ const totalPages = Math.ceil(sortedPosts.length / pageSize);
 const start = (currentPage - 1) * pageSize;
 const end = start + pageSize;
 const paginatedPosts = sortedPosts.slice(start, end);
-const postsDeck =
-  "Field notes on agentic systems, governance, protocols, provenance, IP intelligence, continuity, and the operator work that turns AI output into shipped proof.";
+const postsDeck = "Posts as artifacts from the operating system.";
 const postsIntro =
-  "Read these as a developing operating manual. Some pieces are tactical checklists. Some are system maps. Some are arguments about where AI-native work is actually bottlenecked: not in model access, but in authority, review, memory, handoffs, and accountability.";
+  "Read these as a developing operating manual: agent governance, discovery systems, protocol boundaries, verification loops, and the human decisions that keep autonomous work accountable.";
 const postsMetadataDescription =
   "Essays and field notes from Matt Berryhill on agent governance, AI-native workflows, protocol boundaries, continuity layers, IP intelligence, and shipped-work proof.";
 
@@ -70,9 +69,41 @@ const jsonLd = buildCollectionPageJsonLd({
 >
   <Header />
   <Main pageTitle="Posts" pageDesc={postsDeck}>
-    <p class="text-skin-base mb-8 max-w-3xl text-lg leading-8">
-      {postsIntro}
-    </p>
+    <section
+      class="terminal-shell mb-8 p-4 md:p-5"
+      aria-labelledby="posts-terminal-title"
+    >
+      <p class="terminal-path text-sm md:text-base">
+        ls ~/berryhill.dev/posts --group-by lane
+      </p>
+      <h2 id="posts-terminal-title" class="mt-3 text-2xl font-semibold">
+        Essays, field notes, and system maps from AI-native work.
+      </h2>
+      <p class="text-skin-base mt-3 max-w-3xl text-base leading-8">
+        {postsIntro}
+      </p>
+      <ul
+        class="mt-4 grid gap-2 text-sm md:grid-cols-2"
+        aria-label="Primary lanes"
+      >
+        <li>
+          <span class="text-skin-accent font-mono">agents/</span> workflows, handoffs,
+          review
+        </li>
+        <li>
+          <span class="text-skin-accent font-mono">discovery/</span> claims, evidence,
+          continuity
+        </li>
+        <li>
+          <span class="text-skin-accent font-mono">systems/</span> protocols, governance,
+          provenance
+        </li>
+        <li>
+          <span class="text-skin-accent font-mono">field-notes/</span>
+          practical operator lessons
+        </li>
+      </ul>
+    </section>
     <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {page.data.map(data => <Card variant="h3" {...data} />)}
     </ul>
