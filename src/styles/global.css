@@ -753,7 +753,7 @@ a:hover {
   }
 }
 .who p {
-  color: var(--muted);
+  color: var(--fg);
   margin-top: 14px;
   max-width: 56ch;
 }
