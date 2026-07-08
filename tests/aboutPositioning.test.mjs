@@ -41,7 +41,20 @@ const expected = [
   "How I got here",
   "How I work with people",
   "FAQ",
+  "Let's connect..",
+];
+const forbidden = [
+  "I build AI-native systems that make autonomous work easier to inspect, trust, and improve.",
+  "What I’m building",
+  "How to read this site",
+  "A Little Bit More About Matt (Like Anyone Cares)",
+  "Passionate about crafting elegant systems",
   "If you want to hire me",
+  "The public background here stays intentionally narrow",
+  "The background section is deliberately limited to facts verified in the current public readback",
+  "Employer, client, acquisition, and year-by-year history is intentionally omitted until Matt verifies exact wording.",
+  "public LinkedIn readback",
+  "Education shown",
 ];
 const timeline = [
   "Oct 2025 – Present Builder berryhill.dev · Self-employed · Remote",
@@ -53,18 +66,6 @@ const timeline = [
   "Jan 2017 – Aug 2017 Software Engineer Beatport · Denver Metropolitan Area Software engineering in digital music infrastructure.",
   "Mar 2016 – Jan 2017 Contract Developer MachineShop · Denver Metropolitan Area",
   "2010 – 2015 Founder/Musician Robotic Pirate Monkey LLC · Boulder, CO Founder and musician of the electronic music trio Robotic Pirate Monkey.",
-];
-const forbidden = [
-  "I build AI-native systems that make autonomous work easier to inspect, trust, and improve.",
-  "What I’m building",
-  "How to read this site",
-  "A Little Bit More About Matt (Like Anyone Cares)",
-  "Passionate about crafting elegant systems",
-  "The public background here stays intentionally narrow",
-  "The background section is deliberately limited to facts verified in the current public readback",
-  "Employer, client, acquisition, and year-by-year history is intentionally omitted until Matt verifies exact wording.",
-  "public LinkedIn readback",
-  "Education shown",
 ];
 const rejectedTimelineClaims = [
   "Independent · agentic systems + RWA consulting",
@@ -86,9 +87,18 @@ test("about page renders Matt-provided experience timeline", () => {
 });
 test("about page preserves contact destination and terminal classes", () => {
   assert.match(aboutSource, /href="https:\/\/calendly\.com\/matt-berryhill\/30min"/);
-  for (const cls of ["window", "titlebar", "frontmatter", "summary-grid", "toc", "belief", "timeline", "contact-grid"]) {
+  assert.match(aboutSource, /href="https:\/\/www\.linkedin\.com\/in\/matthew-berryhill\/"/);
+  for (const cls of ["window", "titlebar", "frontmatter", "summary-grid", "toc", "belief", "timeline", "contact-grid", "terminal-exit"]) {
     assert.match(aboutSource, new RegExp(`class=\\"[^\\"]*${cls}`));
   }
+});
+test("about page bottom CTA uses compact prototype footer presentation", () => {
+  assert.match(aboutSource, /<section id="connect"><h2>Let's connect\.\.<\/h2>/);
+  assert.match(aboutSource, /<a href="#connect">Let's connect\.\.<\/a>/);
+  assert.match(aboutSource, /<div class="terminal-exit">/);
+  assert.match(aboutSource, /← cd \.\.\/<\/a> back to ~/);
+  assert.match(aboutSource, /<span class="eof">EOF<\/span> · field notes · last touched 2026/);
+  assert.equal((aboutSource.match(/<span class="m">/g) ?? []).length, 4);
 });
 test("about layout passes page metadata description through", () => {
   assert.match(aboutLayoutSource, /description=\{frontmatter\.description\s+\?\?\s+SITE\.desc\}/);

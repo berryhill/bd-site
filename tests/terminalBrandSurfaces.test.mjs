@@ -101,7 +101,7 @@ const exactCopyAnchors = [
   [sources.about, "Things I believe"],
   [sources.about, "How I got here"],
   [sources.about, "How I work with people"],
-  [sources.about, "If you want to hire me"],
+  [sources.about, "Let's connect.."],
   [sources.postDetail, "$ cat {post.id}.md"],
   [sources.postDetail, "essay · long read"],
   [sources.postDetail, "table of contents"],
@@ -197,6 +197,9 @@ assert.match(sources.styles, /vertical-align: -0\.08em;/, "cursor baseline align
 assert.match(sources.styles, /animation: blink 1\.05s steps\(1\) infinite;/, "cursor blink timing must be stable");
 assert.match(`${sources.home}\n${sources.postsArchive}\n${sources.postDetail}\n${sources.about}`, /class=\"terminal-cursor\"/);
 assert.doesNotMatch(sources.home, /class=\"cursor\">&nbsp;<\/span>/, "home cursor must not be a whitespace span");
+assert.match(sources.about, /class=\"terminal-exit\"/, "about bottom rail must use compact prototype footer treatment");
+assert.match(sources.about, /<span class=\"eof\">EOF<\/span>/, "about bottom rail must show an EOF marker");
+assert.doesNotMatch(sources.about, /If you want to hire me/, "about CTA must use the issue #81 approved wording");
 
 assert.match(sources.postDetail, /class=\"terminal-post-footer\"/);
 assert.match(sources.postDetail, /aria-label=\"post tags\"/);
