@@ -9,6 +9,9 @@ const files = {
   postDetail: "src/layouts/PostDetails.astro",
   about: "src/pages/about.md",
   styles: "src/styles/global.css",
+  socials: "src/constants.ts",
+  archivesRoute: "src/pages/archives/index.astro",
+  draftflyRoute: "src/pages/projects/draftfly.astro",
 };
 
 const fixtures = {
@@ -37,7 +40,7 @@ const forbiddenOldHybridAnchors = [
 ];
 
 for (const [name, source] of Object.entries(sources)) {
-  if (name === "styles") continue;
+  if (["styles", "socials", "archivesRoute", "draftflyRoute"].includes(name)) continue;
   for (const pattern of forbiddenOldHybridAnchors) {
     assert.doesNotMatch(source, pattern, `${name} must not keep the old terminal-ish hybrid copy`);
   }
@@ -109,7 +112,40 @@ for (const [source, anchor] of exactCopyAnchors) {
   assert.ok(source.replace(/\s+/g, " ").includes(anchor), `missing exact prototype copy anchor: ${anchor}`);
 }
 
+const terminalNavSources = {
+  home: sources.home,
+  postsArchive: sources.postsArchive,
+  postDetail: sources.postDetail,
+  about: sources.about,
+};
+
+for (const [name, source] of Object.entries(terminalNavSources)) {
+  const tabstrip = source.match(/<div class=\"tabstrip\">[\s\S]*?<\/div>/)?.[0] ?? "";
+  assert.ok(tabstrip, `${name} must keep a terminal tabstrip`);
+  assert.doesNotMatch(tabstrip, />notes\/<|>projects\/<|>uses\.md</, `${name} must hide stale terminal tabs`);
+  assert.doesNotMatch(tabstrip, /href=\"\/archives\//, `${name} must not expose archives through terminal tabs`);
+}
+
+const linkedinUrl = "https://www.linkedin.com/in/matthew-berryhill/";
+assert.match(sources.home, new RegExp(`href=\"${linkedinUrl.replaceAll("/", "\\/")}\"`));
+assert.match(sources.home, /<b>LINKEDIN=<\/b> \/in\/matthew-berryhill/);
+assert.match(sources.socials, new RegExp(`href: \"${linkedinUrl.replaceAll("/", "\\/")}\"`));
+
 assert.match(sources.styles, /Issue #73 prototype terminal fidelity contract/);
+assert.match(sources.styles, /\.terminal-cursor,\s*\n\.cursor \{/);
+assert.match(sources.styles, /vertical-align: -0\.08em;/, "cursor baseline alignment must be stable");
+assert.match(sources.styles, /animation: blink 1\.05s steps\(1\) infinite;/, "cursor blink timing must be stable");
+assert.match(`${sources.home}\n${sources.postsArchive}\n${sources.postDetail}\n${sources.about}`, /class=\"terminal-cursor\"/);
+assert.doesNotMatch(sources.home, /class=\"cursor\">&nbsp;<\/span>/, "home cursor must not be a whitespace span");
+
+for (const [name, source] of [
+  ["archivesRoute", sources.archivesRoute],
+  ["draftflyRoute", sources.draftflyRoute],
+]) {
+  assert.match(source, /return new Response\(null, \{ status: 404 \}\);/, `${name} must return not found`);
+  assert.match(source, /export const prerender = false;/, `${name} must remain SSR-compatible`);
+}
+
 assert.match(sources.styles, /@media \(max-width: 720px\)/, "mobile prototype CSS must be present");
 assert.match(sources.styles, /@media \(min-width: 768px\)|@media \(min-width: 1000px\)/, "desktop prototype CSS must be present");
 assert.match(sources.postsIndex, /<TerminalPostsArchive sortedPosts=\{sortedPosts\} currentPage=\{1\}/);

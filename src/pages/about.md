@@ -10,7 +10,7 @@ description: "Matthew Berryhill builds agentic software, writes about it, and he
     <span class="path">m@berryhill: ~/berryhill.dev/<b>about.md</b></span>
     <span class="gnome-ctrls"><button class="gctl min" aria-label="Minimize" type="button">&minus;</button><button class="gctl max" aria-label="Maximize" type="button">&#9633;</button><button class="gctl cls" aria-label="Close" type="button">&times;</button></span>
   </div>
-  <div class="tabstrip"><a class="tab" href="/">~ home</a><a class="tab" href="/posts/">posts/</a><a class="tab" href="/tags/">notes/</a><a class="tab" href="/archives/">projects/</a><a class="tab on" href="/about/">about.md</a><a class="tab" href="/search/">uses.md</a><span class="tabnew" aria-hidden="true">+</span></div>
+  <div class="tabstrip"><a class="tab" href="/">~ home</a><a class="tab" href="/posts/">posts/</a><a class="tab on" href="/about/">about.md</a><a class="tab" href="/search/">search</a><span class="tabnew" aria-hidden="true">+</span></div>
   <div class="term">
     <div class="line"><span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~</span> $</span><span class="cmd">cat about.md</span></div>
     <div class="frontmatter"><span class="sep">---</span><br /><span class="k">name</span><span class="sep">:</span> <span class="v">Matthew Berryhill</span><br /><span class="k">role</span><span class="sep">:</span> <span class="v acc">engineer + writer + RWA consultant</span><br /><span class="k">based</span><span class="sep">:</span> <span class="v">Austin, TX</span> <span class="v dim">(GMT−5)</span><br /><span class="k">availability</span><span class="sep">:</span> <span class="v acc">selective consulting · 2 slots open Q3 2026</span><br /><span class="k">writing</span><span class="sep">:</span> <span class="v inf">47 essays · 83 notes · weekly</span><br /><span class="k">focus</span><span class="sep">:</span> <span class="v">[agentic systems, tokenization, edge AI]</span><br /><span class="k">contact</span><span class="sep">:</span> <span class="v inf">matt@berryhill.dev</span><br /><span class="sep">---</span></div>
@@ -26,7 +26,7 @@ description: "Matthew Berryhill builds agentic software, writes about it, and he
         <section id="hire"><h2>If you want to hire me</h2><div class="contact-grid"><a href="mailto:matt@berryhill.dev"><span class="lbl">email</span><b>matt@berryhill.dev</b><span>best for specific requests</span></a><a href="https://calendly.com/matt-berryhill/30min" target="_blank" rel="noopener noreferrer"><span class="lbl">calendar</span><b>book/30min</b><span>only if the problem is concrete</span></a><a href="/rss.xml"><span class="lbl">rss</span><b>/rss.xml</b><span>follow the writing first</span></a></div></section>
       </div>
     </div>
-    <p class="out" style="margin-top: 28px;"><span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~</span> $</span> <span class="cmd" id="prompt-tail">_</span></p>
+    <p class="out" style="margin-top: 28px;"><span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~</span> $</span> <span class="cmd" id="prompt-tail"><span class="terminal-cursor" aria-hidden="true"></span></span></p>
   </div>
 </div>
 <footer>© Berryhill 2026 · <a href="/">← back to ~</a> · zero trackers · <a href="/rss.xml">rss</a></footer>

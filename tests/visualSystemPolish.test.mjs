@@ -67,7 +67,7 @@ test("footer CTA aligns with the approved operating-questions direction", () => 
   assert.match(footerSource, /© \{currentYear\} All rights reserved\./);
 });
 
-test("tags and archives shells replace generic AstroPaper archive copy", () => {
+test("tags shell keeps operating-manual framing while stale archives route is hidden", () => {
   assertIncludes(
     tagsSource,
     "Use the tag map as an index of operating questions: governance, protocols, provenance, continuity, and shipped-work proof."
@@ -76,10 +76,7 @@ test("tags and archives shells replace generic AstroPaper archive copy", () => {
     tagSource,
     "A focused reading path for ${tagName}: related field notes, evidence trails, and operating questions from the archive."
   );
-  assertIncludes(
-    archivesSource,
-    "A chronological evidence trail of field notes, shipped-work arguments, and operating-manual entries."
-  );
+  assert.match(archivesSource, /return new Response\(null, \{ status: 404 \}\);/);
 
   const combined = `${tagsSource}\n${tagSource}\n${archivesSource}\n${globalCssSource}`;
   for (const forbidden of forbiddenGenericShellCopy) {

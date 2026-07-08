@@ -733,11 +733,19 @@ a:hover {
 .who h1 b {
   color: var(--accent);
 }
-.who h1 .cursor {
+.terminal-cursor,
+.cursor {
   display: inline-block;
   width: 0.55ch;
+  height: 1em;
   background: var(--accent);
   animation: blink 1.05s steps(1) infinite;
+  vertical-align: -0.08em;
+  margin-left: 0.08ch;
+}
+.who h1 .terminal-cursor,
+.who h1 .cursor {
+  height: 0.82em;
 }
 @keyframes blink {
   50% {

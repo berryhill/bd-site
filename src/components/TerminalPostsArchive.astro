@@ -87,10 +87,8 @@ const page = {
   <div class="tabstrip">
     <a class="tab" href="/">~ home</a>
     <a class="tab on" href="/posts/">posts/</a>
-    <a class="tab" href="/tags/">notes/</a>
-    <a class="tab" href="/archives/">projects/</a>
     <a class="tab" href="/about/">about.md</a>
-    <a class="tab" href="/search/">uses.md</a>
+    <a class="tab" href="/search/">search</a>
     <span class="tabnew" aria-hidden="true">+</span>
   </div>
   <div class="term">
@@ -268,7 +266,9 @@ const page = {
         >guest@berryhill <span class="sep">:</span>
         <span class="cwd">~/posts</span> $</span
       >
-      <span class="cmd" id="prompt-tail">_</span>
+      <span class="cmd" id="prompt-tail"
+        ><span class="terminal-cursor" aria-hidden="true"></span></span
+      >
     </p>
   </div>
 </div>
