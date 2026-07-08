@@ -10,23 +10,41 @@ const files = {
   styles: "src/styles/global.css",
 };
 
-for (const [name, path] of Object.entries(files)) {
-  const source = readFileSync(path, "utf8");
-  assert(!/views:\s*\d/i.test(source), `${name} must not contain fake views`);
-  assert(!/live telemetry/i.test(source), `${name} must not claim live telemetry`);
-  assert(!/agent count:\s*\d/i.test(source), `${name} must not invent agent counts`);
+const publicSurfaceSources = Object.fromEntries(
+  Object.entries(files).map(([name, path]) => [name, readFileSync(path, "utf8")])
+);
+
+const forbiddenPublicClaims = [
+  [/views:\s*\d/i, "fake views"],
+  [/live telemetry/i, "live telemetry"],
+  [/agent count:\s*\d/i, "invented agent counts"],
+  [/fleet dashboard/i, "private fleet dashboard"],
+  [/production queue/i, "private production queue"],
+  [/verified telemetry/i, "unverified telemetry"],
+];
+
+for (const [name, source] of Object.entries(publicSurfaceSources)) {
+  for (const [pattern, label] of forbiddenPublicClaims) {
+    assert.doesNotMatch(source, pattern, `${name} must not contain ${label}`);
+  }
 }
 
-assert.match(readFileSync(files.styles, "utf8"), /\.terminal-shell/);
-assert.match(readFileSync(files.styles, "utf8"), /\.operator-read/);
-assert.match(readFileSync(files.home, "utf8"), /AI-native operating systems/);
-assert.match(readFileSync(files.home, "utf8"), /Terminal metaphor\. Real claims only\./);
-assert.match(readFileSync(files.posts, "utf8"), /Posts as artifacts/);
-assert.match(readFileSync(files.posts, "utf8"), /group-by lane/);
-assert.match(readFileSync(files.postDetail, "utf8"), /frontmatterPreview/);
-assert.match(readFileSync(files.postDetail, "utf8"), /operator read/);
-assert.match(readFileSync(files.postDetail, "utf8"), /post\.yaml/);
-assert.match(readFileSync(files.about, "utf8"), /What I’m building/);
-assert.match(readFileSync(files.about, "utf8"), /How to read this site/);
+assert.match(publicSurfaceSources.styles, /\.terminal-shell/);
+assert.match(publicSurfaceSources.styles, /\.operator-read/);
+assert.match(publicSurfaceSources.home, /AI-native operating systems/);
+assert.match(publicSurfaceSources.home, /Terminal metaphor\. Real claims only\./);
+assert.match(publicSurfaceSources.home, /sortedPosts\.length/);
+assert.match(publicSurfaceSources.home, /tagCount/);
+assert.match(publicSurfaceSources.home, /lastPostLabel/);
+assert.match(publicSurfaceSources.posts, /Posts as artifacts/);
+assert.match(publicSurfaceSources.posts, /group-by lane/);
+assert.match(publicSurfaceSources.posts, /totalWords/);
+assert.match(publicSurfaceSources.posts, /sortedPosts\.length/);
+assert.match(publicSurfaceSources.postDetail, /frontmatterPreview/);
+assert.match(publicSurfaceSources.postDetail, /operator read/);
+assert.match(publicSurfaceSources.postDetail, /post\.yaml/);
+assert.match(publicSurfaceSources.postDetail, /wordCount/);
+assert.match(publicSurfaceSources.about, /What I’m building/);
+assert.match(publicSurfaceSources.about, /How to read this site/);
 
 console.log("PASS terminal brand surfaces");
