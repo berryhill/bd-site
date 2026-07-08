@@ -13,6 +13,10 @@ import {
   getReadMinutes,
   selectHomepagePosts,
 } from "@/utils/homepagePosts";
+import {
+  curatedHomepageFleet,
+  getHomepageFleetCountLabel,
+} from "@/utils/homepageFleet";
 
 const { entries: posts } = await getLiveCollection("liveBlog");
 const sortedPosts = getSortedPosts(posts || []);
@@ -102,7 +106,7 @@ const jsonLd = buildWebSiteJsonLd({
       </div>
       <p class="out" style="padding: 8px 0 6px;">
         <b>200 OK</b> · application/json · <span class="k"
-          >8 verified agents</span
+          >{getHomepageFleetCountLabel(curatedHomepageFleet)}</span
         >
       </p>
       <div class="fleet-response" aria-label="Fleet response">
@@ -113,36 +117,17 @@ const jsonLd = buildWebSiteJsonLd({
             <span>scope</span><b>profile-backed fleet</b>
           </div>
         </div><div class="fleet-agents">
-          <div class="agent-row">
-            <span>default / silas</span><b>orchestration + operator support</b
-            ><span class="ok">verified</span>
-          </div><div class="agent-row">
-            <span>ada-vector</span><b>taskflow intelligence + evaluation data</b
-            ><span class="ok">verified</span>
-          </div><div class="agent-row">
-            <span>archer</span><b>financial markets analysis</b><span class="ok"
-              >verified</span
-            >
-          </div><div class="agent-row">
-            <span>chip-renwick</span><b>broker-dealer compliance systems</b
-            ><span class="ok">verified</span>
-          </div><div class="agent-row">
-            <span>luca</span><b>brand architecture + marketing strategy</b><span
-              class="ok">verified</span
-            >
-          </div><div class="agent-row">
-            <span>nick-mercer</span><b>OpenSCAD physical design</b><span
-              class="ok">verified</span
-            >
-          </div><div class="agent-row">
-            <span>vinnie-santoro</span><b>World Cup betting analysis</b><span
-              class="ok">verified</span
-            >
-          </div><div class="agent-row">
-            <span>wren-ashford</span><b>product/ui creative direction</b><span
-              class="ok">verified</span
-            >
-          </div>
+          {
+            curatedHomepageFleet.map(agent => (
+              <div class="agent-row" data-agent={agent.slug}>
+                <>
+                  <span>{agent.label}</span>
+                  <b>{agent.description}</b>
+                  <span class="ok">{agent.status}</span>
+                </>
+              </div>
+            ))
+          }
         </div>
       </div>
       <div class="line">
