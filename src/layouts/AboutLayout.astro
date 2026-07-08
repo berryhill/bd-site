@@ -1,6 +1,4 @@
 ---
-import Header from "@/components/Header.astro";
-import Footer from "@/components/Footer.astro";
 import Layout from "./Layout.astro";
 import { SITE } from "@/config";
 import { buildPersonJsonLd } from "@/utils/structuredData";
@@ -26,14 +24,5 @@ const jsonLd = buildPersonJsonLd({
   description={frontmatter.description ?? SITE.desc}
   jsonLd={jsonLd}
 >
-  <Header />
-  <main id="main-content" class="terminal-page px-4 pb-16 sm:px-6">
-    <section
-      id="about"
-      class="app-prose terminal-prose-shell mx-auto mt-8 mb-12 max-w-5xl prose-img:border-0"
-    >
-      <slot />
-    </section>
-  </main>
-  <Footer />
+  <slot />
 </Layout>

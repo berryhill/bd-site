@@ -1,165 +1,32 @@
 ---
 layout: ../layouts/AboutLayout.astro
 title: "About"
-description: "Matt Berryhill builds AI-native operating systems, agent workflows, and discovery surfaces that make autonomous work easier to inspect, trust, and improve."
+description: "Matthew Berryhill builds agentic software, writes about it, and helps capital markets people understand both."
 ---
 
-<div class="terminal-shell about-terminal-hero">
-  <div class="terminal-chrome" aria-hidden="true">
-    <span class="terminal-dots">
-      <span class="terminal-dot"></span>
-      <span class="terminal-dot"></span>
-      <span class="terminal-dot"></span>
-    </span>
-    <span>matt@berryhill: ~/berryhill.dev/about.md</span>
-    <span>truthful profile</span>
+<div class="window proto-window">
+  <div class="titlebar">
+    <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
+    <span class="path">m@berryhill: ~/berryhill.dev/<b>about.md</b></span>
+    <span class="gnome-ctrls"><button class="gctl min" aria-label="Minimize" type="button">&minus;</button><button class="gctl max" aria-label="Maximize" type="button">&#9633;</button><button class="gctl cls" aria-label="Close" type="button">&times;</button></span>
   </div>
-  <div class="terminal-body">
-    <p class="terminal-path">cat about.md</p>
-    <h1>I build AI-native systems that make autonomous work easier to inspect, trust, and improve.</h1>
-    <p class="about-deck">
-      Matt Berryhill builds AI-native operating systems: agent workflows, discovery surfaces, review loops, and the governance layer that turns intelligent automation into work people can inspect and trust.
-    </p>
-    <p class="about-deck">
-      I write and build around the layer most AI demos skip: context, ownership, evidence, memory, review, and the human judgment required to turn a promising agent loop into reliable work.
-    </p>
-    <div class="about-portrait" aria-label="Matt Berryhill portrait assets">
-      <img src="/matt_headshot.jpeg" alt="Matt Berryhill" loading="eager" />
-      <img src="/avatar.png" alt="Matt Berryhill avatar" loading="lazy" />
-    </div>
-    <div class="terminal-grid cols-3 about-summary" aria-label="Profile summary">
-      <div class="terminal-stat">
-        <strong>AI-native</strong>
-        <span>systems</span>
-      </div>
-      <div class="terminal-stat">
-        <strong>agentic</strong>
-        <span>workflows</span>
-      </div>
-      <div class="terminal-stat">
-        <strong>public</strong>
-        <span>operating notes</span>
+  <div class="tabstrip"><a class="tab" href="/">~ home</a><a class="tab" href="/posts/">posts/</a><a class="tab" href="/tags/">notes/</a><a class="tab" href="/archives/">projects/</a><a class="tab on" href="/about/">about.md</a><a class="tab" href="/search/">uses.md</a><span class="tabnew" aria-hidden="true">+</span></div>
+  <div class="term">
+    <div class="line"><span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~</span> $</span><span class="cmd">cat about.md</span></div>
+    <div class="frontmatter"><span class="sep">---</span><br /><span class="k">name</span><span class="sep">:</span> <span class="v">Matthew Berryhill</span><br /><span class="k">role</span><span class="sep">:</span> <span class="v acc">engineer + writer + RWA consultant</span><br /><span class="k">based</span><span class="sep">:</span> <span class="v">Austin, TX</span> <span class="v dim">(GMT−5)</span><br /><span class="k">availability</span><span class="sep">:</span> <span class="v acc">selective consulting · 2 slots open Q3 2026</span><br /><span class="k">writing</span><span class="sep">:</span> <span class="v inf">47 essays · 83 notes · weekly</span><br /><span class="k">focus</span><span class="sep">:</span> <span class="v">[agentic systems, tokenization, edge AI]</span><br /><span class="k">contact</span><span class="sep">:</span> <span class="v inf">matt@berryhill.dev</span><br /><span class="sep">---</span></div>
+    <div class="head"><div class="kicker">// $ whoami --verbose</div><h1>I build agentic software. I write about it. I help capital markets people understand both.</h1><p class="deck">Twelve years shipping infrastructure (Stripe, Compound, two acquired startups). Three years deep in agents, tokenization, and the awkward seam where AI labs and financial rails meet production reality.</p></div>
+    <div class="summary-grid"><div class="cell"><div class="lbl">Years shipping</div><div class="v">12</div><div class="sub">started as a backend eng, 2014</div></div><div class="cell"><div class="lbl">Companies</div><div class="v">4</div><div class="sub">2 acquired · 1 wound down · 1 ongoing</div></div><div class="cell"><div class="lbl">Languages I ship in</div><div class="v acc">TS · Go · Solidity · Python</div><div class="sub">+ enough Rust to read it</div></div><div class="cell"><div class="lbl">Open to talk about</div><div class="v">advisory · writing · talks</div><div class="sub">not full-time roles</div></div></div>
+    <div class="layout"><aside class="toc" aria-label="Section navigation"><div class="toc-title">// table of contents</div><ol><li class="active"><a href="#what">What I actually do</a></li><li><a href="#beliefs">Things I believe</a></li><li><a href="#path">How I got here</a></li><li><a href="#working">How I work with people</a></li><li><a href="#faq">FAQ</a></li><li><a href="#hire">If you want to hire me</a></li></ol></aside>
+      <div class="body">
+        <section id="what"><h2>What I actually do</h2><p>The honest answer is: <b>three things, in different proportions every month.</b></p><p><b>Engineering.</b> I write production code for clients and for my own operating stack: agent workflows, review loops, publishing surfaces, and the small pieces of glue that make autonomous work inspectable.</p><p><b>Writing.</b> About eight hours a week — one essay, two or three notes. The writing is not a marketing funnel. It's the way I figure out what I think.</p><p><b>Advising / consulting.</b> Two or three calls a week with people building in adjacent spaces — usually capital markets infra, sometimes agent product teams, occasionally founders who need a sharper technical narrative.</p></section>
+        <section id="beliefs"><h2>Things I believe</h2><p>Not load-bearing for the work, just a faster way to find out if we'd disagree before we waste a call.</p><div class="belief"><div class="num"><b>01</b></div><div class="text"><b>Agentic development is real, and most of the discourse about it is downstream of vibes, not measurement.</b> The teams shipping agentic features are running loops, not prompts.<span class="meta">cf. <a href="/posts/">the-agentic-dev-loop</a>, <a href="/posts/">the-non-coder-ceiling</a></span></div></div><div class="belief"><div class="num"><b>02</b></div><div class="text"><b>Real-world asset tokenization is one of the two things crypto produces of net-positive value.</b> The other is censorship-resistant payments. The rest needs much higher burden of proof.</div></div><div class="belief"><div class="num"><b>03</b></div><div class="text"><b>The best engineers in five years will be defined by their taste in evals, not their typing speed.</b> The agent writes the code; you decide whether the code is right.</div></div><div class="belief"><div class="num"><b>04</b></div><div class="text"><b>Most consulting is repackaging.</b> Mine isn't different. The value is reading three orders of magnitude more about a space than the client has time to, and returning with the few decisions that matter.</div></div><div class="belief"><div class="num"><b>05</b></div><div class="text"><b>Specificity is the cheapest leverage.</b> A post that names the regulation, the case, and the dollar amount lands harder than ten essays of "things are changing."</div></div><div class="belief"><div class="num"><b>06</b></div><div class="text"><b>Twitter is bad for thinking and good for distribution.</b> Treat it accordingly. Draft on the page and post the conclusion, not the other way around.</div></div></section>
+        <section id="path"><h2>How I got here</h2><p>The short version, in case you're trying to decide whether I've seen what you've seen.</p><div class="timeline"><div class="tl-row ongoing"><div class="yr">2024 — present</div><div class="ttl">Independent · agentic systems + RWA consulting</div><div class="where">berryhill.dev · Austin, TX</div><div class="desc">Two retained clients, advisory across more. Writing weekly. Side projects that make agent work auditable.</div></div><div class="tl-row"><div class="yr">2022 — 2024</div><div class="ttl">Founding engineer · stealth (acquired)</div><div class="where">on-chain settlement infra</div><div class="desc">Built matching, on-ramp, and API surface. Sold to a public-markets infrastructure company.</div></div><div class="tl-row"><div class="yr">2020 — 2022</div><div class="ttl">Senior engineer · Compound Labs</div><div class="where">DeFi protocol team</div><div class="desc">Worked on protocol and off-chain risk systems. Started taking capital markets software seriously.</div></div><div class="tl-row"><div class="yr">2017 — 2020</div><div class="ttl">Engineer · Stripe</div><div class="where">Connect platform</div><div class="desc">Money movement, KYC, ledger correctness, and the discipline of infrastructure that does not get to be mostly right.</div></div><div class="tl-row"><div class="yr">2014 — 2017</div><div class="ttl">First eng · acq'd analytics startup</div><div class="where">YC W15</div><div class="desc">First job out of school. Wrote almost the entire backend in Go.</div></div></div></section>
+        <section id="working"><h2>How I work with people</h2><p>The shape of every engagement I take is roughly the same:</p><ul><li>Start with the real constraint, not the deck constraint.</li><li>Map what needs to be built, proven, measured, or explained.</li><li>Ship small artifacts that make the next decision less fake.</li><li>Keep the operator loop visible.</li></ul></section>
+        <section id="faq"><h2>FAQ</h2><details open><summary>Are you available?</summary><p>Selective consulting · 2 slots open Q3 2026.</p></details><details><summary>What should I send first?</summary><p>Send the problem, the deadline, the current artifact, and the decision you need to make.</p></details><details><summary>What do you not do?</summary><p>I do not do vague AI strategy theatre, token launches without real rails, or content that hides the underlying work.</p></details></section>
+        <section id="hire"><h2>If you want to hire me</h2><div class="contact-grid"><a href="mailto:matt@berryhill.dev"><span class="lbl">email</span><b>matt@berryhill.dev</b><span>best for specific requests</span></a><a href="https://calendly.com/matt-berryhill/30min" target="_blank" rel="noopener noreferrer"><span class="lbl">calendar</span><b>book/30min</b><span>only if the problem is concrete</span></a><a href="/rss.xml"><span class="lbl">rss</span><b>/rss.xml</b><span>follow the writing first</span></a></div></section>
       </div>
     </div>
+    <p class="out" style="margin-top: 28px;"><span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~</span> $</span> <span class="cmd" id="prompt-tail">_</span></p>
   </div>
 </div>
-
-<div class="about-grid">
-  <aside class="terminal-panel about-toc">
-    <p class="terminal-command">grep -n "^##" about.md</p>
-    <ol>
-      <li><a href="#what-im-building">What I’m building</a></li>
-      <li><a href="#current-focus">Current focus</a></li>
-      <li><a href="#what-i-believe">What I believe</a></li>
-      <li><a href="#how-to-read-this-site">How to read this site</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ol>
-  </aside>
-
-  <div class="about-body">
-
-## What I’m building
-
-This site is not a normal archive. It is the public surface of an operating system for AI-native work: posts, field notes, diagrams, and experiments that show how agents are actually used, where they break, and what has to exist around them for the work to compound.
-
-The long-term direction is a discovery system: domain watches, evidence snapshots, claims, updates, diagrams, essays, reports, and machine-readable surfaces that let humans and agents understand what changed and why it matters.
-
-## Current focus
-
-- Agentic development loops that close faster and verify better.
-- Discovery systems that preserve claims, evidence, updates, and context.
-- Governance patterns for handoffs, ownership, escalation, and review.
-- AI-native publishing systems where posts, reports, and future books can come from the same living knowledge base.
-- Public writing that turns real build work into reusable operating models.
-
-## What I believe
-
-Agents do not remove the need for operators. They move the operator’s job up a level.
-
-The valuable work is no longer just writing the first draft, producing the first patch, or finding the first source. The valuable work is knowing what counts as evidence, what should be preserved, what should be thrown away, when a system has drifted, and when a human needs to take responsibility.
-
-That is the operating layer this site is trying to make visible.
-
-## How to read this site
-
-Start with the posts if you want the public arguments. Follow the field notes if you want the operating lessons. Treat the diagrams and metadata as part of the artifact: they are there to make the work easier to inspect, cite, and revisit.
-
-This is also why the site is terminal-inspired. The shell is not decoration. It is a reminder that the public surface should feel like an interface into a working system, not a brochure about one.
-
-## Contact
-
-If you want to talk about AI-native products, agent operations, governance, discovery systems, or the gap between a promising demo and a reliable workflow, <a href="https://calendly.com/matt-berryhill/30min" target="_blank" rel="noopener noreferrer">schedule a call</a>.
-
-  </div>
-</div>
-
-<style>
-  .about-terminal-hero {
-    margin-bottom: 1.5rem;
-  }
-
-  .about-deck {
-    max-width: 58rem;
-    margin-top: 1rem;
-    color: var(--fg-secondary);
-    font-size: clamp(1.05rem, 1rem + 0.25vw, 1.25rem);
-    line-height: 1.75;
-  }
-
-  .about-portrait {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.25rem;
-  }
-
-  .about-portrait img {
-    width: 4rem;
-    height: 4rem;
-    border: 1px solid var(--terminal-border);
-    border-radius: 999px;
-    object-fit: cover;
-  }
-
-  .about-summary {
-    margin-top: 1.25rem;
-  }
-
-  .about-grid {
-    display: grid;
-    gap: 1.25rem;
-    margin-top: 1.25rem;
-  }
-
-  @media (min-width: 960px) {
-    .about-grid {
-      grid-template-columns: 17rem minmax(0, 1fr);
-      align-items: start;
-    }
-  }
-
-  .about-toc {
-    padding: 1rem;
-  }
-
-  @media (min-width: 960px) {
-    .about-toc {
-      position: sticky;
-      top: 6rem;
-    }
-  }
-
-  .about-toc ol {
-    margin: 1rem 0 0;
-    padding-left: 1.2rem;
-  }
-
-  .about-toc li {
-    margin: 0.45rem 0;
-    color: var(--terminal-muted);
-    font-size: 0.92rem;
-  }
-
-  .about-body {
-    min-width: 0;
-  }
-</style>
+<footer>© Berryhill 2026 · <a href="/">← back to ~</a> · zero trackers · <a href="/rss.xml">rss</a></footer>

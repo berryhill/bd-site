@@ -1,0 +1,418 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>the-agentic-dev-loop.md — Matthew Berryhill</title>
+<style>
+  :root {
+    --bg:        oklch(14% 0.012 240);
+    --surface:   oklch(18% 0.012 240);
+    --surface-2: oklch(22% 0.012 240);
+    --fg:        oklch(94% 0.005 240);
+    --muted:     oklch(58% 0.012 240);
+    --dim:       oklch(38% 0.012 240);
+    --border:    oklch(28% 0.012 240);
+    --accent:    oklch(78% 0.18 145);
+    --warn:      oklch(78% 0.16 75);
+    --info:      oklch(72% 0.16 235);
+    --magenta:   oklch(72% 0.18 320);
+    --orange:     oklch(64% 0.18 28);
+    --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -100px, oklch(20% 0.04 220 / 0.6), transparent 70%),
+      radial-gradient(900px 500px at -10% 30%, oklch(20% 0.04 145 / 0.4), transparent 70%),
+      var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  a { color: var(--info); text-decoration: none; }
+  a:hover { color: var(--accent); }
+  ::selection { background: var(--accent); color: var(--bg); }
+  .progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); width: 0%; z-index: 10; transition: width 80ms linear; }
+  .window { margin: 32px auto; border: 1px solid var(--border); border-radius: 10px; background: oklch(13% 0.012 240 / 0.92); backdrop-filter: blur(8px); overflow: hidden; box-shadow: 0 30px 60px -20px oklch(0% 0 0 / 0.5); max-width: 1160px; }
+  @media (max-width: 720px) { .window { margin: 12px; border-radius: 6px; } }
+  .titlebar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px 8px 12px;
+    border-bottom: 1px solid var(--border);
+    background: oklch(15% 0.012 320);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .hamb {
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    font-size: 16px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-family: inherit;
+    line-height: 1;
+    border-radius: 4px;
+  }
+  .hamb:hover { background: oklch(22% 0.012 320); color: var(--fg); }
+  .titlebar .path {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .titlebar .path b { color: var(--fg); font-weight: 500; }
+  .gnome-ctrls { display: flex; gap: 6px; margin-left: auto; }
+  .gctl {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 0;
+    background: oklch(26% 0.012 320);
+    color: var(--muted);
+    font-size: 10px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    font-family: inherit;
+  }
+  .gctl:hover { background: oklch(32% 0.012 320); color: var(--fg); }
+  .gctl.cls { background: var(--orange); color: oklch(98% 0.005 28); }
+  .gctl.cls:hover { background: oklch(70% 0.18 28); }
+  .tabstrip {
+    display: flex;
+    gap: 1px;
+    padding: 0 8px;
+    background: oklch(11% 0.012 320);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabstrip::-webkit-scrollbar { display: none; }
+  .tabstrip .tab {
+    padding: 9px 16px 8px;
+    color: var(--muted);
+    font-size: 11.5px;
+    cursor: pointer;
+    border-radius: 7px 7px 0 0;
+    border: 1px solid transparent;
+    border-bottom: 0;
+    text-decoration: none;
+    white-space: nowrap;
+    position: relative;
+    top: 1px;
+    background: transparent;
+    transition: color .12s, background .12s;
+  }
+  .tabstrip .tab:hover { color: var(--fg); background: oklch(15% 0.012 320); }
+  .tabstrip .tab.on {
+    color: var(--fg);
+    background: var(--bg);
+    border-color: var(--border);
+  }
+  .tabstrip .tabnew {
+    padding: 4px 10px;
+    color: var(--dim);
+    font-size: 16px;
+    cursor: pointer;
+    align-self: center;
+    line-height: 1;
+    user-select: none;
+  }
+  .tabstrip .tabnew:hover { color: var(--fg); }
+  @media (max-width: 720px) {
+    .titlebar .path { display: none; }
+  }
+  .term { padding: 28px 28px 36px; } @media (max-width: 720px) { .term { padding: 18px 14px 24px; } }
+  .line { display: flex; align-items: baseline; gap: 10px; padding: 2px 0; flex-wrap: wrap; }
+  .ps1 { color: var(--accent); white-space: nowrap; } .ps1 .sep { color: var(--muted); } .ps1 .cwd { color: var(--info); }
+  .cmd { color: var(--fg); } .out { color: var(--muted); }
+  .frontmatter { margin: 14px 0 18px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--accent); border-radius: 4px; color: var(--muted); font-size: 12.5px; line-height: 1.75; overflow-x: auto; }
+  .frontmatter .sep { color: var(--dim); } .frontmatter .k { color: var(--magenta); } .frontmatter .v { color: var(--fg); }
+  .frontmatter .v.acc { color: var(--accent); } .frontmatter .v.inf { color: var(--info); } .frontmatter .v.dim { color: var(--muted); }
+  .post-head { margin: 28px 0 6px; }
+  .post-head .kicker { display: flex; align-items: center; gap: 10px; color: var(--accent); font-size: 11px; text-transform: lowercase; letter-spacing: 0.04em; margin-bottom: 14px; }
+  .post-head .kicker::before { content: ""; width: 24px; height: 1px; background: var(--accent); }
+  .post-head h1 { font-family: var(--font-mono); font-weight: 700; font-size: clamp(28px, 4.4vw, 46px); line-height: 1.1; letter-spacing: -0.025em; color: var(--fg); text-wrap: balance; }
+  .post-head .deck { margin-top: 16px; color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 62ch; text-wrap: pretty; } .post-head .deck b { color: var(--fg); font-weight: 500; }
+  .post-head .bylines { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border); color: var(--dim); font-size: 11.5px; }
+  .post-head .bylines .item { display: flex; align-items: center; gap: 6px; } .post-head .bylines .item b { color: var(--fg); font-weight: 500; } .post-head .bylines .item .lbl { color: var(--dim); } .post-head .bylines .item .dot { color: var(--accent); }
+  .toc-inline { display: none; margin: 24px 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; }
+  .toc-inline summary { cursor: pointer; color: var(--accent); list-style: none; display: flex; align-items: center; gap: 8px; }
+  .toc-inline summary::-webkit-details-marker { display: none; } .toc-inline summary::after { content: "▾"; margin-left: auto; color: var(--muted); } .toc-inline[open] summary::after { content: "▴"; }
+  .toc-inline ol { list-style: none; counter-reset: tic; margin-top: 12px; padding-left: 0; }
+  .toc-inline li { counter-increment: tic; padding: 4px 0; color: var(--muted); } .toc-inline li::before { content: "0" counter(tic); color: var(--dim); margin-right: 10px; }
+  .toc-inline li a { color: var(--muted); } .toc-inline li a:hover { color: var(--accent); }
+  @media (max-width: 900px) { .toc-inline { display: block; } }
+  .post-layout { display: grid; grid-template-columns: 220px 1fr; gap: 56px; margin: 28px 0 0; align-items: start; }
+  @media (max-width: 900px) { .post-layout { grid-template-columns: 1fr; gap: 0; } }
+  .toc { position: sticky; top: 28px; font-size: 12px; border-left: 1px solid var(--border); padding-left: 18px; max-height: calc(100vh - 56px); overflow-y: auto; }
+  @media (max-width: 900px) { .toc { display: none; } }
+  .toc-title { color: var(--accent); font-size: 11px; margin-bottom: 14px; letter-spacing: 0.04em; }
+  .toc ol { list-style: none; counter-reset: t; padding: 0; }
+  .toc li { counter-increment: t; padding: 5px 0; line-height: 1.4; } .toc li::before { content: "0" counter(t); color: var(--dim); margin-right: 10px; font-size: 10px; }
+  .toc li a { color: var(--muted); display: inline; transition: color .15s; } .toc li a:hover { color: var(--fg); }
+  .toc li.active a { color: var(--accent); } .toc li.active::before { color: var(--accent); }
+  .post-body { max-width: 68ch; min-width: 0; }
+  .post-body section { margin: 0 0 36px; scroll-margin-top: 24px; }
+  .post-body h2 { color: var(--fg); font-size: 19px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 16px; line-height: 1.3; }
+  .post-body h2::before { content: "## "; color: var(--accent); font-weight: 400; }
+  .post-body h3 { color: var(--fg); font-size: 14.5px; font-weight: 600; margin: 24px 0 10px; } .post-body h3::before { content: "### "; color: var(--accent); font-weight: 400; }
+  .post-body p { color: var(--fg); font-size: 14.5px; line-height: 1.78; margin: 0 0 16px; text-wrap: pretty; }
+  .post-body p b { color: var(--fg); font-weight: 600; } .post-body p em { color: var(--accent); font-style: normal; }
+  .post-body code { background: var(--surface-2); color: var(--info); padding: 1px 5px; border-radius: 3px; font-size: 0.92em; border: 1px solid var(--border); }
+  .post-body a { color: var(--info); border-bottom: 1px solid oklch(72% 0.16 235 / 0.35); } .post-body a:hover { color: var(--accent); border-color: currentColor; }
+  .post-body ul { margin: 0 0 16px; padding: 0; list-style: none; }
+  .post-body ul li { color: var(--fg); font-size: 14.5px; line-height: 1.7; padding-left: 22px; position: relative; margin-bottom: 6px; }
+  .post-body ul li::before { content: "→"; position: absolute; left: 0; top: 0; color: var(--accent); }
+  .post-body blockquote { margin: 24px 0; padding: 4px 0 4px 22px; border-left: 2px solid var(--accent); color: var(--fg); font-size: 16px; line-height: 1.5; font-style: normal; }
+  .post-body blockquote .src { display: block; margin-top: 10px; color: var(--muted); font-size: 12px; } .post-body blockquote .src::before { content: "— "; color: var(--accent); }
+  .post-body pre { margin: 18px 0; padding: 14px 16px; background: oklch(11% 0.012 240); border: 1px solid var(--border); border-radius: 4px; overflow-x: auto; font-size: 12.5px; line-height: 1.65; }
+  .post-body pre .cm { color: var(--dim); } .post-body pre .ps1 { color: var(--accent); } .post-body pre .ke { color: var(--magenta); } .post-body pre .st { color: var(--info); } .post-body pre .nu { color: var(--warn); }
+  .callout { margin: 24px 0; padding: 14px 16px 16px 16px; background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--warn); border-radius: 4px; font-size: 13.5px; line-height: 1.65; color: var(--fg); }
+  .callout .lbl { display: block; color: var(--warn); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px; }
+  .footnote-ref { color: var(--accent); font-size: 0.85em; vertical-align: super; padding: 0 2px; text-decoration: none; } .footnote-ref:hover { color: var(--fg); }
+  .footnotes { margin-top: 56px; padding-top: 24px; border-top: 1px dashed var(--border); max-width: 68ch; }
+  .footnotes h3 { font-size: 12px; color: var(--accent); text-transform: lowercase; margin-bottom: 14px; } .footnotes h3::before { content: "[ "; color: var(--dim); } .footnotes h3::after { content: " ]"; color: var(--dim); }
+  .footnotes ol { list-style: none; counter-reset: fn; padding: 0; }
+  .footnotes li { counter-increment: fn; color: var(--muted); font-size: 12.5px; line-height: 1.65; padding-left: 32px; position: relative; margin-bottom: 12px; }
+  .footnotes li::before { content: "[" counter(fn) "]"; position: absolute; left: 0; top: 0; color: var(--accent); }
+  .end-prompt { margin-top: 48px; }
+  .cursor { display: inline-block; width: 8px; height: 14px; background: var(--accent); vertical-align: middle; animation: blink 1.05s steps(1) infinite; margin-left: 2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .adjacent { margin-top: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } @media (max-width: 720px) { .adjacent { grid-template-columns: 1fr; } }
+  .adj { padding: 16px 18px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--fg); text-decoration: none; transition: border-color .15s, transform .15s; display: flex; flex-direction: column; gap: 8px; min-height: 100%; }
+  .adj:hover { border-color: var(--accent); transform: translateY(-2px); } .adj.next { text-align: right; align-items: flex-end; }
+  .adj .lbl { color: var(--muted); font-size: 11px; letter-spacing: 0.04em; } .adj .lbl .arr { color: var(--accent); }
+  .adj .ttl { color: var(--fg); font-size: 14.5px; font-weight: 500; line-height: 1.3; } .adj:hover .ttl { color: var(--accent); }
+  .adj .meta { color: var(--dim); font-size: 10.5px; margin-top: auto; } .adj .meta b { color: var(--info); font-weight: 500; }
+  .back { display: inline-flex; align-items: center; gap: 8px; margin-top: 36px; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--border); padding-bottom: 4px; } .back:hover { color: var(--accent); border-color: var(--accent); } .back .ps { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="progress" id="progress" aria-hidden="true"></div>
+<div class="window">
+  <div class="titlebar">
+    <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
+    <span class="path">m@berryhill: ~/berryhill.dev/posts/<b>the-agentic-dev-loop.md</b></span>
+    <span class="gnome-ctrls">
+      <button class="gctl min" aria-label="Minimize" type="button">&minus;</button>
+      <button class="gctl max" aria-label="Maximize" type="button">&#9633;</button>
+      <button class="gctl cls" aria-label="Close" type="button">&times;</button>
+    </span>
+  </div>
+  <div class="tabstrip">
+    <a class="tab" href="terminal.html">~ home</a>
+    <a class="tab on" href="posts.html">posts/</a>
+    <a class="tab" href="notes.html">notes/</a>
+    <a class="tab" href="projects.html">projects/</a>
+    <a class="tab" href="about.html">about.md</a>
+    <a class="tab" href="uses.html">uses.md</a>
+    <span class="tabnew" aria-hidden="true">+</span>
+  </div>
+  <div class="term">
+    <div class="line">
+      <span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~/posts</span></span>
+      <span class="cmd">$ cat the-agentic-dev-loop.md</span>
+    </div>
+    <pre class="frontmatter"><span class="sep">---</span>
+<span class="k">title</span>:  <span class="v">The agentic dev loop</span>
+<span class="k">date</span>:   <span class="v">2026-04-12</span>
+<span class="k">topic</span>:  <span class="v inf">agentic-dev</span>
+<span class="k">read</span>:   <span class="v acc">12 min</span>
+<span class="k">words</span>:  <span class="v dim">2,140</span>
+<span class="k">slug</span>:   <span class="v dim">the-agentic-dev-loop</span>
+<span class="k">views</span>:  <span class="v dim">4,812</span>
+<span class="k">tags</span>:   <span class="v inf">[agents, dev-loops, latency, tooling]</span>
+<span class="sep">---</span></pre>
+    <article>
+      <header class="post-head">
+        <div class="kicker">essay · long read</div>
+        <h1>The agentic dev loop</h1>
+        <p class="deck">A bit on how feedback loops shape what AI-assisted coding actually <b>feels</b> like — and why the slowest loop in your day is the one quietly deciding what kind of work you can do at all.</p>
+        <div class="bylines">
+          <div class="item"><span class="lbl">by</span> <b>matthew berryhill</b></div>
+          <span class="dot">·</span>
+          <div class="item"><span class="lbl">posted</span> <b>2026-04-12</b></div>
+          <span class="dot">·</span>
+          <div class="item"><span class="lbl">updated</span> <b>2026-04-14</b></div>
+          <span class="dot">·</span>
+          <div class="item"><span class="lbl">topic</span> <a href="posts.html?tag=agentic-dev">agentic-dev</a></div>
+        </div>
+      </header>
+      <details class="toc-inline">
+        <summary>table of contents</summary>
+        <ol>
+          <li><a href="#the-loop">The loop</a></li>
+          <li><a href="#latency">Why latency is the feature</a></li>
+          <li><a href="#scale">What breaks at scale</a></li>
+          <li><a href="#humans">Where humans stay</a></li>
+          <li><a href="#prediction">A short prediction</a></li>
+        </ol>
+      </details>
+      <div class="post-layout">
+        <aside class="toc">
+          <div class="toc-title"># on this page</div>
+          <ol id="toc-list">
+            <li><a href="#the-loop">The loop</a></li>
+            <li><a href="#latency">Why latency is the feature</a></li>
+            <li><a href="#scale">What breaks at scale</a></li>
+            <li><a href="#humans">Where humans stay</a></li>
+            <li><a href="#prediction">A short prediction</a></li>
+          </ol>
+        </aside>
+        <div class="post-body">
+          <section id="the-loop">
+            <h2>The loop</h2>
+            <p>The smallest reliable unit of agentic dev is the loop: <b>write, run, observe, adjust</b>. That sounds like every dev cycle ever written down. The difference is who's doing each step, and how fast the connections between them close.</p>
+            <p>When the loop is sub-second, you stop thinking about it. The model is a co-typer. When it's thirty seconds, you start opening other tabs. When it's three minutes, the work shape changes entirely — you batch your asks, you guess at outcomes instead of testing them, you stop trying the next thing because you don't want to wait again. Loops are not just a time cost; they're a <em>permission</em> to attempt the next move.</p>
+            <p>This is the thing most dev tooling discourse misses. We argue about model quality, context windows, autocomplete vs. agent, when the load-bearing variable is just: how long does it take to go around once?<a href="#fn1" class="footnote-ref" id="fnref1">[1]</a></p>
+          </section>
+          <section id="latency">
+            <h2>Why latency is the feature</h2>
+            <p>I keep coming back to a small numbers table. Here's the cost of a single round trip, mapped to what the developer ends up doing:</p>
+<pre><span class="cm"># loop time → felt behavior</span>
+<span class="ps1">&lt; 1s</span>     keystroke-like; no context loss
+<span class="ps1">1–5s</span>    you keep looking at the screen
+<span class="ps1">5–30s</span>   you glance at slack
+<span class="ps1">30–120s</span> you context-switch, sometimes for good
+<span class="ps1">2–10m</span>   you start writing the next prompt
+<span class="ps1">&gt; 10m</span>   you stop testing your assumptions</pre>
+            <p>None of these numbers are surprising on their own. What's surprising is that the loop time is set by the slowest, least observable step. Usually it's not the model — it's the verification: running the test, hitting the page, watching the screenshot render, waiting for a CI lane.</p>
+            <p>In other words, the latency budget of an agent is set <em>downstream</em> of the model. You can swap to a faster model and not feel a thing, because the tail is in the verifier.</p>
+            <blockquote>The right question is not "how fast does the model produce a diff?" but "how fast can the developer know whether that diff was right?"<span class="src">a coworker, in a 1:1, half by accident</span></blockquote>
+            <p>Once you frame it that way, a lot of tooling decisions invert. Pre-warmed sandboxes start to feel more important than another inference shave. Streamed UI previews matter more than streaming tokens. <code>watch</code> mode beats faster cold starts.</p>
+          </section>
+          <section id="scale">
+            <h2>What breaks at scale</h2>
+            <p>The naive scaling story for agentic dev is fan-out — one agent becomes many, many becomes many-many. In practice I keep running into three failure modes that show up the moment a single developer is supervising more than one loop:</p>
+            <ul>
+              <li><b>Attention runs out before tokens do.</b> You can absolutely afford a dozen parallel agents. You cannot afford the cognitive cost of reviewing what twelve agents did in the last ninety seconds. <em>Review bandwidth is the new bottleneck.</em></li>
+              <li><b>Loops compound multiplicatively, not additively.</b> Two five-minute loops in series cost ten minutes. Two five-minute loops that depend on each other cost ten minutes <em>plus</em> the cost of holding the intermediate state in your head. The second number is the one nobody budgets for.</li>
+              <li><b>State sprawl wins quietly.</b> Each loop spawns artifacts: a branch, a temp file, a screenshot, a note, an environment, a process. None of them are expensive individually. After a week the workspace is a library you can't find the index for.</li>
+            </ul>
+            <p>The honest fix for all three is the same: shrink the number of loops you're personally running and make the survivors faster, not the inverse.</p>
+            <div class="callout">
+              <span class="lbl">note</span>
+              I had to learn this twice. The first time I optimized the wrong end and ended up running four agents on the same problem and reviewing none of them. The second time I went back to one agent with a fifteen-second feedback loop, and shipped more in a Saturday than the four-agent week.
+            </div>
+          </section>
+          <section id="humans">
+            <h2>Where humans stay</h2>
+            <p>There's a stack of work an agent can already do better than I can: searching, naming, normalizing, threading state through five files, writing the dull half of a test. I do not miss any of that.</p>
+            <p>What stays mine, at least for now:</p>
+            <ul>
+              <li><b>Deciding what the next loop even is.</b> Pointing the agent at the right problem is most of the job. A great agent on the wrong problem looks like progress and isn't.</li>
+              <li><b>Reading the result with skepticism.</b> Agents over-claim. The reflex of "I don't believe you — show me" is the entire delta between a 12-minute fix and a 12-hour regression.</li>
+              <li><b>Negotiating taste.</b> Which of three perfectly working approaches is the one the codebase wants. Models do not have a long memory of your codebase's mood. You do.</li>
+            </ul>
+            <p>In aggregate the human role is migrating from <em>producer</em> to <em>reviewer-with-direction</em>. Reviewing is not less work. It's different work, and it gets harder, not easier, as the loop count climbs.</p>
+          </section>
+          <section id="prediction">
+            <h2>A short prediction</h2>
+            <p>The next year of agent dev will be defined less by who has the smartest model and more by who has the fastest, least frustrating loop end-to-end<a href="#fn2" class="footnote-ref" id="fnref2">[2]</a>. The winners will look obvious in retrospect: they reduced the worst-case time-to-verify, they kept review bandwidth as a first-class budget, and they shipped tools that show you a result instead of asking you to imagine one.</p>
+            <p>I keep a sticky note above my monitor with one line on it: <em>shorter loops, fewer of them</em>. That's the entire job description, restated. Everything else — model choice, framework, agent harness, tool catalogue — is downstream of that sentence.</p>
+            <p>I'd love to be wrong about some of this. Mail me at <a href="mailto:matt@pineappleworkshop.com">matt@pineappleworkshop.com</a> if you are running a loop I should know about.</p>
+          </section>
+        </div>
+      </div>
+      <section class="footnotes">
+        <h3>footnotes</h3>
+        <ol>
+          <li id="fn1">There's a classic Jeff Bezos / Jensen Huang argument that decision velocity beats decision quality past a certain threshold. I think the same is true of loops. A 60% useful loop that closes in fifteen seconds beats a 95% useful loop that closes in fifteen minutes — because the fast loop runs ten times and converges on the right answer before the slow loop finishes once. <a href="#fnref1">↩</a></li>
+          <li id="fn2">The cynical read is that I am writing this because my own loops are still too slow and I want it to be a problem someone else cares about. Both things can be true. <a href="#fnref2">↩</a></li>
+        </ol>
+      </section>
+      <div class="line end-prompt">
+        <span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~/posts</span></span>
+        <span class="cmd">$ </span><span class="cursor" aria-hidden="true"></span>
+      </div>
+      <nav class="adjacent" aria-label="adjacent posts">
+        <a class="adj prev" href="#">
+          <span class="lbl"><span class="arr">←</span> prev · 2026-03-28</span>
+          <span class="ttl">Why context windows are the new pricing model</span>
+          <span class="meta">topic: <b>llms</b> · 8 min</span>
+        </a>
+        <a class="adj next" href="#">
+          <span class="lbl">2026-04-30 · next <span class="arr">→</span></span>
+          <span class="ttl">Notes on running a fleet of agents</span>
+          <span class="meta">topic: <b>agentic-dev</b> · 14 min</span>
+        </a>
+      </nav>
+      <a class="back" href="posts.html"><span class="ps">$</span> cd ../ <span style="color: var(--dim)">· back to posts/</span></a>
+    </article>
+  </div>
+</div>
+<script>
+  const bar = document.getElementById('progress');
+  function tickProgress() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max <= 0 ? 0 : (h.scrollTop / max) * 100;
+    bar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', tickProgress, { passive: true });
+  window.addEventListener('resize', tickProgress);
+  tickProgress();
+  const sections = Array.from(document.querySelectorAll('.post-body section[id]'));
+  const tocLinks = Array.from(document.querySelectorAll('#toc-list a'));
+  const tocLis = Array.from(document.querySelectorAll('#toc-list li'));
+  const liById = {};
+  tocLis.forEach((li, i) => { liById[sections[i]?.id] = li; });
+  let activeId = sections[0]?.id;
+  function setActive(id) {
+    if (id === activeId) return;
+    activeId = id;
+    tocLis.forEach(li => li.classList.remove('active'));
+    if (liById[id]) liById[id].classList.add('active');
+  }
+  const obs = new IntersectionObserver((entries) => {
+    const visible = entries.filter(e => e.isIntersecting).sort((a, b) => a.target.offsetTop - b.target.offsetTop);
+    if (visible.length) setActive(visible[0].target.id);
+  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
+  sections.forEach(s => obs.observe(s));
+  if (sections[0]) setActive(sections[0].id);
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    const top = el.getBoundingClientRect().top + window.scrollY - 24;
+    window.scrollTo({ top, behavior: 'smooth' });
+    history.replaceState(null, '', '#' + id);
+  });
+  const STORE = 'post:scroll:the-agentic-dev-loop';
+  try {
+    const saved = parseFloat(sessionStorage.getItem(STORE) || '0');
+    if (!isNaN(saved) && saved > 0) window.scrollTo(0, saved);
+  } catch (_) {}
+  let raf = 0;
+  window.addEventListener('scroll', () => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      try { sessionStorage.setItem(STORE, String(window.scrollY)); } catch (_) {}
+    });
+  }, { passive: true });
+</script>
+</body>
+</html>

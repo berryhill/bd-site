@@ -3,34 +3,29 @@ export const prerender = false;
 
 import { getLiveCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
-import Header from "@/components/Header.astro";
-import Footer from "@/components/Footer.astro";
-import Socials from "@/components/Socials.astro";
-import Card from "@/components/Card.astro";
-import PillarModal from "@/components/PillarModal.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
-import IconRss from "@/assets/icons/IconRss.svg";
+import { getPath } from "@/utils/getPath";
 import { SITE } from "@/config";
-import { SOCIALS } from "@/constants";
 import { buildWebSiteJsonLd } from "@/utils/structuredData";
 
 const { entries: posts } = await getLiveCollection("liveBlog");
-
 const sortedPosts = getSortedPosts(posts || []);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
-const visibleRecentPosts = recentPosts.slice(0, SITE.postPerIndex);
-const totalWords = sortedPosts.reduce(
-  (sum, post) =>
-    sum + (post.body || "").trim().split(/\s+/).filter(Boolean).length,
-  0
-);
-const tagCount = new Set(sortedPosts.flatMap(({ data }) => data.tags ?? []))
-  .size;
-const lastPostDate = sortedPosts[0]?.data?.pubDatetime;
-const lastPostLabel = lastPostDate
-  ? new Date(lastPostDate).toISOString().slice(0, 10)
-  : "pending";
+const featuredPosts = sortedPosts
+  .filter(({ data }) => data.featured)
+  .slice(0, 4);
+const recentPosts = sortedPosts
+  .filter(({ data }) => !data.featured)
+  .slice(0, 4);
+const wordCount = post =>
+  (post.body || "").trim().split(/\s+/).filter(Boolean).length;
+const readMinutes = post => Math.max(1, Math.round(wordCount(post) / 220));
+const formatDate = value => {
+  if (!value) return "pending";
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "pending"
+    : date.toISOString().slice(0, 10);
+};
 const jsonLd = buildWebSiteJsonLd({
   name: SITE.title,
   url: SITE.website,
@@ -43,250 +38,216 @@ const jsonLd = buildWebSiteJsonLd({
 ---
 
 <Layout jsonLd={jsonLd}>
-  <Header />
-  <main
-    id="main-content"
-    data-layout="index"
-    class="terminal-page px-4 pb-16 sm:px-6"
-  >
-    <section id="hero" class="pt-8 pb-6" aria-labelledby="home-terminal-title">
-      <div class="terminal-shell">
-        <div class="terminal-chrome" aria-hidden="true">
-          <span class="terminal-dots">
-            <span class="terminal-dot"></span>
-            <span class="terminal-dot"></span>
-            <span class="terminal-dot"></span>
-          </span>
-          <span>matt@berryhill: ~/berryhill.dev</span>
-          <span>human-led</span>
-        </div>
-
-        <div class="terminal-body">
-          <p class="terminal-path text-sm md:text-base">whoami --verbose</p>
-          <h1
-            id="home-terminal-title"
-            class="mt-4 max-w-4xl text-4xl leading-tight font-bold tracking-tight md:text-6xl"
-          >
-            Matt Berryhill builds AI-native operating systems in public.
-          </h1>
-          <p
-            class="text-skin-base mt-5 max-w-3xl text-base leading-8 md:text-lg"
-          >
-            Berryhill.dev is the public surface for agent workflows, discovery
-            systems, governance, provenance, and the operator judgment required
-            to turn AI output into shipped proof. The terminal shell makes that
-            surface feel like a working interface, not a brochure.
+  <div class="window proto-window">
+    <div class="titlebar">
+      <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
+      <span class="path">m@berryhill: ~/<b>berryhill.dev</b></span>
+      <span class="gnome-ctrls"
+        ><button class="gctl min" aria-label="Minimize" type="button"
+          >&minus;</button
+        ><button class="gctl max" aria-label="Maximize" type="button"
+          >&#9633;</button
+        ><button class="gctl cls" aria-label="Close" type="button"
+          >&times;</button
+        ></span
+      >
+    </div>
+    <div class="tabstrip">
+      <a class="tab on" href="/">~ home</a><a class="tab" href="/posts/"
+        >posts/</a
+      ><a class="tab" href="/tags/">notes/</a><a class="tab" href="/archives/"
+        >projects/</a
+      ><a class="tab" href="/about/">about.md</a><a class="tab" href="/search/"
+        >uses.md</a
+      ><span class="tabnew" aria-hidden="true">+</span>
+    </div>
+    <div class="term">
+      <div class="line">
+        <span class="ps1"
+          >guest@berryhill <span class="sep">:</span>
+          <span class="cwd">~</span> $</span
+        ><span class="cmd">whoami --verbose</span>
+      </div>
+      <div class="who">
+        <div>
+          <h1>matt<b>@berryhill</b><span class="cursor">&nbsp;</span></h1><p>
+            <b>builder · operator · agent conductor.</b> I run a fleet of specialized
+            AI agents that design, research, code, review, write, analyze markets,
+            and ship software with me. This site is the public terminal into that
+            operating system.
           </p>
-
-          <div class="mt-6 grid gap-3 md:grid-cols-3" aria-label="Site state">
-            <div class="terminal-stat">
-              <strong>{sortedPosts.length}</strong>
-              <span>published artifacts</span>
-            </div>
-            <div class="terminal-stat">
-              <strong>{tagCount}</strong>
-              <span>public lanes</span>
-            </div>
-            <div class="terminal-stat">
-              <strong>{lastPostLabel}</strong>
-              <span>latest post</span>
-            </div>
-          </div>
-
-          <div class="operator-read mt-6 max-w-3xl">
-            <p class="terminal-kicker">operator read</p>
-            <p class="text-skin-base mt-2 text-sm leading-7">
-              The useful question is not whether agents can produce more output.
-              It is whether the system can preserve context, ownership,
-              verification, and memory long enough for the work to compound.
-            </p>
-          </div>
-
-          <div class="mt-6 flex flex-wrap items-center gap-3 text-sm">
-            <a
-              target="_blank"
-              href="/rss.xml"
-              class="inline-flex items-center gap-1.5"
-              aria-label="rss feed"
-            >
-              <IconRss width={16} height={16} />
-              <span>rss.xml</span>
-            </a>
-            {
-              SOCIALS.length > 0 && (
-                <>
-                  <span class="text-skin-muted">|</span>
-                  <Socials />
-                </>
-              )
-            }
-            <span class="terminal-safe-note"
-              >Terminal metaphor. Real claims only.</span
-            >
-          </div>
+        </div><div class="status">
+          <div class="row-s">
+            <span><span class="dot"></span>status</span><b class="ok">online</b>
+          </div><div class="row-s"><span>agents</span><b>active</b></div><div
+            class="row-s"
+          >
+            <span>mode</span><b>human-led</b>
+          </div><div class="row-s"><span>shell</span><b>hermes</b></div><div
+            class="row-s"
+          >
+            <span>focus</span><b>systems</b>
+          </div><div class="row-s"><span>operator</span><b>matt</b></div>
         </div>
       </div>
-    </section>
-
-    <section id="system-map" class="py-4" aria-labelledby="system-map-title">
-      <div class="terminal-grid cols-2">
-        <div class="terminal-panel p-4 md:p-5">
-          <p class="terminal-command text-sm">cat manifesto.md</p>
-          <h2 id="system-map-title" class="mt-3 text-2xl font-semibold">
-            Not a nicer blog. A public interface into the operating layer.
-          </h2>
-          <p class="text-skin-muted mt-3 text-sm leading-7 md:text-base">
-            Most AI content stops at tools, prompts, and demos. The harder
-            problem is building systems that know who owns the work, what
-            evidence was used, what changed, what shipped, and where a human
-            must stay in the loop.
-          </p>
-        </div>
-
-        <div class="terminal-panel p-4 md:p-5">
-          <p class="terminal-command text-sm">ls operating-layer/</p>
-          <p class="text-skin-muted mt-3 text-sm leading-7">
-            Start with the operating layer: agent governance, shipped-work
-            proof, protocol boundaries, discovery systems, continuity, and the
-            public operating models that keep AI work accountable.
-          </p>
-          <ul
-            class="mt-4 grid list-none gap-2 p-0 text-sm leading-6 md:text-base"
-          >
-            <li>
-              <button
-                type="button"
-                class="cycle-word pillar-clickable terminal-command"
-                data-pillar="governance"
-              >
-                open governance checklist
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="cycle-word pillar-clickable terminal-command"
-                data-pillar="proof"
-              >
-                inspect shipped-work proof
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="cycle-word pillar-clickable terminal-command"
-                data-pillar="protocol"
-              >
-                trace protocol boundaries
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="cycle-word pillar-clickable terminal-command"
-                data-pillar="continuity"
-              >
-                read continuity layer notes
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="cycle-word pillar-clickable terminal-command"
-                data-pillar="conversation"
-              >
-                schedule operator conversation
-              </button>
-            </li>
-          </ul>
-        </div>
+      <form class="cmdbar" onsubmit="event.preventDefault();">
+        <span class="ps">~/ $</span><input
+          type="text"
+          placeholder="try: fleet · posts · about · contact · curl GET /fleet"
+          autocomplete="off"
+        /><span class="hint">⌘K · ↵ to run</span>
+      </form>
+      <div class="line">
+        <span class="ps1"
+          >guest@berryhill <span class="sep">:</span>
+          <span class="cwd">~</span> $</span
+        ><span class="cmd">curl GET /fleet</span>
       </div>
-    </section>
-
-    {
-      featuredPosts.length > 0 && (
-        <section id="featured" class="py-6" aria-labelledby="featured-title">
-          <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p class="terminal-command text-sm">cat featured.md</p>
-              <h2 id="featured-title" class="mt-2 text-2xl font-bold">
-                Author-picked artifacts
-              </h2>
-            </div>
-            <p class="text-skin-muted max-w-lg text-sm leading-6">
-              Featured means editorially selected by Matt/Luca, not popularity
-              metrics or fake social proof.
-            </p>
-          </div>
-
-          <ul class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-            {featuredPosts.map(data => (
-              <Card variant="h2" {...data} />
-            ))}
-          </ul>
-        </section>
-      )
-    }
-
-    {
-      recentPosts.length > 0 && (
-        <section id="recent-posts" class="py-6" aria-labelledby="recent-title">
-          <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p class="terminal-command text-sm">ls -la recent/</p>
-              <h2 id="recent-title" class="mt-2 text-2xl font-bold">
-                Recent field notes
-              </h2>
-            </div>
-            <p class="text-skin-muted font-mono text-sm">
-              {totalWords.toLocaleString()} real words indexed
-            </p>
-          </div>
-
-          <ul class="grid list-none grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {visibleRecentPosts.map(data => (
-              <Card variant="h3" {...data} />
-            ))}
-          </ul>
-        </section>
-      )
-    }
-
-    <section
-      class="terminal-panel my-8 p-4 md:p-5"
-      aria-labelledby="contact-title"
-    >
-      <p class="terminal-command text-sm">cat .env</p>
-      <h2 id="contact-title" class="mt-2 text-2xl font-bold">
-        Bring the operating questions.
-      </h2>
-      <p class="text-skin-muted mt-3 max-w-3xl text-sm leading-7 md:text-base">
-        If you want to talk about AI-native products, agent operations,
-        governance, discovery systems, or the gap between a promising demo and a
-        reliable workflow, start with the posts and then schedule a
-        conversation.
+      <p class="out" style="padding: 8px 0 6px;">
+        <b>200 OK</b> · application/json · <span class="k"
+          >8 verified agents</span
+        >
       </p>
-      <div class="mt-4 flex flex-wrap gap-3 font-mono text-sm">
-        <a href="/posts/">POSTS=/posts/</a>
-        <a href="/about/">ABOUT=/about/</a>
-        <a
-          href="https://calendly.com/matt-berryhill/30min"
-          target="_blank"
-          rel="noopener noreferrer">CAL=/30min</a
+      <div class="fleet-response" aria-label="Fleet response">
+        <div class="fleet-meta">
+          <div><span>operator</span><b>matt · human</b></div><div>
+            <span>mode</span><b>human-led</b>
+          </div><div><span>runtime</span><b>ubuntu / hermes</b></div><div>
+            <span>scope</span><b>profile-backed fleet</b>
+          </div>
+        </div><div class="fleet-agents">
+          <div class="agent-row">
+            <span>default / silas</span><b>orchestration + operator support</b
+            ><span class="ok">verified</span>
+          </div><div class="agent-row">
+            <span>ada-vector</span><b>taskflow intelligence + evaluation data</b
+            ><span class="ok">verified</span>
+          </div><div class="agent-row">
+            <span>archer</span><b>financial markets analysis</b><span class="ok"
+              >verified</span
+            >
+          </div><div class="agent-row">
+            <span>chip-renwick</span><b>broker-dealer compliance systems</b
+            ><span class="ok">verified</span>
+          </div><div class="agent-row">
+            <span>luca</span><b>brand architecture + marketing strategy</b><span
+              class="ok">verified</span
+            >
+          </div><div class="agent-row">
+            <span>nick-mercer</span><b>OpenSCAD physical design</b><span
+              class="ok">verified</span
+            >
+          </div><div class="agent-row">
+            <span>vinnie-santoro</span><b>World Cup betting analysis</b><span
+              class="ok">verified</span
+            >
+          </div><div class="agent-row">
+            <span>wren-ashford</span><b>product/ui creative direction</b><span
+              class="ok">verified</span
+            >
+          </div>
+        </div>
+      </div>
+      <div class="line">
+        <span class="ps1"
+          >guest@berryhill <span class="sep">:</span>
+          <span class="cwd">~</span> $</span
+        ><span class="cmd">cat manifesto.md</span>
+      </div>
+      <p class="out" style="padding: 8px 0 6px;">
+        <b># Manifesto</b><br />Beyond the stack lies <span class="k"
+          >the shift</span
+        > — a new cultural operating system<br />where software is grown, not
+        shipped, and the people who steer the<br />agents matter more than the
+        people who once typed the code.<br /><span class="comment"
+          ># EOF · last edit: 2026-06-02</span
+        >
+      </p>
+      <div class="block-h">
+        <h2>ls featured/ --sort=stars</h2><span class="n"
+          >{featuredPosts.length} items · author's pick</span
         >
       </div>
-    </section>
-  </main>
-  <Footer />
-  <PillarModal />
+      <div class="files">
+        {
+          featuredPosts.map(post => (
+            <a class="file" href={getPath(post.id, post.filePath)}>
+              <>
+                <div class="head">
+                  <>
+                    <span class="ext">.md</span>
+                    <span class="star">★</span>
+                    <span>
+                      {readMinutes(post)} min ·{" "}
+                      {post.data.tags?.[0] ?? "field-notes"}
+                    </span>
+                  </>
+                </div>
+                <div class="name">{post.id}.md</div>
+                <div class="desc">{post.data.description}</div>
+                <div class="stat">
+                  <>
+                    <span>
+                      date <b>{formatDate(post.data.pubDatetime)}</b>
+                    </span>
+                    <span>
+                      words <b>{wordCount(post).toLocaleString()}</b>
+                    </span>
+                  </>
+                </div>
+              </>
+            </a>
+          ))
+        }
+      </div>
+      <div class="block-h">
+        <h2>ls -la recent/</h2><span class="n"
+          >{recentPosts.length} items · sorted by mtime</span
+        >
+      </div>
+      <div class="ls">
+        {
+          recentPosts.map(post => (
+            <a class="ls-row" href={getPath(post.id, post.filePath)}>
+              <>
+                <span class="perm">-rw-r--</span>
+                <span class="date">{formatDate(post.data.pubDatetime)}</span>
+                <span class="name">{post.id}.md</span>
+                <span class="topic">{post.data.tags?.[0] ?? "essay"}</span>
+                <span class="arr">→</span>
+              </>
+            </a>
+          ))
+        }
+      </div>
+      <div class="block-h">
+        <h2>cat .env</h2><span class="n">contact targets</span>
+      </div>
+      <div class="env">
+        <a href={SITE.calendly} target="_blank" rel="noopener"
+          ><span><b>CALENDLY=</b> book/30min</span><span>schedule →</span></a
+        ><a href="mailto:matt@berryhill.dev"
+          ><span><b>EMAIL=</b> matt@berryhill.dev</span><span>compose →</span
+          ></a
+        ><a href="https://linkedin.com" target="_blank" rel="noopener"
+          ><span><b>LINKEDIN=</b> /in/berryhill</span><span>connect →</span></a
+        ><a href="/rss.xml"
+          ><span><b>RSS=</b> /rss.xml</span><span>subscribe →</span></a
+        >
+      </div>
+      <p class="out" style="margin-top: 28px;">
+        <span class="ps1"
+          >guest@berryhill <span class="sep">:</span>
+          <span class="cwd">~</span> $</span
+        >
+        <span class="cmd" id="prompt-tail">_</span>
+      </p>
+    </div>
+  </div>
+  <footer>
+    © Berryhill 2026 · built quietly · zero trackers · <a
+      href="/rss.xml"
+      style="color: var(--muted);">rss</a
+    >
+  </footer>
 </Layout>
-
-<script>
-  document.addEventListener("astro:page-load", () => {
-    const indexLayout = (document.querySelector("#main-content") as HTMLElement)
-      ?.dataset?.layout;
-    if (indexLayout) {
-      sessionStorage.setItem("backUrl", "/");
-    }
-  });
-</script>

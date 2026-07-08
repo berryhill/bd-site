@@ -1,5 +1,30 @@
 ---
-// This is the default /posts/ page (page 1)
-// Redirect to page 1 route
-return Astro.redirect("/posts/page/1");
+export const prerender = false;
+
+import { getLiveCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import TerminalPostsArchive from "@/components/TerminalPostsArchive.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { SITE } from "@/config";
+import { buildCollectionPageJsonLd } from "@/utils/structuredData";
+
+const { entries: allPosts } = await getLiveCollection("liveBlog");
+const posts = (allPosts || []).filter(({ data }) => !data.draft);
+const sortedPosts = getSortedPosts(posts);
+const postsMetadataDescription =
+  "Long-form notes on agentic-first development, AI / ML systems, blockchain rails, crypto market structure, digital music, and the small frictions that change when intelligent automation moves into the loop.";
+const jsonLd = buildCollectionPageJsonLd({
+  title: `Posts | ${SITE.title}`,
+  description: postsMetadataDescription,
+  url: new URL(Astro.url.pathname, Astro.url.origin).href,
+  isPartOf: SITE.title,
+});
 ---
+
+<Layout
+  title={`Posts | ${SITE.title}`}
+  description={postsMetadataDescription}
+  jsonLd={jsonLd}
+>
+  <TerminalPostsArchive sortedPosts={sortedPosts} currentPage={1} />
+</Layout>
