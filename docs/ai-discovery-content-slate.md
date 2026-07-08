@@ -16,6 +16,8 @@ Topical authority builds through three mechanisms:
 
 This slate defines the clusters, names the posts that build each one, and sets the linkage and citation rules that govern future content.
 
+Public terminal-shell surfaces should be framed as a brand interface metaphor for Matt's operator/workflow positioning: a way to make the site feel like a working field console. They are not evidence of private runtime state, production queues, fleet activity, or live telemetry unless a public implementation and explicit acceptance criteria back the displayed values.
+
 ---
 
 ## Cluster Definitions and Candidate Posts
@@ -196,7 +198,11 @@ This slate should be reviewed quarterly or after every 3–5 new published posts
 - Add new candidate posts as the content corpus grows
 - Update /llms.txt representative section when new qualifying posts publish
 - Adjust cluster boundaries if the content strategy shifts
-- Verify archive, tag, and card/page-shell framing still presents the corpus as field notes, operating questions, and evidence trails rather than generic blog inventory.
+- Verify archive, tag, card/page-shell, terminal public surface, and homepage-derived state-label framing still presents the corpus as field notes, operating questions, and evidence trails rather than generic blog inventory.
+
+### Public Surface Integrity
+
+Public terminal surfaces may only display values derived from public site data, such as published post count, tag count, latest post date, total word count, frontmatter previews, and per-post word count. Do not invent fake views, fake agent counts, private fleet dashboards, production queue claims, live telemetry, or verified telemetry. Any telemetry-style claim must be backed by a public implementation and acceptance criteria before it appears on the site.
 
 ---
 
