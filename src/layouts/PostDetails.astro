@@ -198,14 +198,16 @@ const footerShareLinks = SHARE_LINKS.map(social => ({
           <div class="post-body astro-post-content" set:html={htmlContent} />
         </div>
         <section class="terminal-post-footer" data-pagefind-ignore>
-          <div class="line">
+          <div class="line terminal-post-footer__prompt">
             <span class="ps1"
               >m@berryhill <span class="sep">in</span>
               <span class="cwd">~/posts/{post.id}</span></span
             ><span class="cmd">$ tail -f post.meta</span>
           </div>
           <div class="terminal-post-footer__grid">
-            <div class="terminal-post-footer__group">
+            <div
+              class="terminal-post-footer__group terminal-post-footer__group--tags"
+            >
               <span class="terminal-post-footer__label">tags</span>
               <div class="terminal-post-footer__items" aria-label="post tags">
                 {
@@ -224,46 +226,48 @@ const footerShareLinks = SHARE_LINKS.map(social => ({
                 }
               </div>
             </div>
-            <div class="terminal-post-footer__group">
-              <span class="terminal-post-footer__label">share</span>
-              <div
-                class="terminal-post-footer__items"
-                aria-label="share this post"
-              >
-                {
-                  footerShareLinks.map(link => (
-                    <a
-                      class="terminal-post-footer__chip"
-                      href={link.href}
-                      title={link.linkTitle}
-                      rel="noopener noreferrer"
-                    >
-                      {link.name.toLowerCase()}
-                    </a>
-                  ))
-                }
-              </div>
-            </div>
-            <div
-              class="terminal-post-footer__group terminal-post-footer__group--actions"
-            >
-              <span class="terminal-post-footer__label">ops</span>
-              <div
-                class="terminal-post-footer__items"
-                aria-label="post operations"
-              >
-                <EditPost
-                  class="terminal-post-footer__chip terminal-post-footer__chip--edit"
-                  {hideEditPost}
-                  {post}
-                />
-                <button
-                  class="terminal-post-footer__chip terminal-post-footer__chip--button"
-                  type="button"
-                  data-terminal-top
+            <div class="terminal-post-footer__rail">
+              <div class="terminal-post-footer__group">
+                <span class="terminal-post-footer__label">share</span>
+                <div
+                  class="terminal-post-footer__items"
+                  aria-label="share this post"
                 >
-                  top ↑
-                </button>
+                  {
+                    footerShareLinks.map(link => (
+                      <a
+                        class="terminal-post-footer__chip"
+                        href={link.href}
+                        title={link.linkTitle}
+                        rel="noopener noreferrer"
+                      >
+                        {link.name.toLowerCase()}
+                      </a>
+                    ))
+                  }
+                </div>
+              </div>
+              <div
+                class="terminal-post-footer__group terminal-post-footer__group--actions"
+              >
+                <span class="terminal-post-footer__label">ops</span>
+                <div
+                  class="terminal-post-footer__items"
+                  aria-label="post operations"
+                >
+                  <EditPost
+                    class="terminal-post-footer__chip terminal-post-footer__chip--edit"
+                    {hideEditPost}
+                    {post}
+                  />
+                  <button
+                    class="terminal-post-footer__chip terminal-post-footer__chip--button"
+                    type="button"
+                    data-terminal-top
+                  >
+                    top ↑
+                  </button>
+                </div>
               </div>
             </div>
           </div>

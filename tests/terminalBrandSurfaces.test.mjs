@@ -211,7 +211,18 @@ assert.match(sources.postDetail, /terminal-post-footer__empty/);
 assert.doesNotMatch(sources.postDetail, /<ShareLinks \/>|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/);
 assert.match(sources.styles, /\.terminal-post-footer \{/);
 assert.match(sources.styles, /\.terminal-post-footer__chip \{/);
-assert.match(sources.styles, /min-height:\s*28px;/);
+assert.match(sources.postDetail, /class=\"line terminal-post-footer__prompt\"/);
+assert.match(sources.postDetail, /class=\"terminal-post-footer__rail\"/);
+const compactPostFooterCss =
+  sources.styles.match(/\.terminal-post-footer \{[\s\S]*?\.end-prompt \{/)?.[0] ?? "";
+assert.ok(compactPostFooterCss, "post detail footer CSS block must be present");
+assert.match(compactPostFooterCss, /\.terminal-post-footer__grid \{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) auto;/);
+assert.match(compactPostFooterCss, /\.terminal-post-footer__rail \{/);
+assert.match(compactPostFooterCss, /min-height:\s*24px;/);
+assert.doesNotMatch(compactPostFooterCss, /\.terminal-post-footer \.line \{[\s\S]*?border-bottom:\s*1px dashed var\(--border\);/);
+assert.doesNotMatch(compactPostFooterCss, /border-left:\s*2px solid var\(--accent\);/);
+assert.doesNotMatch(compactPostFooterCss, /grid-template-columns:\s*62px 1fr;/);
+assert.doesNotMatch(compactPostFooterCss, /min-height:\s*28px;/);
 
 for (const [name, source] of [
   ["archivesRoute", sources.archivesRoute],

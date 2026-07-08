@@ -3256,37 +3256,47 @@ a:hover {
   color: var(--accent);
 }
 .terminal-post-footer {
-  margin-top: 48px;
-  padding: 14px 16px 16px;
+  margin-top: 40px;
+  padding: 12px;
   max-width: 68ch;
   border: 1px solid var(--border);
-  border-left: 2px solid var(--accent);
   border-radius: 6px;
-  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  background:
+    linear-gradient(90deg, oklch(70% 0.18 145 / 0.1), transparent 38%),
+    color-mix(in srgb, var(--surface) 86%, transparent);
 }
-.terminal-post-footer .line {
-  padding-bottom: 10px;
-  border-bottom: 1px dashed var(--border);
+.terminal-post-footer__prompt {
+  margin-bottom: 8px;
   font-size: 12px;
+  line-height: 1.35;
 }
 .terminal-post-footer__grid {
   display: grid;
-  gap: 14px;
-  padding-top: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
 }
 .terminal-post-footer__group {
   display: grid;
-  grid-template-columns: 62px 1fr;
+  grid-template-columns: auto 1fr;
   align-items: baseline;
-  gap: 12px;
+  gap: 8px;
+  min-width: 0;
 }
 .terminal-post-footer__group--actions {
   align-items: center;
 }
+.terminal-post-footer__rail {
+  display: grid;
+  gap: 8px;
+  min-width: 15.5rem;
+  padding-left: 10px;
+  border-left: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+}
 .terminal-post-footer__label {
   color: var(--dim);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .terminal-post-footer__label::before {
@@ -3298,20 +3308,21 @@ a:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  min-width: 0;
 }
 .terminal-post-footer__chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 28px;
-  padding: 5px 10px;
+  min-height: 24px;
+  padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: oklch(11% 0.012 240 / 0.58);
   color: var(--muted);
   font: inherit;
-  font-size: 11.5px;
+  font-size: 11px;
   line-height: 1;
   text-decoration: none;
   transition:
@@ -3333,12 +3344,19 @@ a:hover {
 }
 .terminal-post-footer__empty {
   color: var(--dim);
-  font-size: 11.5px;
+  font-size: 11px;
 }
 @media (max-width: 720px) {
+  .terminal-post-footer__grid,
   .terminal-post-footer__group {
     grid-template-columns: 1fr;
     gap: 7px;
+  }
+
+  .terminal-post-footer__rail {
+    min-width: 0;
+    padding-left: 0;
+    border-left: 0;
   }
 }
 .end-prompt {
