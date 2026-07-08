@@ -106,6 +106,9 @@ const exactCopyAnchors = [
   [sources.postDetail, "essay · long read"],
   [sources.postDetail, "table of contents"],
   [sources.postDetail, "# on this page"],
+  [sources.postDetail, "tail -f post.meta"],
+  [sources.postDetail, "terminal-post-footer__chip"],
+  [sources.postDetail, "data-terminal-top"],
   [sources.postDetail, "cd ../"],
 ];
 
@@ -194,6 +197,18 @@ assert.match(sources.styles, /vertical-align: -0\.08em;/, "cursor baseline align
 assert.match(sources.styles, /animation: blink 1\.05s steps\(1\) infinite;/, "cursor blink timing must be stable");
 assert.match(`${sources.home}\n${sources.postsArchive}\n${sources.postDetail}\n${sources.about}`, /class=\"terminal-cursor\"/);
 assert.doesNotMatch(sources.home, /class=\"cursor\">&nbsp;<\/span>/, "home cursor must not be a whitespace span");
+
+assert.match(sources.postDetail, /class=\"terminal-post-footer\"/);
+assert.match(sources.postDetail, /aria-label=\"post tags\"/);
+assert.match(sources.postDetail, /aria-label=\"share this post\"/);
+assert.match(sources.postDetail, /href=\{`\/tags\/\$\{slugifyStr\(tag\)\}\/`\}/);
+assert.match(sources.postDetail, /encodeURIComponent\(postUrl\)/);
+assert.match(sources.postDetail, /postTags\.length > 0/);
+assert.match(sources.postDetail, /terminal-post-footer__empty/);
+assert.doesNotMatch(sources.postDetail, /<ShareLinks \/>|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/);
+assert.match(sources.styles, /\.terminal-post-footer \{/);
+assert.match(sources.styles, /\.terminal-post-footer__chip \{/);
+assert.match(sources.styles, /min-height:\s*28px;/);
 
 for (const [name, source] of [
   ["archivesRoute", sources.archivesRoute],
