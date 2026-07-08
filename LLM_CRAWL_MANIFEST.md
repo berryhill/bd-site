@@ -17,11 +17,12 @@
 - **Update Frequency**: Real-time (generated on-demand)
 - **Submission Status**:
   - Google Search Console: Sitemap resubmission is implemented for public post create/update when `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN` is configured; operational Search Console property/token provisioning remains environment-dependent unless separately verified.
-  - Bing Webmaster Tools: Pending
+  - Bing Webmaster Tools: IndexNow post URL submission is implemented and now also provides Yahoo crawl-discovery evidence via Bing IndexNow / Yahoo Slurp; direct Bing Webmaster Tools sitemap submission remains pending.
 - **IndexNow**: ✅ **IMPLEMENTED**
   - API Key: Hosted at `/a63643bb50ffbee1ac79fcfe60003c1dc912bdee3803a9308fa313f06024d2c6.txt`
-  - Auto-submits to Bing, Yandex, Naver, Seznam, Yep on post create/update
+  - Auto-submits to Bing, Yandex, Naver, Seznam, Yep on non-draft post create/update
   - Supports bulk submission (up to 10,000 URLs)
+  - Yahoo crawl-discovery evidence is returned via Bing IndexNow / Yahoo Slurp plus sitemap and robots visibility. This is not a standalone Yahoo-owned submit endpoint and does not guarantee Yahoo indexing.
 - **Google Search Console crawl signal**: ✅ **IMPLEMENTED**
   - Supported signal is Search Console sitemap resubmission, not the unsupported per-URL Google Indexing API for ordinary blog posts.
   - Submits the canonical `/sitemap.xml` after non-draft post POST/PATCH when server-side Google credentials are configured.
@@ -158,6 +159,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 5. Issue #58 crawl-signal reconciliation (2026-07-03): canonical `/sitemap.xml` signals in robots/layout/llms/check script, robots asset/index noise reduction, static sitemap redirect exclusion, and search visibility check alignment
 6. Issue #59 public-post filtering reconciliation (2026-07-03): RSS, Atom, `/llms.txt`, and `/sitemap-posts.xml` share `getSortedPosts`/`getPublicPosts` so machine-readable surfaces expose the same public corpus.
 7. Issue #97 public-post crawl signals (2026-07-08): public post create/update now sends IndexNow and Google Search Console sitemap crawl signals through shared `submitPublicPostCrawlSignals`, skipping drafts and missing Google config safely.
+8. Issue #102 Yahoo crawl-discovery evidence (2026-07-08): non-draft post create/update responses include Yahoo-specific discovery evidence via Bing IndexNow / Yahoo Slurp, sitemap, and robots visibility. This is not a standalone Yahoo-owned submit endpoint and does not guarantee indexing.
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -178,7 +180,7 @@ curl -si https://berryhill.dev/llms.txt | head -5
 ### 🔄 In Progress:
 1. Verify `/llms.txt` is live in production after deployment
 2. Configure/verify Google Search Console credentials and property in production
-3. Submit sitemap to Bing Webmaster Tools
+3. Submit sitemap directly in Bing Webmaster Tools; IndexNow URL submission and Yahoo discovery evidence via Bing IndexNow / Yahoo Slurp are implemented, but direct webmaster sitemap submission remains pending
 
 ### ✅ Phase 5 (2026-06-25, PR pending):
 1. ✅ Added `scripts/checkSearchVisibility.mjs` verification harness
@@ -190,7 +192,7 @@ curl -si https://berryhill.dev/llms.txt | head -5
 1. Add FAQPage schema if FAQ content is created
 2. Monitor crawler activity in server logs
 3. Configure/verify Search Console credentials/property in production
-4. Submit sitemap to Bing Webmaster Tools
+4. Submit sitemap directly in Bing Webmaster Tools; do not treat the implemented Yahoo discovery evidence as guaranteed indexing
 
 ## Verification Script
 
@@ -227,6 +229,7 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 
 ### 2026-07-08
 - ✅ **Public Post Crawl Signals** (Issue #97): Public post create/update now sends IndexNow and Google Search Console sitemap crawl signals through shared `submitPublicPostCrawlSignals`, skipping drafts and missing Google config safely. Google uses supported Search Console sitemap resubmission for the canonical `/sitemap.xml`; production credentials/property remain configuration-dependent unless separately verified.
+- ✅ **Yahoo Crawl-Discovery Evidence** (Issue #102): Non-draft post create/update responses now include Yahoo-specific evidence from `submitPublicPostCrawlSignals` via Bing IndexNow / Yahoo Slurp plus sitemap and robots visibility. This is honest discovery evidence, not a standalone Yahoo-owned submit endpoint and not guaranteed indexing. No Yahoo-specific environment variable, secret, deploy value, or Helm value is required.
 
 ### 2026-07-03
 - ✅ **Public Post Filtering Reconciliation** (Issue #59): RSS, Atom, `/llms.txt`, and `/sitemap-posts.xml` now share public-post filtering for drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
