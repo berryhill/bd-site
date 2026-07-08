@@ -115,10 +115,8 @@ const updated = formatDate(modDatetime) ?? published;
     <div class="tabstrip">
       <a class="tab" href="/">~ home</a><a class="tab on" href="/posts/"
         >posts/</a
-      ><a class="tab" href="/tags/">notes/</a><a class="tab" href="/archives/"
-        >projects/</a
       ><a class="tab" href="/about/">about.md</a><a class="tab" href="/search/"
-        >uses.md</a
+        >search</a
       ><span class="tabnew" aria-hidden="true">+</span>
     </div>
     <div class="term">
@@ -208,8 +206,9 @@ const updated = formatDate(modDatetime) ?? published;
           <span class="ps1"
             >m@berryhill <span class="sep">in</span>
             <span class="cwd">~/posts</span></span
-          ><span class="cmd">$ </span><span class="cursor" aria-hidden="true"
-          ></span>
+          ><span class="cmd">$ </span><span
+            class="terminal-cursor"
+            aria-hidden="true"></span>
         </div>
         <nav class="adjacent" aria-label="adjacent posts" data-pagefind-ignore>
           {

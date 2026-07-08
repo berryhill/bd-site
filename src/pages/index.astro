@@ -55,10 +55,8 @@ const jsonLd = buildWebSiteJsonLd({
     <div class="tabstrip">
       <a class="tab on" href="/">~ home</a><a class="tab" href="/posts/"
         >posts/</a
-      ><a class="tab" href="/tags/">notes/</a><a class="tab" href="/archives/"
-        >projects/</a
       ><a class="tab" href="/about/">about.md</a><a class="tab" href="/search/"
-        >uses.md</a
+        >search</a
       ><span class="tabnew" aria-hidden="true">+</span>
     </div>
     <div class="term">
@@ -70,7 +68,11 @@ const jsonLd = buildWebSiteJsonLd({
       </div>
       <div class="who">
         <div>
-          <h1>matt<b>@berryhill</b><span class="cursor">&nbsp;</span></h1><p>
+          <h1>
+            matt<b>@berryhill</b><span
+              class="terminal-cursor"
+              aria-hidden="true"></span>
+          </h1><p>
             <b>builder · operator · agent conductor.</b> I run a fleet of specialized
             AI agents that design, research, code, review, write, analyze markets,
             and ship software with me. This site is the public terminal into that
@@ -229,8 +231,13 @@ const jsonLd = buildWebSiteJsonLd({
         ><a href="mailto:matt@berryhill.dev"
           ><span><b>EMAIL=</b> matt@berryhill.dev</span><span>compose →</span
           ></a
-        ><a href="https://linkedin.com" target="_blank" rel="noopener"
-          ><span><b>LINKEDIN=</b> /in/berryhill</span><span>connect →</span></a
+        ><a
+          href="https://www.linkedin.com/in/matthew-berryhill/"
+          target="_blank"
+          rel="noopener"
+          ><span><b>LINKEDIN=</b> /in/matthew-berryhill</span><span
+            >connect →</span
+          ></a
         ><a href="/rss.xml"
           ><span><b>RSS=</b> /rss.xml</span><span>subscribe →</span></a
         >
@@ -240,7 +247,9 @@ const jsonLd = buildWebSiteJsonLd({
           >guest@berryhill <span class="sep">:</span>
           <span class="cwd">~</span> $</span
         >
-        <span class="cmd" id="prompt-tail">_</span>
+        <span class="cmd" id="prompt-tail"
+          ><span class="terminal-cursor" aria-hidden="true"></span></span
+        >
       </p>
     </div>
   </div>
