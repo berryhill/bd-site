@@ -78,7 +78,7 @@ pnpm run format:check # Check formatting without writing
   - Site OG image: `/og.png.ts`
 - **URL Normalization**: [src/utils/url.ts](src/utils/url.ts) - Normalizes `SITE.website`, site-relative paths, post URLs, and post asset URLs to absolute URLs for post metadata and custom sitemap routes
 - **Crawl Signals**: [src/utils/crawlSignals.ts](src/utils/crawlSignals.ts) - Shared source for canonical sitemap path, robots.txt crawler groups, generated asset disallow policy, and Layout sitemap href
-- **Public Post Crawl Signals**: [src/utils/publicPostCrawlSignals.ts](src/utils/publicPostCrawlSignals.ts) - Coordinates IndexNow plus Google Search Console sitemap submission for public posts
+- **Public Post Crawl Signals**: [src/utils/publicPostCrawlSignals.ts](src/utils/publicPostCrawlSignals.ts) - Coordinates IndexNow plus Google Search Console sitemap submission for public posts and returns Yahoo-specific discovery evidence via Bing IndexNow / Yahoo Slurp; Yahoo evidence is not a standalone Yahoo-owned submit endpoint and does not guarantee indexing
 - **Google Search Console Submission**: [src/utils/googleSearchConsole.ts](src/utils/googleSearchConsole.ts) - Submits `/sitemap.xml` to Google Search Console using optional server-side environment configuration
 - **Static Sitemap**: [src/utils/staticSitemap.ts](src/utils/staticSitemap.ts) - Shared source for static sitemap page selection and XML generation
 - **Tag Management**: `getUniqueTags.ts`, `getPostsByTag.ts` for tag-based filtering
@@ -126,7 +126,7 @@ Search is powered by Pagefind, which indexes the built site and provides client-
 - The project uses pnpm as the package manager
 - Blog posts with filenames starting with `_` are ignored by the glob loader pattern
 - Durable local blog visuals must use normal Markdown image syntax with alt text and caption/title; do not inline `data:image` URIs.
-- POST/PATCH `/api/posts` trigger crawl signals only for non-draft posts after successful file writes. IndexNow submits the post URL immediately; Google Search Console sitemap submission is best-effort and skipped when credentials are missing.
+- POST/PATCH `/api/posts` include `crawlSignals` responses only for non-draft posts after successful file writes. IndexNow submits the post URL immediately; Google Search Console sitemap submission is best-effort and skipped when credentials are missing; Yahoo-specific evidence is discovery via Bing IndexNow / Yahoo Slurp, not guaranteed Yahoo indexing.
 - Posts are timezone-aware; global timezone is set in `SITE.timezone` (IANA format), individual posts can override with frontmatter `timezone`
 - The edit post feature links to a GitHub repository URL (configurable in `SITE.editPost`)
 - Archives page visibility is controlled by `SITE.showArchives` in the sitemap filter
