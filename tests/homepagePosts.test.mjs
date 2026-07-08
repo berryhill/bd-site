@@ -38,6 +38,7 @@ function post(id, { featured = false, body = "one two three", date = "2026-01-02
 }
 
 const homepageSource = readFileSync(new URL("../src/pages/index.astro", import.meta.url), "utf8");
+const postsArchiveSource = readFileSync(new URL("../src/components/TerminalPostsArchive.astro", import.meta.url), "utf8");
 const globalCssSource = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
 
 test("selectHomepagePosts returns featured and recent paths without mixing non-featured cards", () => {
@@ -83,10 +84,17 @@ test("homepage renders pinned card styling only behind the featured-post guard",
   assert.match(homepageSource, /class="open">open →<\/span>/);
 });
 
-test("featured-card CSS creates the intentional pinned treatment without changing recent rows", () => {
-  assert.match(globalCssSource, /\.featured-file\s*\{[\s\S]*min-height:\s*236px;/);
-  assert.match(globalCssSource, /\.featured-file::before\s*\{[\s\S]*height:\s*3px;/);
-  assert.match(globalCssSource, /\.featured-file::after\s*\{[\s\S]*featured artifact/);
+test("featured and archive pinned cards share compact terminal styling without decorative artifacts", () => {
+  assert.match(postsArchiveSource, /aria-label=\{`Read pinned post: \$\{post\.data\.title\}`\}/);
+  assert.match(postsArchiveSource, /<span class="ext">PINNED<\/span>/);
+  assert.doesNotMatch(postsArchiveSource, /style="color: var\(--warn\);"/);
+  assert.doesNotMatch(globalCssSource, /featured artifact/);
+  assert.doesNotMatch(globalCssSource, /\.featured-file::(?:before|after)/);
+  assert.doesNotMatch(globalCssSource, /\.pin::before\s*\{[\s\S]*📌/);
+  assert.match(globalCssSource, /\.featured-file\s*\{[\s\S]*border-radius:\s*7px;[\s\S]*padding:\s*14px 14px 15px;[\s\S]*background:\s*var\(--surface\);/);
+  assert.match(globalCssSource, /\.pin\s*\{[\s\S]*border-radius:\s*7px;[\s\S]*padding:\s*14px 14px 15px;[\s\S]*background:\s*var\(--surface\);/);
+  assert.match(globalCssSource, /\.featured-file \.name\s*\{[\s\S]*font-size:\s*clamp\(15px, 1\.35vw, 17px\);/);
+  assert.match(globalCssSource, /\.pin \.name\s*\{[\s\S]*font-size:\s*clamp\(15px, 1\.35vw, 17px\);/);
   assert.match(globalCssSource, /\.featured-file \.stat \.open\s*\{[\s\S]*margin-left:\s*auto;/);
   assert.match(globalCssSource, /\.ls-row\s*\{[\s\S]*grid-template-columns:\s*24px 90px 1fr 110px 36px;/);
 });
