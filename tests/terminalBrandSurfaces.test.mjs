@@ -128,6 +128,36 @@ for (const [name, source] of Object.entries(terminalNavSources)) {
   assert.doesNotMatch(tabstrip, /href=\"\/archives\//, `${name} must not expose archives through terminal tabs`);
 }
 
+const postsArchiveTabstrip = sources.postsArchive.match(/<div class=\"tabstrip\">[\s\S]*?<\/div>/)?.[0] ?? "";
+assert.ok(postsArchiveTabstrip, "posts archive must keep a terminal tabstrip");
+assert.doesNotMatch(
+  postsArchiveTabstrip,
+  /href=\"\/search\/?\"|>search<|>search\/<|search\.md/,
+  "posts archive terminal tabstrip must not expose a visible /search/ tab"
+);
+
+const postsArchiveRow =
+  sources.postsArchive.match(/<a\s+class=\"ls-row posts-archive-row\"[\s\S]*?<\/a>/)?.[0] ?? "";
+assert.ok(postsArchiveRow, "posts archive rows must use the explicit archive row class");
+assert.deepEqual(
+  [...postsArchiveRow.matchAll(/<span class=\"([^\"]+)\"/g)].map(match => match[1]),
+  ["date", "read", "ttl", "desc", "arr"],
+  "TerminalPostsArchive row markup must match the CSS column contract"
+);
+const postsArchiveGridContract =
+  sources.styles.match(/\.posts-archive-table \.posts-archive-row \{[\s\S]*?grid-template-columns:\s*([^;]+);[\s\S]*?\}/)?.[1] ?? "";
+assert.equal(
+  postsArchiveGridContract.trim().split(/\s+(?![^()]*\))/).length,
+  5,
+  "posts archive CSS must define one explicit column for each row span"
+);
+assert.match(sources.styles, /\.posts-archive-row \.desc \{[\s\S]*?color: var\(--fg-secondary, var\(--fg\)\);/);
+
+const protoWindowTokenBlock = sources.styles.match(/\.proto-window \{[\s\S]*?\}/)?.[0] ?? "";
+assert.match(protoWindowTokenBlock, /--muted:\s*oklch\(58% 0\.012 240\);/);
+assert.match(protoWindowTokenBlock, /--dim:\s*oklch\(38% 0\.012 240\);/);
+assert.doesNotMatch(protoWindowTokenBlock, /#1b2a33/i, ".proto-window --muted must not resolve to dark theme --muted leakage");
+
 assert.doesNotMatch(
   sources.header,
   /href=\"\/search\"|ariaLabel=\"search\"|title=\"Search\"|IconSearch/,

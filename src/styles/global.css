@@ -1371,7 +1371,7 @@ a:hover {
   font-weight: 400;
 }
 .hero .lede {
-  color: var(--muted);
+  color: var(--fg-secondary, var(--fg));
   margin-top: 14px;
   max-width: 60ch;
   font-size: 14px;
@@ -1618,6 +1618,9 @@ a:hover {
   font-size: 13px;
   transition: background 0.15s;
 }
+.posts-archive-table .posts-archive-row {
+  grid-template-columns: 90px 60px minmax(16rem, 1fr) minmax(14rem, 0.9fr) 24px;
+}
 .ls-row:last-child {
   border-bottom: 0;
 }
@@ -1638,6 +1641,10 @@ a:hover {
 }
 .ls-row:hover .ttl {
   color: var(--accent);
+}
+.posts-archive-row .desc {
+  color: var(--fg-secondary, var(--fg));
+  line-height: 1.45;
 }
 .ls-row .topic {
   color: var(--info);
@@ -1683,6 +1690,9 @@ a:hover {
   }
   .ls-row .read {
     display: none;
+  }
+  .posts-archive-row .desc {
+    grid-column: 1 / -1;
   }
   .ls-row .topic {
     grid-column: 2;
@@ -3286,6 +3296,8 @@ a:hover {
 /* Astro production adaptations for dynamic content. */
 .proto-window {
   margin: 20px auto 0;
+  --muted: oklch(58% 0.012 240);
+  --dim: oklch(38% 0.012 240);
 }
 .proto-link-reset {
   color: inherit;

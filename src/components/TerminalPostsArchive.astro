@@ -213,10 +213,10 @@ const page = {
               </span>
             </>
           </div>
-          <div class="ls" data-year={year}>
+          <div class="ls posts-archive-table" data-year={year}>
             {posts.map(post => (
               <a
-                class="ls-row"
+                class="ls-row posts-archive-row"
                 href={getPath(post.id, post.filePath)}
                 data-tag={post.data.tags?.[0] ?? "post"}
                 data-search={`${post.data.title} ${post.data.description}`}
