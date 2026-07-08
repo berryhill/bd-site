@@ -106,9 +106,6 @@ const exactCopyAnchors = [
   [sources.postDetail, "essay · long read"],
   [sources.postDetail, "table of contents"],
   [sources.postDetail, "# on this page"],
-  [sources.postDetail, "tail -f post.meta"],
-  [sources.postDetail, "terminal-post-footer__chip"],
-  [sources.postDetail, "data-terminal-top"],
   [sources.postDetail, "cd ../"],
 ];
 
@@ -201,28 +198,25 @@ assert.match(sources.about, /class=\"terminal-exit\"/, "about bottom rail must u
 assert.match(sources.about, /<span class=\"eof\">EOF<\/span>/, "about bottom rail must show an EOF marker");
 assert.doesNotMatch(sources.about, /If you want to hire me/, "about CTA must use the issue #81 approved wording");
 
-assert.match(sources.postDetail, /class=\"terminal-post-footer\"/);
-assert.match(sources.postDetail, /aria-label=\"post tags\"/);
-assert.match(sources.postDetail, /aria-label=\"share this post\"/);
-assert.match(sources.postDetail, /href=\{`\/tags\/\$\{slugifyStr\(tag\)\}\/`\}/);
-assert.match(sources.postDetail, /encodeURIComponent\(postUrl\)/);
-assert.match(sources.postDetail, /postTags\.length > 0/);
-assert.match(sources.postDetail, /terminal-post-footer__empty/);
-assert.doesNotMatch(sources.postDetail, /<ShareLinks \/>|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/);
-assert.match(sources.styles, /\.terminal-post-footer \{/);
-assert.match(sources.styles, /\.terminal-post-footer__chip \{/);
-assert.match(sources.postDetail, /class=\"line terminal-post-footer__prompt\"/);
-assert.match(sources.postDetail, /class=\"terminal-post-footer__rail\"/);
-const compactPostFooterCss =
-  sources.styles.match(/\.terminal-post-footer \{[\s\S]*?\.end-prompt \{/)?.[0] ?? "";
-assert.ok(compactPostFooterCss, "post detail footer CSS block must be present");
-assert.match(compactPostFooterCss, /\.terminal-post-footer__grid \{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) auto;/);
-assert.match(compactPostFooterCss, /\.terminal-post-footer__rail \{/);
-assert.match(compactPostFooterCss, /min-height:\s*24px;/);
-assert.doesNotMatch(compactPostFooterCss, /\.terminal-post-footer \.line \{[\s\S]*?border-bottom:\s*1px dashed var\(--border\);/);
-assert.doesNotMatch(compactPostFooterCss, /border-left:\s*2px solid var\(--accent\);/);
-assert.doesNotMatch(compactPostFooterCss, /grid-template-columns:\s*62px 1fr;/);
-assert.doesNotMatch(compactPostFooterCss, /min-height:\s*28px;/);
+assert.doesNotMatch(
+  sources.postDetail,
+  /terminal-post-footer|tail -f post\.meta|data-terminal-top|ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
+  "post detail must not render the non-target metadata/share footer block"
+);
+assert.doesNotMatch(
+  sources.styles,
+  /terminal-post-footer/,
+  "post detail styles must not keep the removed non-target terminal footer chrome"
+);
+const postFooterSequence = sources.postDetail.match(
+  /<div class=\"line end-prompt\">[\s\S]*?<nav class=\"adjacent\"[\s\S]*?<a class=\"back\"/
+)?.[0] ?? "";
+assert.ok(
+  postFooterSequence,
+  "post detail footer must use the target end-prompt, adjacent-post cards, and back-link sequence"
+);
+assert.match(postFooterSequence, /<span class=\"cmd\">\$ <\/span>/);
+assert.match(postFooterSequence, /aria-label=\"adjacent posts\"/);
 
 for (const [name, source] of [
   ["archivesRoute", sources.archivesRoute],
