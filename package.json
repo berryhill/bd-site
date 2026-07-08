@@ -6,7 +6,7 @@
     "dev": "ENV=workstation astro dev",
     "dev:prod": "doppler run -- astro dev",
     "build": "astro build",
-    "test": "node tests/blogVisualAssets.test.mjs && node tests/socialPreviewMeta.test.mjs && node tests/structuredData.test.mjs && node tests/url.test.mjs && node tests/crawlSignals.test.mjs && node tests/seoCrawlSurface.test.mjs && node scripts/checkSeoCrawlSurface.mjs && node tests/publicPostFilter.test.mjs && node tests/homepagePositioning.test.mjs && node tests/homepagePosts.test.mjs && node tests/homepageFleet.test.mjs && node tests/aboutPositioning.test.mjs && node tests/postsLlmsPositioning.test.mjs && node tests/visualSystemPolish.test.mjs && node tests/terminalBrandSurfaces.test.mjs",
+    "test": "node tests/blogVisualAssets.test.mjs && node tests/socialPreviewMeta.test.mjs && node tests/structuredData.test.mjs && node tests/url.test.mjs && node tests/crawlSignals.test.mjs && node tests/googleSearchConsole.test.mjs && node tests/seoCrawlSurface.test.mjs && node scripts/checkSeoCrawlSurface.mjs && node tests/publicPostFilter.test.mjs && node tests/homepagePositioning.test.mjs && node tests/homepagePosts.test.mjs && node tests/homepageFleet.test.mjs && node tests/aboutPositioning.test.mjs && node tests/postsLlmsPositioning.test.mjs && node tests/visualSystemPolish.test.mjs && node tests/terminalBrandSurfaces.test.mjs",
     "check:social-preview": "node scripts/checkSocialPreview.mjs",
     "check:seo-crawl-surface": "node scripts/checkSeoCrawlSurface.mjs",
     "check:search-visibility": "node scripts/checkSearchVisibility.mjs",

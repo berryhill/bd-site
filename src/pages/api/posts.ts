@@ -3,8 +3,8 @@ import { writeFile, readFile, readdir, unlink } from "fs/promises";
 import { join } from "path";
 import { slugifyStr } from "@/utils/slugify";
 import matter from "gray-matter";
-import { submitToIndexNow } from "@/utils/indexnow";
 import { SITE } from "@/config";
+import { submitPublicPostCrawlSignals } from "@/utils/publicPostCrawlSignals";
 import { requireApiKey } from "@/utils/apiAuth";
 import { validateBlogVisualAssets } from "@/utils/blogVisualAssets";
 
@@ -266,10 +266,10 @@ export const POST: APIRoute = async context => {
     const filePath = join(process.cwd(), "src", "data", "blog", filename);
     await writeFile(filePath, fileContent, "utf-8");
 
-    // Submit to IndexNow if not a draft
+    // Submit public crawl signals if not a draft
     if (!draft) {
       const postUrl = `${SITE.website}posts/${slug}/`;
-      await submitToIndexNow(postUrl);
+      await submitPublicPostCrawlSignals(postUrl);
     }
 
     return new Response(
@@ -456,11 +456,11 @@ export const PATCH: APIRoute = async context => {
     // Write back to file
     await writeFile(filePath, updatedFile, "utf-8");
 
-    // Submit to IndexNow if not a draft
+    // Submit public crawl signals if not a draft
     const isDraft = draft !== undefined ? draft : frontmatterData.draft;
     if (!isDraft) {
       const postUrl = `${SITE.website}posts/${slug}/`;
-      await submitToIndexNow(postUrl);
+      await submitPublicPostCrawlSignals(postUrl);
     }
 
     return new Response(
