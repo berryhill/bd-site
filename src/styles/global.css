@@ -2617,6 +2617,23 @@ a:hover {
   font-size: 12px;
 }
 
+.terminal-exit {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--dim);
+  font-size: 11px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.terminal-exit a,
+.terminal-exit .eof {
+  color: var(--accent);
+}
+
 footer {
   margin: 22px auto 36px;
   max-width: 1160px;
