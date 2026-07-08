@@ -22,10 +22,10 @@ const aboutSource = readFileSync(new URL("../src/pages/about.md", import.meta.ur
 const aboutLayoutSource = readFileSync(new URL("../src/layouts/AboutLayout.astro", import.meta.url), "utf8");
 const expected = [
   "name</span><span class=\"sep\">:</span> <span class=\"v\">Matthew Berryhill</span>",
-  "engineer + writer + RWA consultant",
-  "Austin, TX</span> <span class=\"v dim\">(GMT−5)",
-  "selective consulting · 2 slots open Q3 2026",
-  "I build agentic software. I write about it. I help capital markets people understand both.",
+  "engineer + writer + operator",
+  "Los Santos, Panamá",
+  "berryhill.dev",
+  "I build AI-native systems and write about the operator work behind them.",
   "What I actually do",
   "Things I believe",
   "How I got here",
@@ -34,6 +34,16 @@ const expected = [
   "If you want to hire me",
 ];
 const forbidden = ["I build AI-native systems that make autonomous work easier to inspect, trust, and improve.", "What I’m building", "How to read this site", "A Little Bit More About Matt (Like Anyone Cares)", "Passionate about crafting elegant systems"];
+const rejectedTimelineClaims = [
+  "Independent · agentic systems + RWA consulting",
+  "Two retained clients",
+  "Founding engineer · stealth (acquired)",
+  "Sold to a public-markets infrastructure company",
+  "Senior engineer · Compound Labs",
+  "Engineer · Stripe",
+  "First eng · acq'd analytics startup",
+  "YC W15",
+];
 
 test("about page renders issue 73 prototype identity copy", () => {
   for (const copy of expected) includesCollapsed(aboutSource, copy);
@@ -50,6 +60,11 @@ test("about layout passes page metadata description through", () => {
 test("about page does not retain old hybrid/generic bio copy", () => {
   const normalized = aboutSource.replace(/\s+/g, " ");
   for (const term of forbidden) assert.equal(normalized.includes(term), false, `unexpected about copy: ${term}`);
+});
+test("about page removes rejected fabricated timeline claims", () => {
+  for (const claim of rejectedTimelineClaims) {
+    assert.equal(aboutSource.includes(claim), false, `unexpected fabricated timeline claim: ${claim}`);
+  }
 });
 console.log(`PASS ${passed} FAIL ${failed}`);
 if (failed > 0) process.exitCode = 1;
