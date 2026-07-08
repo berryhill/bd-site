@@ -93,7 +93,7 @@ async function run() {
     }
   });
 
-  add("public post crawl utility attempts IndexNow and Google but skips drafts", () => {
+  add("public post crawl utility attempts IndexNow, Google, and Yahoo but skips drafts", () => {
     const source = readFileSync(
       new URL("../src/utils/publicPostCrawlSignals.ts", import.meta.url),
       "utf8"
@@ -104,6 +104,7 @@ async function run() {
     assert.match(source, /Promise\.all\(\[/);
     assert.match(source, /submitIndexNow\(postUrl\)/);
     assert.match(source, /submitGoogleSitemap\(\)/);
+    assert.match(source, /submitYahoo\(postUrl, \{ indexNowResult: indexNow \}\)/);
   });
 
   add("posts API only emits public crawl signals inside non-draft create/update branches", () => {
@@ -112,9 +113,8 @@ async function run() {
       "utf8"
     );
 
-    assert.match(source, /submitPublicPostCrawlSignals\(postUrl\)/);
-    assert.match(source, /if \(!draft\) \{[\s\S]*?submitPublicPostCrawlSignals\(postUrl\);[\s\S]*?\}/);
-    assert.match(source, /const isDraft = draft !== undefined \? draft : frontmatterData\.draft;[\s\S]*?if \(!isDraft\) \{[\s\S]*?submitPublicPostCrawlSignals\(postUrl\);[\s\S]*?\}/);
+    assert.match(source, /const crawlSignals = !draft[\s\S]*?submitPublicPostCrawlSignals\(`\$\{SITE\.website\}posts\/\$\{slug\}\/`\)[\s\S]*?: undefined;/);
+    assert.match(source, /const isDraft = draft !== undefined \? draft : frontmatterData\.draft;[\s\S]*?const crawlSignals = !isDraft[\s\S]*?submitPublicPostCrawlSignals\(`\$\{SITE\.website\}posts\/\$\{slug\}\/`\)[\s\S]*?: undefined;/);
   });
 
   for (const [name, fn] of tests) {
