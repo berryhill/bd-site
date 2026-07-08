@@ -1,4 +1,5 @@
 import { submitSitemapToGoogleSearchConsole } from "./googleSearchConsole";
+import { submitDuckDuckGoCrawlSignal } from "./duckDuckGoCrawlSignal";
 import { submitToIndexNow } from "./indexnow";
 
 export interface PublicPostCrawlSignalResult {
@@ -6,11 +7,13 @@ export interface PublicPostCrawlSignalResult {
   skipped?: boolean;
   reason?: string;
   indexNow?: boolean;
+  duckDuckGo?: Awaited<ReturnType<typeof submitDuckDuckGoCrawlSignal>>;
   google?: Awaited<ReturnType<typeof submitSitemapToGoogleSearchConsole>>;
 }
 
 interface PublicPostCrawlSignalDeps {
   submitIndexNow?: typeof submitToIndexNow;
+  submitDuckDuckGo?: typeof submitDuckDuckGoCrawlSignal;
   submitGoogleSitemap?: typeof submitSitemapToGoogleSearchConsole;
 }
 
@@ -30,6 +33,8 @@ export async function submitPublicPostCrawlSignals(
   }
 
   const submitIndexNow = options?.deps?.submitIndexNow ?? submitToIndexNow;
+  const submitDuckDuckGo =
+    options?.deps?.submitDuckDuckGo ?? submitDuckDuckGoCrawlSignal;
   const submitGoogleSitemap =
     options?.deps?.submitGoogleSitemap ?? submitSitemapToGoogleSearchConsole;
 
@@ -38,9 +43,17 @@ export async function submitPublicPostCrawlSignals(
     submitGoogleSitemap(),
   ]);
 
+  const duckDuckGo = await submitDuckDuckGo(postUrl, {
+    indexNowSubmitted: indexNow,
+  });
+
   return {
-    ok: indexNow && (google.ok || google.skipped === true),
+    ok:
+      indexNow &&
+      (google.ok || google.skipped === true) &&
+      (duckDuckGo.ok || duckDuckGo.mode === "skipped"),
     indexNow,
+    duckDuckGo,
     google,
   };
 }
