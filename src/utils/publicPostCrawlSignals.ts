@@ -1,6 +1,7 @@
 import { submitSitemapToGoogleSearchConsole } from "./googleSearchConsole";
 import { submitDuckDuckGoCrawlSignal } from "./duckDuckGoCrawlSignal";
 import { submitToIndexNow } from "./indexnow";
+import { submitYahooPostCrawlSignal } from "./yahooPostCrawlSignals";
 
 export interface PublicPostCrawlSignalResult {
   ok: boolean;
@@ -9,12 +10,14 @@ export interface PublicPostCrawlSignalResult {
   indexNow?: boolean;
   duckDuckGo?: Awaited<ReturnType<typeof submitDuckDuckGoCrawlSignal>>;
   google?: Awaited<ReturnType<typeof submitSitemapToGoogleSearchConsole>>;
+  yahoo?: Awaited<ReturnType<typeof submitYahooPostCrawlSignal>>;
 }
 
 interface PublicPostCrawlSignalDeps {
   submitIndexNow?: typeof submitToIndexNow;
   submitDuckDuckGo?: typeof submitDuckDuckGoCrawlSignal;
   submitGoogleSitemap?: typeof submitSitemapToGoogleSearchConsole;
+  submitYahoo?: typeof submitYahooPostCrawlSignal;
 }
 
 export async function submitPublicPostCrawlSignals(
@@ -24,11 +27,16 @@ export async function submitPublicPostCrawlSignals(
     deps?: PublicPostCrawlSignalDeps;
   }
 ): Promise<PublicPostCrawlSignalResult> {
+  const submitYahoo = options?.deps?.submitYahoo ?? submitYahooPostCrawlSignal;
+
   if (options?.isDraft) {
+    const yahoo = await submitYahoo(postUrl, { isDraft: true });
+
     return {
       ok: true,
       skipped: true,
       reason: "draft",
+      yahoo,
     };
   }
 
@@ -38,22 +46,41 @@ export async function submitPublicPostCrawlSignals(
   const submitGoogleSitemap =
     options?.deps?.submitGoogleSitemap ?? submitSitemapToGoogleSearchConsole;
 
-  const [indexNow, google] = await Promise.all([
-    submitIndexNow(postUrl),
-    submitGoogleSitemap(),
-  ]);
+  try {
+    const [indexNow, google] = await Promise.all([
+      submitIndexNow(postUrl),
+      submitGoogleSitemap(),
+    ]);
+    const yahoo = await submitYahoo(postUrl, { indexNowResult: indexNow });
+    const duckDuckGo = await submitDuckDuckGo(postUrl, {
+      indexNowSubmitted: indexNow,
+    });
 
-  const duckDuckGo = await submitDuckDuckGo(postUrl, {
-    indexNowSubmitted: indexNow,
-  });
+    return {
+      ok:
+        indexNow &&
+        (google.ok || google.skipped === true) &&
+        (duckDuckGo.ok || duckDuckGo.mode === "skipped") &&
+        yahoo.ok,
+      indexNow,
+      duckDuckGo,
+      google,
+      yahoo,
+    };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : "unknown_error";
+    const yahoo = await submitYahoo(postUrl, {
+      indexNowResult: false,
+    });
+    const duckDuckGo = await submitDuckDuckGo(postUrl, {
+      indexNowSubmitted: false,
+    });
 
-  return {
-    ok:
-      indexNow &&
-      (google.ok || google.skipped === true) &&
-      (duckDuckGo.ok || duckDuckGo.mode === "skipped"),
-    indexNow,
-    duckDuckGo,
-    google,
-  };
+    return {
+      ok: false,
+      reason,
+      duckDuckGo,
+      yahoo,
+    };
+  }
 }

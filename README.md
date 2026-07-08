@@ -183,7 +183,7 @@ NODE_ENV=production
 
 Blog posts are stored as Markdown files in `src/data/blog/`. In production, the posts directory is mounted as a PersistentVolume, allowing content updates without rebuilding the container.
 
-API-created or API-updated non-draft posts trigger public crawl signals after the Markdown write: IndexNow performs immediate URL submission, DuckDuckGo coverage is evaluated through Bing/IndexNow evidence plus canonical sitemap and DuckDuckBot access, and Google uses supported Search Console sitemap resubmission. The DuckDuckGo signal does not claim or use a direct DuckDuckGo URL submission endpoint. Draft posts are skipped.
+API-created or API-updated non-draft posts trigger public crawl signals after the Markdown write: IndexNow performs immediate URL submission, Google uses supported Search Console sitemap resubmission, DuckDuckGo coverage is evaluated through Bing/IndexNow evidence plus canonical sitemap and DuckDuckBot access, and Yahoo-specific discovery evidence is returned through Bing IndexNow / Yahoo Slurp plus sitemap and robots visibility. DuckDuckGo and Yahoo evidence are not standalone direct submission endpoints and do not guarantee indexing. Draft posts are skipped.
 
 Durable local blog visuals belong under `public/assets/blog/<post-slug>/` and should be referenced from Markdown as `/assets/blog/<post-slug>/filename.svg` or `/assets/blog/<post-slug>/filename.png`. Use normal Markdown image syntax with useful alt text and a caption/title; inline `data:image` URIs are rejected.
 
@@ -232,7 +232,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 - Interactive pillar modals
 - Dark/light mode toggle
 - Fuzzy search with Pagefind (`/search`; generated `/pagefind/` assets are not crawler-facing content)
-- RSS feed plus canonical `/sitemap.xml` crawler surface (`/sitemap-index.xml` redirects only for compatibility), with public-post crawl signal submission on API publish/update; DuckDuckGo coverage is evaluated through Bing/IndexNow plus sitemap/DuckDuckBot discovery, and Google Search Console submission is best-effort and configuration-dependent
+- RSS feed plus canonical `/sitemap.xml` crawler surface (`/sitemap-index.xml` redirects only for compatibility), with public-post crawl signal submission on API publish/update; Google Search Console submission is best-effort and configuration-dependent, DuckDuckGo coverage is evaluated through Bing/IndexNow plus sitemap/DuckDuckBot discovery, and Yahoo discovery evidence is surfaced through Bing IndexNow / Yahoo Slurp without a Yahoo-specific environment variable
 - Dynamic OG image generation
 
 ## 📜 License

@@ -174,7 +174,7 @@ Content-Type: application/json
 
 **Social preview behavior:** `ogImage` is written to frontmatter and becomes the rendered post's `og:image`, `twitter:image`, and JSON-LD image. Stored `ogImage` values may be absolute URLs, site-relative paths, or relative paths; rendered post metadata normalizes site-relative and relative values to absolute URLs using `SITE.website` without mutating the stored frontmatter value. `featured_image` is only a backward-compatible alias; `ogImage` wins when both are supplied. If no `ogImage` is stored and the post is not a draft, the site falls back to the dynamic `/posts/<slug>/index.png` image route when `SITE.dynamicOgImage` is enabled.
 
-**Public crawl signal behavior:** after a successful non-draft POST write, the API submits public crawl signals for the canonical post URL and site sitemap through IndexNow plus Google Search Console sitemap resubmission, then records DuckDuckGo coverage evidence. DuckDuckGo coverage is documented as covered by Bing/IndexNow when IndexNow succeeds, or as canonical sitemap plus DuckDuckBot access when relying on crawler discovery; this implementation does not use a direct DuckDuckGo URL submission endpoint. Draft posts do not trigger crawl signals. Google Search Console submission requires a server-side `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN`; `GOOGLE_SEARCH_CONSOLE_SITE_URL` and `GOOGLE_SEARCH_CONSOLE_SITEMAP_URL` are optional overrides. If the token is missing, Google submission is skipped without failing the post write. Set `DUCKDUCKGO_CRAWL_SIGNAL_DISABLED=true` to opt out of the DuckDuckGo coverage evaluation.
+**Public crawl signal behavior:** after a successful non-draft POST write, the API submits public crawl signals for the canonical post URL and site sitemap. The response includes `crawlSignals` evidence with `indexNow`, `google`, `duckDuckGo`, and `yahoo` fields: IndexNow submits the post URL, Google Search Console performs supported sitemap resubmission, DuckDuckGo coverage is documented as covered by Bing/IndexNow when IndexNow succeeds or as canonical sitemap plus DuckDuckBot access when relying on crawler discovery, and Yahoo evidence records crawl discovery through Bing IndexNow / Yahoo Slurp plus sitemap and robots access. Neither DuckDuckGo nor Yahoo is treated as a standalone direct URL submission endpoint, and these signals do not guarantee indexing. Draft posts skip crawl signals. Google Search Console submission requires a server-side `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN`; `GOOGLE_SEARCH_CONSOLE_SITE_URL` and `GOOGLE_SEARCH_CONSOLE_SITEMAP_URL` are optional overrides. If the token is missing, Google submission is skipped without failing the post write. Set `DUCKDUCKGO_CRAWL_SIGNAL_DISABLED=true` to opt out of the DuckDuckGo coverage evaluation.
 
 **Social preview verification:** after building or running preview, check a post page with:
 
@@ -190,9 +190,30 @@ The command verifies `<title>`, meta description, Open Graph title/description/i
   "success": true,
   "message": "Post created successfully",
   "slug": "my-new-post",
-  "filename": "my-new-post.md"
+  "filename": "my-new-post.md",
+  "crawlSignals": {
+    "ok": true,
+    "indexNow": true,
+    "google": {
+      "ok": true,
+      "skipped": false
+    },
+    "yahoo": {
+      "ok": true,
+      "route": "bing_indexnow_yahoo_crawl_discovery",
+      "searchEngine": "yahoo",
+      "via": "bing_webmaster_tools_indexnow",
+      "crawler": "Yahoo Slurp",
+      "endpoint": "https://www.bing.com/indexnow",
+      "robotsTxt": "/robots.txt",
+      "guaranteedIndexing": false,
+      "indexNowSubmitted": true
+    }
+  }
 }
 ```
+
+`crawlSignals` appears only for non-draft writes. The `yahoo` object is honest discovery evidence through Bing IndexNow / Yahoo Slurp and sitemap/robots visibility; it is not proof of guaranteed Yahoo indexing.
 
 ## 5. Update Post
 
@@ -250,7 +271,7 @@ Content-Type: application/json
 
 **Social preview behavior:** PATCH follows the same `ogImage` / `featured_image` precedence as create: `ogImage` is stored in frontmatter when supplied, `featured_image` is only a backward-compatible alias, and `ogImage` wins when both are supplied. Stored `ogImage` values may be absolute URLs, site-relative paths, or relative paths; rendered post metadata normalizes site-relative and relative values to absolute URLs using `SITE.website` without mutating the stored frontmatter value. Updated post pages can be verified with `pnpm run check:social-preview -- http://localhost:4321/posts/<slug>/` after building or running preview.
 
-**Public crawl signal behavior:** after a successful PATCH write, if the resulting post is not a draft, the API submits public crawl signals for the canonical post URL and site sitemap through IndexNow plus Google Search Console sitemap resubmission, then records DuckDuckGo coverage evidence. DuckDuckGo coverage is documented as covered by Bing/IndexNow when IndexNow succeeds, or as canonical sitemap plus DuckDuckBot access when relying on crawler discovery; this implementation does not use a direct DuckDuckGo URL submission endpoint. Draft updates do not trigger crawl signals. Google Search Console submission requires a server-side `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN`; `GOOGLE_SEARCH_CONSOLE_SITE_URL` and `GOOGLE_SEARCH_CONSOLE_SITEMAP_URL` are optional overrides. If the token is missing, Google submission is skipped without failing the post write. Set `DUCKDUCKGO_CRAWL_SIGNAL_DISABLED=true` to opt out of the DuckDuckGo coverage evaluation.
+**Public crawl signal behavior:** after a successful PATCH write, if the resulting post is not a draft, the API submits public crawl signals for the canonical post URL and site sitemap. The response includes `crawlSignals` evidence with `indexNow`, `google`, `duckDuckGo`, and `yahoo` fields: IndexNow submits the post URL, Google Search Console performs supported sitemap resubmission, DuckDuckGo coverage is documented as covered by Bing/IndexNow when IndexNow succeeds or as canonical sitemap plus DuckDuckBot access when relying on crawler discovery, and Yahoo evidence records crawl discovery through Bing IndexNow / Yahoo Slurp plus sitemap and robots access. Neither DuckDuckGo nor Yahoo is treated as a standalone direct URL submission endpoint, and these signals do not guarantee indexing. Draft updates skip crawl signals. Google Search Console submission requires a server-side `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN`; `GOOGLE_SEARCH_CONSOLE_SITE_URL` and `GOOGLE_SEARCH_CONSOLE_SITEMAP_URL` are optional overrides. If the token is missing, Google submission is skipped without failing the post write. Set `DUCKDUCKGO_CRAWL_SIGNAL_DISABLED=true` to opt out of the DuckDuckGo coverage evaluation.
 
 **Response (200 OK):**
 ```json
@@ -261,9 +282,30 @@ Content-Type: application/json
   "updated": {
     "featured": true,
     "draft": false
+  },
+  "crawlSignals": {
+    "ok": true,
+    "indexNow": true,
+    "google": {
+      "ok": true,
+      "skipped": false
+    },
+    "yahoo": {
+      "ok": true,
+      "route": "bing_indexnow_yahoo_crawl_discovery",
+      "searchEngine": "yahoo",
+      "via": "bing_webmaster_tools_indexnow",
+      "crawler": "Yahoo Slurp",
+      "endpoint": "https://www.bing.com/indexnow",
+      "robotsTxt": "/robots.txt",
+      "guaranteedIndexing": false,
+      "indexNowSubmitted": true
+    }
   }
 }
 ```
+
+`crawlSignals` appears only when the resulting post is non-draft. The `yahoo` object is honest discovery evidence through Bing IndexNow / Yahoo Slurp and sitemap/robots visibility; it is not proof of guaranteed Yahoo indexing.
 
 ## 6. Delete Post
 

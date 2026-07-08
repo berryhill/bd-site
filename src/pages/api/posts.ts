@@ -267,10 +267,9 @@ export const POST: APIRoute = async context => {
     await writeFile(filePath, fileContent, "utf-8");
 
     // Submit public crawl signals if not a draft
-    if (!draft) {
-      const postUrl = `${SITE.website}posts/${slug}/`;
-      await submitPublicPostCrawlSignals(postUrl);
-    }
+    const crawlSignals = !draft
+      ? await submitPublicPostCrawlSignals(`${SITE.website}posts/${slug}/`)
+      : undefined;
 
     return new Response(
       JSON.stringify({
@@ -278,6 +277,7 @@ export const POST: APIRoute = async context => {
         message: "Post created successfully",
         slug,
         filename,
+        crawlSignals,
       }),
       {
         status: 201,
@@ -458,10 +458,9 @@ export const PATCH: APIRoute = async context => {
 
     // Submit public crawl signals if not a draft
     const isDraft = draft !== undefined ? draft : frontmatterData.draft;
-    if (!isDraft) {
-      const postUrl = `${SITE.website}posts/${slug}/`;
-      await submitPublicPostCrawlSignals(postUrl);
-    }
+    const crawlSignals = !isDraft
+      ? await submitPublicPostCrawlSignals(`${SITE.website}posts/${slug}/`)
+      : undefined;
 
     return new Response(
       JSON.stringify({
@@ -473,6 +472,7 @@ export const PATCH: APIRoute = async context => {
             featured !== undefined ? featured : frontmatterData.featured,
           draft: draft !== undefined ? draft : frontmatterData.draft,
         },
+        crawlSignals,
       }),
       {
         status: 200,
