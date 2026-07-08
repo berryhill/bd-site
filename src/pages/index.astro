@@ -7,25 +7,19 @@ import getSortedPosts from "@/utils/getSortedPosts";
 import { getPath } from "@/utils/getPath";
 import { SITE } from "@/config";
 import { buildWebSiteJsonLd } from "@/utils/structuredData";
+import {
+  formatHomepageDate,
+  getPostWordCount,
+  getReadMinutes,
+  selectHomepagePosts,
+} from "@/utils/homepagePosts";
 
 const { entries: posts } = await getLiveCollection("liveBlog");
 const sortedPosts = getSortedPosts(posts || []);
-const featuredPosts = sortedPosts
-  .filter(({ data }) => data.featured)
-  .slice(0, 4);
-const recentPosts = sortedPosts
-  .filter(({ data }) => !data.featured)
-  .slice(0, 4);
-const wordCount = post =>
-  (post.body || "").trim().split(/\s+/).filter(Boolean).length;
-const readMinutes = post => Math.max(1, Math.round(wordCount(post) / 220));
-const formatDate = value => {
-  if (!value) return "pending";
-  const date = value instanceof Date ? value : new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "pending"
-    : date.toISOString().slice(0, 10);
-};
+const { featuredPosts, recentPosts } = selectHomepagePosts(sortedPosts);
+const wordCount = getPostWordCount;
+const readMinutes = getReadMinutes;
+const formatDate = formatHomepageDate;
 const jsonLd = buildWebSiteJsonLd({
   name: SITE.title,
   url: SITE.website,
@@ -166,43 +160,50 @@ const jsonLd = buildWebSiteJsonLd({
           ># EOF · last edit: 2026-06-02</span
         >
       </p>
-      <div class="block-h">
-        <h2>ls featured/ --sort=stars</h2><span class="n"
-          >{featuredPosts.length} items · author's pick</span
-        >
-      </div>
-      <div class="files">
-        {
-          featuredPosts.map(post => (
-            <a class="file" href={getPath(post.id, post.filePath)}>
-              <>
-                <div class="head">
-                  <>
-                    <span class="ext">.md</span>
+      {
+        featuredPosts.length > 0 && (
+          <>
+            <div class="block-h featured-shell-heading">
+              <h2>ls featured/ --sort=stars</h2>
+              <span class="n">
+                {featuredPosts.length} items · author's pick
+              </span>
+            </div>
+            <div
+              class="files featured-files"
+              data-featured-count={featuredPosts.length}
+            >
+              {featuredPosts.map(post => (
+                <a
+                  class="file featured-file"
+                  href={getPath(post.id, post.filePath)}
+                  aria-label={`Read featured post: ${post.data.title}`}
+                >
+                  <div class="head">
+                    <span class="ext">PINNED</span>
                     <span class="star">★</span>
                     <span>
                       {readMinutes(post)} min ·{" "}
                       {post.data.tags?.[0] ?? "field-notes"}
                     </span>
-                  </>
-                </div>
-                <div class="name">{post.id}.md</div>
-                <div class="desc">{post.data.description}</div>
-                <div class="stat">
-                  <>
+                  </div>
+                  <div class="name">{post.id}.md</div>
+                  <div class="desc">{post.data.description}</div>
+                  <div class="stat">
                     <span>
                       date <b>{formatDate(post.data.pubDatetime)}</b>
                     </span>
                     <span>
                       words <b>{wordCount(post).toLocaleString()}</b>
                     </span>
-                  </>
-                </div>
-              </>
-            </a>
-          ))
-        }
-      </div>
+                    <span class="open">open →</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </>
+        )
+      }
       <div class="block-h">
         <h2>ls -la recent/</h2><span class="n"
           >{recentPosts.length} items · sorted by mtime</span

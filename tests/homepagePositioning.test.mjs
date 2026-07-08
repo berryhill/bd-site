@@ -39,8 +39,8 @@ test("site metadata description remains approved and safe", () => {
   assert.equal(SITE.desc, expectedSiteDescription);
 });
 test("homepage keeps live post mapping and reader links present", () => {
-  assert.match(homepageSource, /featuredPosts = sortedPosts\s+\.filter/);
-  assert.match(homepageSource, /recentPosts = sortedPosts\s+\.filter/);
+  assert.match(homepageSource, /selectHomepagePosts\(sortedPosts\)/);
+  assert.match(homepageSource, /const \{ featuredPosts, recentPosts \} = selectHomepagePosts\(sortedPosts\);/);
   assert.match(homepageSource, /href="\/rss\.xml"/);
   assert.match(homepageSource, /href="\/posts\/"/);
   assert.match(homepageSource, /getPath\(post\.id, post\.filePath\)/);
