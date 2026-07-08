@@ -1,8 +1,6 @@
 ---
 import IconMoon from "@/assets/icons/IconMoon.svg";
-import IconSearch from "@/assets/icons/IconSearch.svg";
 import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
-import LinkButton from "./LinkButton.astro";
 import { SITE } from "@/config";
 
 const { pathname } = Astro.url;
@@ -31,14 +29,6 @@ const isActive = (path: string) => {
       <a href="/about" class:list={{ "active-nav": isActive("/about") }}>
         About
       </a>
-      <LinkButton
-        href="/search"
-        class:list={{ "active-nav": isActive("/search") }}
-        ariaLabel="search"
-        title="Search"
-      >
-        <IconSearch class="icon" />
-      </LinkButton>
       {
         SITE.lightAndDarkMode && (
           <button

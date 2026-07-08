@@ -8,6 +8,7 @@ const files = {
   postsArchive: "src/components/TerminalPostsArchive.astro",
   postDetail: "src/layouts/PostDetails.astro",
   about: "src/pages/about.md",
+  header: "src/components/Header.astro",
   styles: "src/styles/global.css",
   socials: "src/constants.ts",
   archivesRoute: "src/pages/archives/index.astro",
@@ -94,8 +95,8 @@ const exactCopyAnchors = [
   [sources.postsArchive, "ls -la {year}/"],
   [sources.postsArchive, "cat subscribe.md"],
   [sources.about, "name</span><span class=\"sep\">:</span> <span class=\"v\">Matthew Berryhill"],
-  [sources.about, "engineer + writer + RWA consultant"],
-  [sources.about, "I build agentic software. I write about it. I help capital markets people understand both."],
+  [sources.about, "engineer + writer + operator"],
+  [sources.about, "I build AI-native systems and write about the operator work behind them."],
   [sources.about, "What I actually do"],
   [sources.about, "Things I believe"],
   [sources.about, "How I got here"],
@@ -122,9 +123,35 @@ const terminalNavSources = {
 for (const [name, source] of Object.entries(terminalNavSources)) {
   const tabstrip = source.match(/<div class=\"tabstrip\">[\s\S]*?<\/div>/)?.[0] ?? "";
   assert.ok(tabstrip, `${name} must keep a terminal tabstrip`);
-  assert.doesNotMatch(tabstrip, />notes\/<|>projects\/<|>uses\.md</, `${name} must hide stale terminal tabs`);
+  assert.doesNotMatch(tabstrip, />search<|>notes\/<|>projects\/<|>uses\.md</, `${name} must hide stale terminal tabs and unavailable search`);
+  assert.doesNotMatch(tabstrip, /href=\"\/search\//, `${name} must not link to unavailable search from terminal tabs`);
   assert.doesNotMatch(tabstrip, /href=\"\/archives\//, `${name} must not expose archives through terminal tabs`);
 }
+
+assert.doesNotMatch(
+  sources.header,
+  /href=\"\/search\"|ariaLabel=\"search\"|title=\"Search\"|IconSearch/,
+  "global header must not expose search as a visible nav control"
+);
+
+for (const rejectedTimelineClaim of [
+  "Independent · agentic systems + RWA consulting",
+  "Two retained clients",
+  "Founding engineer · stealth (acquired)",
+  "Sold to a public-markets infrastructure company",
+  "Senior engineer · Compound Labs",
+  "Engineer · Stripe",
+  "First eng · acq'd analytics startup",
+  "YC W15",
+]) {
+  assert.equal(
+    sources.about.includes(rejectedTimelineClaim),
+    false,
+    `about page must remove fabricated timeline claim: ${rejectedTimelineClaim}`
+  );
+}
+
+assert.match(sources.styles, /\.who p \{\s*color: var\(--fg\);/, "home hero paragraph must use high-contrast foreground color");
 
 const linkedinUrl = "https://www.linkedin.com/in/matthew-berryhill/";
 assert.match(sources.home, new RegExp(`href=\"${linkedinUrl.replaceAll("/", "\\/")}\"`));
