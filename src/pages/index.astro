@@ -120,9 +120,11 @@ const jsonLd = buildWebSiteJsonLd({
           {
             curatedHomepageFleet.map(agent => (
               <div class="agent-row" data-agent={agent.slug}>
-                <span>{agent.label}</span><b>{agent.description}</b><span class="ok">
-                  {agent.status}
-                </span>
+                <>
+                  <span>{agent.label}</span>
+                  <b>{agent.description}</b>
+                  <span class="ok">{agent.status}</span>
+                </>
               </div>
             ))
           }
