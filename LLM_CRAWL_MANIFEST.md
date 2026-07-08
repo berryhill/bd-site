@@ -16,12 +16,16 @@
 - **URL normalization**: Static page `<loc>` values in `/sitemap-static.xml` and post `<loc>` values in `/sitemap-posts.xml` are normalized through the shared URL helper using `SITE.website`.
 - **Update Frequency**: Real-time (generated on-demand)
 - **Submission Status**:
-  - Google Search Console: Pending
+  - Google Search Console: Sitemap resubmission is implemented for public post create/update when `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN` is configured; operational Search Console property/token provisioning remains environment-dependent unless separately verified.
   - Bing Webmaster Tools: Pending
 - **IndexNow**: ✅ **IMPLEMENTED**
   - API Key: Hosted at `/a63643bb50ffbee1ac79fcfe60003c1dc912bdee3803a9308fa313f06024d2c6.txt`
   - Auto-submits to Bing, Yandex, Naver, Seznam, Yep on post create/update
   - Supports bulk submission (up to 10,000 URLs)
+- **Google Search Console crawl signal**: ✅ **IMPLEMENTED**
+  - Supported signal is Search Console sitemap resubmission, not the unsupported per-URL Google Indexing API for ordinary blog posts.
+  - Submits the canonical `/sitemap.xml` after non-draft post POST/PATCH when server-side Google credentials are configured.
+  - Missing Google configuration is skipped safely and does not fail the post write.
 
 ### ✅ **FIXED: Blog Posts Now in Sitemap!**
 Previously, only 6 static pages were included. Now public blog posts that pass the shared filter are discoverable by search engines and LLM crawlers, excluding drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
@@ -153,6 +157,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 4. llms.txt manifest endpoint at `/llms.txt` (2026-06-21, PR #35)
 5. Issue #58 crawl-signal reconciliation (2026-07-03): canonical `/sitemap.xml` signals in robots/layout/llms/check script, robots asset/index noise reduction, static sitemap redirect exclusion, and search visibility check alignment
 6. Issue #59 public-post filtering reconciliation (2026-07-03): RSS, Atom, `/llms.txt`, and `/sitemap-posts.xml` share `getSortedPosts`/`getPublicPosts` so machine-readable surfaces expose the same public corpus.
+7. Issue #97 public-post crawl signals (2026-07-08): public post create/update now sends IndexNow and Google Search Console sitemap crawl signals through shared `submitPublicPostCrawlSignals`, skipping drafts and missing Google config safely.
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -172,7 +177,7 @@ curl -si https://berryhill.dev/llms.txt | head -5
 
 ### 🔄 In Progress:
 1. Verify `/llms.txt` is live in production after deployment
-2. Submit sitemap to Google Search Console
+2. Configure/verify Google Search Console credentials and property in production
 3. Submit sitemap to Bing Webmaster Tools
 
 ### ✅ Phase 5 (2026-06-25, PR pending):
@@ -184,7 +189,7 @@ curl -si https://berryhill.dev/llms.txt | head -5
 ### 📋 Planned:
 1. Add FAQPage schema if FAQ content is created
 2. Monitor crawler activity in server logs
-3. Submit sitemap to Google Search Console
+3. Configure/verify Search Console credentials/property in production
 4. Submit sitemap to Bing Webmaster Tools
 
 ## Verification Script
@@ -220,6 +225,9 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 
 ## Changelog
 
+### 2026-07-08
+- ✅ **Public Post Crawl Signals** (Issue #97): Public post create/update now sends IndexNow and Google Search Console sitemap crawl signals through shared `submitPublicPostCrawlSignals`, skipping drafts and missing Google config safely. Google uses supported Search Console sitemap resubmission for the canonical `/sitemap.xml`; production credentials/property remain configuration-dependent unless separately verified.
+
 ### 2026-07-03
 - ✅ **Public Post Filtering Reconciliation** (Issue #59): RSS, Atom, `/llms.txt`, and `/sitemap-posts.xml` now share public-post filtering for drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
 - ✅ **Static Sitemap, Robots, and Search Indexing Signals** (Issue #58): Canonical `/sitemap.xml` signals now flow through robots.txt, layout metadata, `/llms.txt`, and `check:search-visibility`; `/sitemap-static.xml` excludes redirect-only paths such as `/sitemap-index.xml`; robots.txt keeps the AI crawler allowlist while disallowing generated asset/index noise; shared `crawlSignals` and `staticSitemap` utilities and tests cover the policy.
@@ -252,4 +260,4 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 - ✅ Created LLM Crawl Manifest documentation
 
 ## Last Updated
-2026-07-03
+2026-07-08
