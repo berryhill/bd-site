@@ -19,41 +19,39 @@ function includesCollapsed(source, expected) {
   assert(source.replace(/\s+/g, " ").includes(expected));
 }
 const homepageSource = readFileSync(new URL("../src/pages/index.astro", import.meta.url), "utf8");
-const pillarModalSource = readFileSync(new URL("../src/components/PillarModal.astro", import.meta.url), "utf8");
-const normalized = `${homepageSource}\n${pillarModalSource}`.replace(/\s+/g, " ");
-
-const expected = [
-  "Matt Berryhill builds AI-native operating systems in public.",
-  "Berryhill.dev is the public surface for agent workflows, discovery systems, governance, provenance, and the operator judgment required to turn AI output into shipped proof.",
-  "The useful question is not whether agents can produce more output. It is whether the system can preserve context, ownership, verification, and memory long enough for the work to compound.",
-  "Terminal metaphor. Real claims only.",
-  "Start with the operating layer: agent governance, shipped-work proof, protocol boundaries, discovery systems, continuity, and the public operating models that keep AI work accountable.",
-];
 const expectedSiteDescription = "Field notes on AI-native discovery systems, agent governance, provenance, review gates, protocol boundaries, and the operator work required to turn agent output into shipped proof.";
-const expectedTerminalCommands = ["open governance checklist", "inspect shipped-work proof", "trace protocol boundaries", "read continuity layer notes", "schedule operator conversation"];
-const forbidden = ["Welcome to my corner of the internet", "live AI operating system", "fleet dashboard", "MCP server", "API surface", "telemetry product", "production queue", "Live fleet status", "verified telemetry"];
+const prototypeAnchors = [
+  "matt<b>@berryhill</b>",
+  "builder · operator · agent conductor.",
+  "I run a fleet of specialized AI agents that design, research, code, review, write, analyze markets, and ship software with me. This site is the public terminal into that operating system.",
+  "curl GET /fleet",
+  "cat manifesto.md",
+  "ls featured/ --sort=stars",
+  "ls -la recent/",
+  "cat .env",
+];
+const forbidden = ["Welcome to my corner of the internet", "Matt Berryhill builds AI-native operating systems in public.", "Terminal metaphor. Real claims only.", "Not a nicer blog. A public interface into the operating layer.", "Live fleet status", "verified telemetry"];
 
-test("homepage renders terminal/operator positioning copy", () => {
-  for (const copy of expected) includesCollapsed(homepageSource, copy);
+test("homepage renders issue 73 prototype copy anchors", () => {
+  for (const copy of prototypeAnchors) includesCollapsed(homepageSource, copy);
 });
 test("site metadata description remains approved and safe", () => {
   assert.equal(SITE.desc, expectedSiteDescription);
 });
-test("homepage keeps existing post lists and reader links present", () => {
-  assert.match(homepageSource, /featuredPosts\.length > 0/);
-  assert.match(homepageSource, /recentPosts\.length > 0/);
+test("homepage keeps live post mapping and reader links present", () => {
+  assert.match(homepageSource, /featuredPosts = sortedPosts\s+\.filter/);
+  assert.match(homepageSource, /recentPosts = sortedPosts\s+\.filter/);
   assert.match(homepageSource, /href="\/rss\.xml"/);
-  assert.match(homepageSource, /<Socials \/>/);
   assert.match(homepageSource, /href="\/posts\/"/);
+  assert.match(homepageSource, /getPath\(post\.id, post\.filePath\)/);
 });
-test("terminal commands remain keyboard-accessible modal triggers", () => {
-  assert.match(homepageSource, /<button\s+type="button"/);
-  for (const pillar of ["governance", "proof", "protocol", "continuity", "conversation"]) assert.match(homepageSource, new RegExp(`data-pillar="${pillar}"`));
-  for (const command of expectedTerminalCommands) includesCollapsed(homepageSource, command);
-  assert.match(pillarModalSource, /dataset\.pillar/);
-  assert.match(pillarModalSource, /e\.key === "Escape"/);
+test("homepage uses prototype terminal window contract", () => {
+  for (const cls of ["window", "titlebar", "gnome-ctrls", "tabstrip", "term", "line", "ps1", "cmd", "files", "file", "ls-row"]) {
+    assert.match(homepageSource, new RegExp(`class=\\"[^\\"]*${cls}`));
+  }
 });
-test("homepage and modal avoid forbidden product/telemetry claims", () => {
+test("homepage avoids old hybrid/product telemetry claims", () => {
+  const normalized = homepageSource.replace(/\s+/g, " ");
   for (const term of forbidden) assert.equal(normalized.includes(term), false, `unexpected claim: ${term}`);
 });
 console.log(`PASS ${passed} FAIL ${failed}`);

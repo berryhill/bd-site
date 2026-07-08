@@ -15,35 +15,39 @@ function test(name, fn) {
   }
 }
 function includesCollapsed(source, expected) {
-  const readable = source
-    .replace(/<span class="drop-cap">([^<]+)<\/span>/g, "$1")
-    .replace(/<a\s+[^>]*>([^<]+)<\/a>/g, "$1");
+  const readable = source.replace(/<a\s+[^>]*>([^<]+)<\/a>/g, "$1");
   assert(readable.replace(/\s+/g, " ").includes(expected));
 }
 const aboutSource = readFileSync(new URL("../src/pages/about.md", import.meta.url), "utf8");
 const aboutLayoutSource = readFileSync(new URL("../src/layouts/AboutLayout.astro", import.meta.url), "utf8");
 const expected = [
-  "Matt Berryhill builds AI-native operating systems, agent workflows, and discovery surfaces that make autonomous work easier to inspect, trust, and improve.",
-  "Matt Berryhill builds AI-native operating systems: agent workflows, discovery surfaces, review loops, and the governance layer that turns intelligent automation into work people can inspect and trust.",
-  "This site is not a normal archive. It is the public surface of an operating system for AI-native work: posts, field notes, diagrams, and experiments that show how agents are actually used, where they break, and what has to exist around them for the work to compound.",
-  "Agentic development loops that close faster and verify better.",
-  "How to read this site",
-  "schedule a call",
+  "name</span><span class=\"sep\">:</span> <span class=\"v\">Matthew Berryhill</span>",
+  "engineer + writer + RWA consultant",
+  "Austin, TX</span> <span class=\"v dim\">(GMT−5)",
+  "selective consulting · 2 slots open Q3 2026",
+  "I build agentic software. I write about it. I help capital markets people understand both.",
+  "What I actually do",
+  "Things I believe",
+  "How I got here",
+  "How I work with people",
+  "FAQ",
+  "If you want to hire me",
 ];
-const forbidden = ["A Little Bit More About Matt (Like Anyone Cares)", "Passionate about crafting elegant systems", "exploring technical frontiers", "technology, design, and culture", "systems become stories"];
+const forbidden = ["I build AI-native systems that make autonomous work easier to inspect, trust, and improve.", "What I’m building", "How to read this site", "A Little Bit More About Matt (Like Anyone Cares)", "Passionate about crafting elegant systems"];
 
-test("about page renders thesis-first operator identity copy", () => {
+test("about page renders issue 73 prototype identity copy", () => {
   for (const copy of expected) includesCollapsed(aboutSource, copy);
 });
-test("about page preserves imagery and Calendly destination", () => {
-  assert.match(aboutSource, /src="\/matt_headshot\.jpeg"/);
-  assert.match(aboutSource, /src="\/avatar\.png"/);
+test("about page preserves contact destination and terminal classes", () => {
   assert.match(aboutSource, /href="https:\/\/calendly\.com\/matt-berryhill\/30min"/);
+  for (const cls of ["window", "titlebar", "frontmatter", "summary-grid", "toc", "belief", "timeline", "contact-grid"]) {
+    assert.match(aboutSource, new RegExp(`class=\\"[^\\"]*${cls}`));
+  }
 });
 test("about layout passes page metadata description through", () => {
   assert.match(aboutLayoutSource, /description=\{frontmatter\.description\s+\?\?\s+SITE\.desc\}/);
 });
-test("about page does not retain broad generic bio copy", () => {
+test("about page does not retain old hybrid/generic bio copy", () => {
   const normalized = aboutSource.replace(/\s+/g, " ");
   for (const term of forbidden) assert.equal(normalized.includes(term), false, `unexpected about copy: ${term}`);
 });

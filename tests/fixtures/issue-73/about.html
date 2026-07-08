@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>about.md — Matthew Berryhill</title>
+<style>
+  :root {
+    --bg:        oklch(14% 0.012 240);
+    --surface:   oklch(18% 0.012 240);
+    --surface-2: oklch(22% 0.012 240);
+    --fg:        oklch(94% 0.005 240);
+    --muted:     oklch(58% 0.012 240);
+    --dim:       oklch(38% 0.012 240);
+    --border:    oklch(28% 0.012 240);
+    --accent:    oklch(78% 0.18 145);
+    --warn:      oklch(78% 0.16 75);
+    --info:      oklch(72% 0.16 235);
+    --magenta:   oklch(72% 0.18 320);
+    --orange:     oklch(64% 0.18 28);
+    --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-mono); font-size: 14px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+  }
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -100px, oklch(20% 0.04 220 / 0.6), transparent 70%),
+      radial-gradient(900px 500px at -10% 30%, oklch(20% 0.04 145 / 0.4), transparent 70%),
+      var(--bg);
+    min-height: 100vh; overflow-x: hidden;
+  }
+  a { color: var(--info); text-decoration: none; }
+  a:hover { color: var(--accent); }
+  ::selection { background: var(--accent); color: var(--bg); }
+  .window {
+    margin: 32px auto; border: 1px solid var(--border); border-radius: 10px;
+    background: oklch(13% 0.012 240 / 0.92); backdrop-filter: blur(8px);
+    overflow: hidden; box-shadow: 0 30px 60px -20px oklch(0% 0 0 / 0.5);
+    max-width: 1160px;
+  }
+  @media (max-width: 720px) { .window { margin: 12px; border-radius: 6px; } }
+  .titlebar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px 8px 12px;
+    border-bottom: 1px solid var(--border);
+    background: oklch(15% 0.012 320);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .hamb {
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    font-size: 16px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-family: inherit;
+    line-height: 1;
+    border-radius: 4px;
+  }
+  .hamb:hover { background: oklch(22% 0.012 320); color: var(--fg); }
+  .titlebar .path {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .titlebar .path b { color: var(--fg); font-weight: 500; }
+  .gnome-ctrls { display: flex; gap: 6px; margin-left: auto; }
+  .gctl {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 0;
+    background: oklch(26% 0.012 320);
+    color: var(--muted);
+    font-size: 10px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    font-family: inherit;
+  }
+  .gctl:hover { background: oklch(32% 0.012 320); color: var(--fg); }
+  .gctl.cls { background: var(--orange); color: oklch(98% 0.005 28); }
+  .gctl.cls:hover { background: oklch(70% 0.18 28); }
+  .tabstrip {
+    display: flex;
+    gap: 1px;
+    padding: 0 8px;
+    background: oklch(11% 0.012 320);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabstrip::-webkit-scrollbar { display: none; }
+  .tabstrip .tab {
+    padding: 9px 16px 8px;
+    color: var(--muted);
+    font-size: 11.5px;
+    cursor: pointer;
+    border-radius: 7px 7px 0 0;
+    border: 1px solid transparent;
+    border-bottom: 0;
+    text-decoration: none;
+    white-space: nowrap;
+    position: relative;
+    top: 1px;
+    background: transparent;
+    transition: color .12s, background .12s;
+  }
+  .tabstrip .tab:hover { color: var(--fg); background: oklch(15% 0.012 320); }
+  .tabstrip .tab.on {
+    color: var(--fg);
+    background: var(--bg);
+    border-color: var(--border);
+  }
+  .tabstrip .tabnew {
+    padding: 4px 10px;
+    color: var(--dim);
+    font-size: 16px;
+    cursor: pointer;
+    align-self: center;
+    line-height: 1;
+    user-select: none;
+  }
+  .tabstrip .tabnew:hover { color: var(--fg); }
+  @media (max-width: 720px) {
+    .titlebar .path { display: none; }
+  }
+  .term { padding: 28px 28px 36px; }
+  @media (max-width: 720px) { .term { padding: 18px 14px 24px; } }
+  .line { display: flex; align-items: baseline; gap: 10px; padding: 2px 0; flex-wrap: wrap; }
+  .ps1 { color: var(--accent); white-space: nowrap; } .ps1 .sep { color: var(--muted); } .ps1 .cwd { color: var(--info); }
+  .cmd { color: var(--fg); } .out { color: var(--muted); }
+
+  .frontmatter { margin: 14px 0 18px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--accent); border-radius: 4px; color: var(--muted); font-size: 12.5px; line-height: 1.75; overflow-x: auto; }
+  .frontmatter .sep { color: var(--dim); }
+  .frontmatter .k { color: var(--magenta); }
+  .frontmatter .v { color: var(--fg); }
+  .frontmatter .v.acc { color: var(--accent); }
+  .frontmatter .v.inf { color: var(--info); }
+  .frontmatter .v.dim { color: var(--muted); }
+
+  .head { margin: 28px 0 28px; }
+  .head .kicker { display: flex; align-items: center; gap: 10px; color: var(--accent); font-size: 11px; text-transform: lowercase; letter-spacing: 0.04em; margin-bottom: 14px; }
+  .head .kicker::before { content: ""; width: 24px; height: 1px; background: var(--accent); }
+  .head h1 { font-family: var(--font-mono); font-weight: 700; font-size: clamp(28px, 4.4vw, 46px); line-height: 1.1; letter-spacing: -0.025em; color: var(--fg); text-wrap: balance; }
+  .head .deck { margin-top: 16px; color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 62ch; text-wrap: pretty; }
+  .head .deck b { color: var(--fg); font-weight: 500; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
+  @media (max-width: 820px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+  .summary-grid .cell { padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+  .summary-grid .cell .lbl { font-size: 10.5px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 6px; }
+  .summary-grid .cell .v { color: var(--fg); font-size: 14px; font-weight: 500; }
+  .summary-grid .cell .v.acc { color: var(--accent); }
+  .summary-grid .cell .sub { color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+
+  .layout { display: grid; grid-template-columns: 220px 1fr; gap: 56px; margin: 28px 0 0; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; gap: 0; } }
+  .toc { position: sticky; top: 28px; font-size: 12px; border-left: 1px solid var(--border); padding-left: 18px; max-height: calc(100vh - 56px); overflow-y: auto; }
+  @media (max-width: 900px) { .toc { display: none; } }
+  .toc-title { color: var(--accent); font-size: 11px; margin-bottom: 14px; letter-spacing: 0.04em; }
+  .toc ol { list-style: none; counter-reset: t; padding: 0; }
+  .toc li { counter-increment: t; padding: 5px 0; line-height: 1.4; }
+  .toc li::before { content: "0" counter(t); color: var(--dim); margin-right: 10px; font-size: 10px; }
+  .toc li a { color: var(--muted); transition: color .15s; }
+  .toc li a:hover { color: var(--fg); }
+  .toc li.active a { color: var(--accent); }
+  .toc li.active::before { color: var(--accent); }
+
+  .body { max-width: 68ch; min-width: 0; }
+  .body section { margin: 0 0 36px; scroll-margin-top: 24px; }
+  .body h2 { color: var(--fg); font-size: 19px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 16px; line-height: 1.3; }
+  .body h2::before { content: "## "; color: var(--accent); font-weight: 400; }
+  .body h3 { color: var(--fg); font-size: 14.5px; font-weight: 600; margin: 24px 0 10px; }
+  .body h3::before { content: "### "; color: var(--accent); font-weight: 400; }
+  .body p { color: var(--fg); font-size: 14.5px; line-height: 1.78; margin: 0 0 16px; text-wrap: pretty; }
+  .body p b { color: var(--fg); font-weight: 600; }
+  .body p em { color: var(--accent); font-style: normal; }
+  .body code { background: var(--surface-2); color: var(--info); padding: 1px 5px; border-radius: 3px; font-size: 0.92em; border: 1px solid var(--border); }
+  .body a { color: var(--info); border-bottom: 1px solid oklch(72% 0.16 235 / 0.35); }
+  .body a:hover { color: var(--accent); border-color: currentColor; }
+  .body ul { margin: 0 0 16px; padding: 0; list-style: none; }
+  .body ul li { color: var(--fg); font-size: 14.5px; line-height: 1.7; padding-left: 22px; position: relative; margin-bottom: 6px; }
+  .body ul li::before { content: "→"; position: absolute; left: 0; top: 0; color: var(--accent); }
+  .body blockquote { margin: 24px 0; padding: 4px 0 4px 22px; border-left: 2px solid var(--accent); color: var(--fg); font-size: 16px; line-height: 1.5; font-style: normal; }
+  .body blockquote .src { display: block; margin-top: 10px; color: var(--muted); font-size: 12px; }
+  .body blockquote .src::before { content: "— "; color: var(--accent); }
+
+  .belief { display: grid; grid-template-columns: 32px 1fr; gap: 14px; padding: 16px 0; border-bottom: 1px dashed var(--border); }
+  .belief:last-child { border-bottom: 0; }
+  .belief .num { color: var(--dim); font-size: 14px; line-height: 1.4; }
+  .belief .num b { color: var(--accent); font-weight: 500; }
+  .belief .text { color: var(--fg); font-size: 14.5px; line-height: 1.7; }
+  .belief .text b { color: var(--fg); font-weight: 600; }
+  .belief .text em { color: var(--accent); font-style: normal; }
+  .belief .text .meta { display: block; margin-top: 6px; color: var(--muted); font-size: 12.5px; }
+
+  .timeline { display: grid; gap: 0; border-left: 1px solid var(--border); margin-left: 8px; padding-left: 24px; }
+  .tl-row { padding: 14px 0; position: relative; border-bottom: 1px dashed var(--border); }
+  .tl-row:last-child { border-bottom: 0; }
+  .tl-row::before { content: ""; position: absolute; left: -29px; top: 22px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--border); }
+  .tl-row .yr { color: var(--accent); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .tl-row .ttl { color: var(--fg); font-size: 14.5px; font-weight: 600; margin-top: 4px; }
+  .tl-row .where { color: var(--info); font-size: 12.5px; margin-top: 2px; }
+  .tl-row .desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-top: 8px; max-width: 60ch; }
+  .tl-row.ongoing::before { background: var(--warn); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .faq { display: grid; gap: 0; }
+  .faq details { border-bottom: 1px dashed var(--border); padding: 16px 0; }
+  .faq details:last-child { border-bottom: 0; }
+  .faq summary { cursor: pointer; list-style: none; display: flex; gap: 12px; align-items: baseline; color: var(--fg); font-size: 14px; font-weight: 500; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::before { content: "$"; color: var(--accent); font-size: 13px; }
+  .faq summary::after { content: "▾"; margin-left: auto; color: var(--muted); font-size: 11px; transition: transform .15s; }
+  .faq details[open] summary::after { transform: rotate(180deg); }
+  .faq summary .q { flex: 1; }
+  .faq .a { margin-top: 12px; color: var(--muted); font-size: 13.5px; line-height: 1.7; padding-left: 20px; }
+  .faq .a p { margin-bottom: 10px; }
+  .faq .a p:last-child { margin-bottom: 0; }
+  .faq .a b { color: var(--fg); font-weight: 500; }
+  .faq .a code { background: var(--surface-2); color: var(--info); padding: 1px 5px; border-radius: 3px; font-size: 0.92em; border: 1px solid var(--border); }
+
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+  @media (max-width: 720px) { .contact-grid { grid-template-columns: 1fr; } }
+  .contact-grid a { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--fg); transition: border-color .15s; }
+  .contact-grid a:hover { border-color: var(--accent); }
+  .contact-grid a b { color: var(--accent); font-weight: 500; font-size: 12px; }
+  .contact-grid a span.m { color: var(--muted); font-size: 12px; }
+
+  footer { margin: 22px auto 36px; max-width: 1160px; padding: 0 32px; display: flex; justify-content: space-between; color: var(--dim); font-size: 11px; flex-wrap: wrap; gap: 10px; }
+  footer a { color: var(--muted); } footer a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="window">
+  <div class="titlebar">
+    <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
+    <span class="path">m@berryhill: ~/berryhill.dev/<b>about.md</b></span>
+    <span class="gnome-ctrls">
+      <button class="gctl min" aria-label="Minimize" type="button">&minus;</button>
+      <button class="gctl max" aria-label="Maximize" type="button">&#9633;</button>
+      <button class="gctl cls" aria-label="Close" type="button">&times;</button>
+    </span>
+  </div>
+  <div class="tabstrip">
+    <a class="tab" href="terminal.html">~ home</a>
+    <a class="tab" href="posts.html">posts/</a>
+    <a class="tab" href="notes.html">notes/</a>
+    <a class="tab" href="projects.html">projects/</a>
+    <a class="tab on" href="about.html">about.md</a>
+    <a class="tab" href="uses.html">uses.md</a>
+    <span class="tabnew" aria-hidden="true">+</span>
+  </div>
+
+  <div class="term">
+    <div class="line"><span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~</span> $</span><span class="cmd">cat about.md</span></div>
+
+    <div class="frontmatter">
+      <span class="sep">---</span><br />
+      <span class="k">name</span><span class="sep">:</span> <span class="v">Matthew Berryhill</span><br />
+      <span class="k">role</span><span class="sep">:</span> <span class="v acc">engineer + writer + RWA consultant</span><br />
+      <span class="k">based</span><span class="sep">:</span> <span class="v">Austin, TX</span> <span class="v dim">(GMT−5)</span><br />
+      <span class="k">availability</span><span class="sep">:</span> <span class="v acc">selective consulting · 2 slots open Q3 2026</span><br />
+      <span class="k">writing</span><span class="sep">:</span> <span class="v inf">47 essays · 83 notes · weekly</span><br />
+      <span class="k">focus</span><span class="sep">:</span> <span class="v">[agentic systems, tokenization, edge AI]</span><br />
+      <span class="k">contact</span><span class="sep">:</span> <span class="v inf">matt@berryhill.dev</span><br />
+      <span class="sep">---</span>
+    </div>
+
+    <div class="head">
+      <div class="kicker">// $ whoami --verbose</div>
+      <h1>I build agentic software. I write about it. I help capital markets people understand both.</h1>
+      <p class="deck">Twelve years shipping infrastructure (Stripe, Compound, two acquired startups). Three years deep in agents, tokenization, and the awkward seam where AI labs and capital markets are slowly figuring out they need each other. I'm a generalist who can go deep — <b>I'd rather be the person on the call who's read the SEC rule, written the Solidity contract, and used the agent framework all in the same week.</b></p>
+    </div>
+
+    <div class="summary-grid">
+      <div class="cell">
+        <div class="lbl">Years shipping</div>
+        <div class="v">12</div>
+        <div class="sub">started as a backend eng, 2014</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Companies</div>
+        <div class="v">4</div>
+        <div class="sub">2 acquired · 1 wound down · 1 ongoing</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Languages I ship in</div>
+        <div class="v acc">TS · Go · Solidity · Python</div>
+        <div class="sub">+ enough Rust to read it</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Open to talk about</div>
+        <div class="v">advisory · writing · talks</div>
+        <div class="sub">not full-time roles</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <aside class="toc" aria-label="Section navigation">
+        <div class="toc-title">// table of contents</div>
+        <ol>
+          <li class="active"><a href="#what">What I actually do</a></li>
+          <li><a href="#beliefs">Things I believe</a></li>
+          <li><a href="#path">How I got here</a></li>
+          <li><a href="#working">How I work with people</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#hire">If you want to hire me</a></li>
+        </ol>
+      </aside>
+
+      <div class="body">
+
+        <section id="what">
+          <h2>What I actually do</h2>
+          <p>The honest answer is: <b>three things, in different proportions every month.</b></p>
+          <p><b>Engineering.</b> I write production code for two clients on retainer. One is a tokenized-treasury issuer; the other is a stealth-mode dev tools company building agent infrastructure. Combined that's roughly twenty-five hours of my week and accounts for most of my income.</p>
+          <p><b>Writing.</b> About eight hours a week — one essay, two or three notes. The writing is not a marketing funnel. It's the way I figure out what I think. The essays I'm proudest of are the ones I wrote because the question wouldn't leave me alone, not the ones that performed.</p>
+          <p><b>Advising / consulting.</b> Two or three calls a week with people building in adjacent spaces — usually capital markets infra, sometimes agent product teams, occasionally regulators. I keep this small on purpose. Most of the value I add is connecting people who should know each other, not the call itself.</p>
+        </section>
+
+        <section id="beliefs">
+          <h2>Things I believe</h2>
+          <p>Not load-bearing for the work, just a faster way to find out if we'd disagree before we waste a call.</p>
+
+          <div class="belief">
+            <div class="num"><b>01</b></div>
+            <div class="text">
+              <b>Agentic development is real, and most of the discourse about it is downstream of vibes, not measurement.</b> The teams shipping agentic features are running 50–200 iterations a week against their own evals. The teams arguing about whether agents work haven't built one.
+              <span class="meta">cf. <a href="#">the-agentic-dev-loop</a>, <a href="#">the-non-coder-ceiling</a></span>
+            </div>
+          </div>
+
+          <div class="belief">
+            <div class="num"><b>02</b></div>
+            <div class="text">
+              <b>Real-world asset tokenization is one of the two things crypto produces of net-positive value.</b> The other is censorship-resistant payments. The rest is mostly noise. I came around to this slowly between 2022 and 2025.
+              <span class="meta">cf. <a href="#">rwa-tokenization-2026</a>, <a href="#">where-the-smart-money-moved</a></span>
+            </div>
+          </div>
+
+          <div class="belief">
+            <div class="num"><b>03</b></div>
+            <div class="text">
+              <b>The best engineers in five years will be defined by their taste in evals, not their typing speed.</b> The agent writes the code; you decide whether the code is right. That's a different skill, and not everyone will make the transition cleanly.
+            </div>
+          </div>
+
+          <div class="belief">
+            <div class="num"><b>04</b></div>
+            <div class="text">
+              <b>Most consulting is repackaging.</b> Mine isn't different. The value I add is reading three orders of magnitude more about a space than the client has time to, and giving them <em>back</em> the ten percent that matters.
+            </div>
+          </div>
+
+          <div class="belief">
+            <div class="num"><b>05</b></div>
+            <div class="text">
+              <b>Specificity is the cheapest leverage.</b> A blog post that names the regulation, the case, and the dollar amount lands harder than ten essays of "things are changing." A pitch that names the customer, the contract, and the delivery date lands harder than ten about "the opportunity."
+              <span class="meta">cf. <a href="#">small-tools-big-leverage</a></span>
+            </div>
+          </div>
+
+          <div class="belief">
+            <div class="num"><b>06</b></div>
+            <div class="text">
+              <b>Twitter is bad for thinking and good for distribution.</b> Treat it accordingly. I draft on the page and post the conclusion, not the other way around.
+            </div>
+          </div>
+        </section>
+
+        <section id="path">
+          <h2>How I got here</h2>
+          <p>The short version, in case you're trying to decide whether I've seen what you've seen.</p>
+
+          <div class="timeline">
+            <div class="tl-row ongoing">
+              <div class="yr">2024 — present</div>
+              <div class="ttl">Independent · agentic systems + RWA consulting</div>
+              <div class="where">berryhill.dev · Austin, TX</div>
+              <div class="desc">Two retained clients, advisory across six more. Writing weekly. Two side projects (see <a href="projects.html">projects/</a>).</div>
+            </div>
+            <div class="tl-row">
+              <div class="yr">2022 — 2024</div>
+              <div class="ttl">Founding engineer · stealth (acquired)</div>
+              <div class="where">on-chain settlement infra</div>
+              <div class="desc">Built the matching engine, the on-ramp, and most of the API surface. Sold to a public-markets infrastructure company at the end of 2024. Two-year cliff served; left when integration started.</div>
+            </div>
+            <div class="tl-row">
+              <div class="yr">2020 — 2022</div>
+              <div class="ttl">Senior engineer · Compound Labs</div>
+              <div class="where">DeFi protocol team</div>
+              <div class="desc">Worked on the v3 contracts and the off-chain risk engine. Co-authored the Compound rate model paper. This is where I started taking capital markets seriously as a domain.</div>
+            </div>
+            <div class="tl-row">
+              <div class="yr">2017 — 2020</div>
+              <div class="ttl">Engineer · Stripe</div>
+              <div class="where">Connect platform</div>
+              <div class="desc">Started on the payouts team, moved to Connect. Learned more about money movement, KYC, and ledger correctness here than at any other job before or since.</div>
+            </div>
+            <div class="tl-row">
+              <div class="yr">2014 — 2017</div>
+              <div class="ttl">First eng · acq'd analytics startup</div>
+              <div class="where">YC W15</div>
+              <div class="desc">First job out of school. Wrote almost the entire backend in Go. Sold the company to a bigger analytics vendor; rolled equity, stayed twelve months, left.</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="working">
+          <h2>How I work with people</h2>
+          <p>The shape of every engagement I take is roughly the same:</p>
+          <ul>
+            <li><b>Diagnose, then quote.</b> One free 30-minute call, then a one-page scoping memo with a fixed price for the next 4–8 weeks. I don't bill hourly anymore. <a href="notes.html#0823">Why.</a></li>
+            <li><b>One async update a week, one live call a fortnight.</b> If you need me on Slack all day, I'm not the right person.</li>
+            <li><b>Source-available deliverables.</b> Code I write for you is yours. Memos and reports I write for you are yours. The framing I use to write them is mine and shows up in the blog later, in disguised form.</li>
+            <li><b>I bring my own tools.</b> Don't worry about a laptop budget or a Notion seat. I'd rather match your stack and write notes in plaintext.</li>
+            <li><b>I don't sign exclusivity.</b> I'll happily sign an NDA and a non-compete for the duration of the engagement, but I won't agree to not work with anyone in your sector. The pattern recognition is the value.</li>
+          </ul>
+          <blockquote>
+            The clients I do my best work for are the ones who treat me like a contractor with strong opinions, not a contractor who needs supervision.
+            <span class="src">written on a Sunday, meant kindly</span>
+          </blockquote>
+        </section>
+
+        <section id="faq">
+          <h2>FAQ</h2>
+          <p>The five questions I get every month.</p>
+
+          <div class="faq">
+            <details>
+              <summary><span class="q">Are you available for a full-time role?</span></summary>
+              <div class="a">
+                <p>No. Independent has been the best four years of my career and I have no intention of going back. If you're hiring and you think I'd be perfect, that's flattering, and the answer is still no.</p>
+                <p>There's exactly one exception: <b>founding role at a capital markets x agent infra company, pre-seed, with co-founders I'd want to be in a foxhole with.</b> If you think that's you, my inbox is open.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span class="q">Will you ghostwrite or co-author for my company blog?</span></summary>
+              <div class="a">
+                <p>For one client at a time, yes. Rates are well above what a freelance writer would charge — closer to consulting rates — because I'm bringing the analysis as well as the prose.</p>
+                <p>I don't ghostwrite for crypto projects whose token I don't understand, AI products that are mostly wrappers, or anyone in defense.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span class="q">Can I send you a deck for feedback?</span></summary>
+              <div class="a">
+                <p>Sure. I read everything I'm sent. I reply within a week, briefly, with the two things that struck me hardest — usually one positive and one harder. I don't do detailed page-by-page reviews unless we're working together.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span class="q">Do you take equity instead of cash?</span></summary>
+              <div class="a">
+                <p>Sometimes — for advisory work with founders I trust at companies whose thesis I believe in. The minimum cash component is roughly half the dollar amount of a normal engagement.</p>
+                <p>I've passed on more equity offers than I've accepted. I'd rather be honest about that than soft about it.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span class="q">What's your stack? What tools do you actually use?</span></summary>
+              <div class="a">
+                <p>Long-form answer at <a href="uses.html"><code>~/uses.md</code></a>. Short answer: Typescript, Go, and Solidity for shipping; Helix and tmux for editing; Claude for the agent loop. No Cursor, no Copilot. The reasons are in the linked file.</p>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="hire">
+          <h2>If you want to hire me</h2>
+          <p>Email is best. Subject line: what you want done, in five words or fewer. Body: a paragraph on the problem, a sentence on what success looks like, and a date by which a decision matters. That's enough to get me to reply within a few days.</p>
+          <p>I'm not on Slack Connect, Discord, or WhatsApp for client comms. <b>I won't get on a call until I've read your problem in writing.</b> The asymmetric cost is on me — I can absorb a paragraph in two minutes; a 30-minute call costs us both an hour with prep and follow-up.</p>
+
+          <div class="contact-grid">
+            <a href="mailto:matt@berryhill.dev">
+              <span><b>EMAIL</b> matt@berryhill.dev</span>
+              <span class="m">best · 1–2 day reply</span>
+            </a>
+            <a href="https://cal.com/" target="_blank" rel="noopener">
+              <span><b>CAL</b> /matt/30min</span>
+              <span class="m">after we've written first</span>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener">
+              <span><b>LINKEDIN</b> /in/mberryhill</span>
+              <span class="m">slow · don't dm here</span>
+            </a>
+            <a href="/rss.xml">
+              <span><b>RSS</b> /rss.xml</span>
+              <span class="m">subscribe to writing</span>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <div style="margin-top: 56px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--dim); flex-wrap: wrap; gap: 10px; padding-top: 24px; border-top: 1px dashed var(--border);">
+      <span><a href="terminal.html" style="color: var(--accent);">← cd ../</a> back to ~</span>
+      <span><span style="color: var(--accent);">EOF</span> · 1,847 words · last touched 2026-06-02</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>© Berryhill 2026 · built quietly · zero trackers</span>
+  <span><a href="#">colophon</a> · <a href="/rss.xml">rss</a></span>
+</footer>
+
+<script>
+(function () {
+  // TOC scroll-spy
+  var links = Array.from(document.querySelectorAll('.toc li'));
+  var sections = Array.from(document.querySelectorAll('.body section[id]'));
+  if (!sections.length || !('IntersectionObserver' in window)) return;
+
+  var byId = {};
+  links.forEach(function (li) {
+    var a = li.querySelector('a');
+    if (a) byId[a.getAttribute('href').slice(1)] = li;
+  });
+
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (li) { li.classList.remove('active'); });
+        var li = byId[e.target.id];
+        if (li) li.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0% -60% 0%', threshold: 0 });
+
+  sections.forEach(function (s) { obs.observe(s); });
+
+  // Smooth in-page anchors (no scrollIntoView per project rules)
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href').slice(1);
+      var target = document.getElementById(id);
+      if (!target) return;
+      e.preventDefault();
+      var top = target.getBoundingClientRect().top + window.scrollY - 16;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+      history.replaceState(null, '', '#' + id);
+    });
+  });
+})();
+</script>
+</body>
+</html>

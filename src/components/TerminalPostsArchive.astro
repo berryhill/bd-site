@@ -1,0 +1,336 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Pagination from "@/components/Pagination.astro";
+import { SITE } from "@/config";
+import { getPath } from "@/utils/getPath";
+
+export interface Props {
+  sortedPosts: CollectionEntry<"liveBlog">[];
+  currentPage: number;
+  pageUrlBase?: string;
+}
+
+const { sortedPosts, currentPage, pageUrlBase = "/posts/page" } = Astro.props;
+const pageSize = SITE.postPerPage;
+const totalPages = Math.max(1, Math.ceil(sortedPosts.length / pageSize));
+const safePage = Math.min(Math.max(currentPage, 1), totalPages);
+const start = (safePage - 1) * pageSize;
+const end = start + pageSize;
+const paginatedPosts = sortedPosts.slice(start, end);
+const allTags = sortedPosts.flatMap(({ data }) => data.tags ?? []);
+const tagEntries = Array.from(new Set(allTags))
+  .slice(0, 7)
+  .map(tag => ({
+    tag,
+    count: allTags.filter(candidate => candidate === tag).length,
+  }));
+const wordCount = (post: CollectionEntry<"liveBlog">) =>
+  (post.body || "").trim().split(/\s+/).filter(Boolean).length;
+const readMinutes = (post: CollectionEntry<"liveBlog">) =>
+  Math.max(1, Math.round(wordCount(post) / 220));
+const totalWords = sortedPosts.reduce((sum, post) => sum + wordCount(post), 0);
+const formatDate = (value: Date | string | undefined) => {
+  if (!value) return "pending";
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "pending"
+    : date.toISOString().slice(0, 10);
+};
+const firstPost = sortedPosts.at(-1)?.data.pubDatetime;
+const lastPost = sortedPosts[0]?.data.pubDatetime;
+const featuredPosts = sortedPosts
+  .filter(({ data }) => data.featured)
+  .slice(0, 2);
+const postsByYear = paginatedPosts.reduce<
+  Record<string, CollectionEntry<"liveBlog">[]>
+>((acc, post) => {
+  const year = formatDate(post.data.pubDatetime).slice(0, 4) || "undated";
+  acc[year] = acc[year] ?? [];
+  acc[year].push(post);
+  return acc;
+}, {});
+const page = {
+  data: paginatedPosts,
+  start,
+  end: Math.min(end, sortedPosts.length),
+  size: pageSize,
+  total: sortedPosts.length,
+  currentPage: safePage,
+  lastPage: totalPages,
+  url: {
+    current: safePage === 1 ? "/posts/" : `${pageUrlBase}/${safePage}`,
+    prev:
+      safePage > 2
+        ? `${pageUrlBase}/${safePage - 1}`
+        : safePage === 2
+          ? "/posts/"
+          : undefined,
+    next: safePage < totalPages ? `${pageUrlBase}/${safePage + 1}` : undefined,
+  },
+};
+---
+
+<div class="window proto-window">
+  <div class="titlebar">
+    <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
+    <span class="path">m@berryhill: ~/berryhill.dev/<b>posts</b></span>
+    <span class="gnome-ctrls">
+      <button class="gctl min" aria-label="Minimize" type="button"
+        >&minus;</button
+      >
+      <button class="gctl max" aria-label="Maximize" type="button"
+        >&#9633;</button
+      >
+      <button class="gctl cls" aria-label="Close" type="button">&times;</button>
+    </span>
+  </div>
+  <div class="tabstrip">
+    <a class="tab" href="/">~ home</a>
+    <a class="tab on" href="/posts/">posts/</a>
+    <a class="tab" href="/tags/">notes/</a>
+    <a class="tab" href="/archives/">projects/</a>
+    <a class="tab" href="/about/">about.md</a>
+    <a class="tab" href="/search/">uses.md</a>
+    <span class="tabnew" aria-hidden="true">+</span>
+  </div>
+  <div class="term">
+    <div class="line">
+      <span class="ps1"
+        >guest@berryhill <span class="sep">:</span>
+        <span class="cwd">~</span> $</span
+      ><span class="cmd">cd posts/ &amp;&amp; ls -la --sort=date</span>
+    </div>
+    <div class="hero">
+      <div>
+        <h1>posts<span class="slash">/</span><b>archive</b></h1>
+        <p class="lede">
+          Long-form notes on <b>agentic-first development</b>, AI / ML systems,
+          blockchain rails, crypto market structure, digital music, and the
+          small frictions that change when intelligent automation moves into the
+          loop.
+        </p>
+      </div>
+      <div class="stats">
+        <div class="row-s">
+          <span>total</span><b>{sortedPosts.length} posts</b>
+        </div>
+        <div class="row-s">
+          <span>words</span><b>{totalWords.toLocaleString()}</b>
+        </div>
+        <div class="row-s"><span>topics</span><b>{tagEntries.length}</b></div>
+        <div class="sep-line"></div>
+        <div class="row-s">
+          <span>first post</span><b>{formatDate(firstPost)}</b>
+        </div>
+        <div class="row-s">
+          <span>last post</span><b>{formatDate(lastPost)}</b>
+        </div>
+        <div class="row-s"><span>cadence</span><b class="ok">live</b></div>
+      </div>
+    </div>
+    <form class="filter" onsubmit="event.preventDefault(); return false;">
+      <span class="ps">~/posts $</span>
+      <input
+        type="text"
+        id="q"
+        placeholder="grep -i ..."
+        autocomplete="off"
+        aria-label="Filter posts"
+      />
+      <span class="hint">↵ to apply · esc to clear</span>
+    </form>
+    <div class="tags" id="tags">
+      <span class="tag on" data-tag="all"
+        >all <span class="n">{sortedPosts.length}</span></span
+      >
+      {
+        tagEntries.map(({ tag, count }) => (
+          <span class="tag" data-tag={tag}>
+            {tag} <span class="n">{count}</span>
+          </span>
+        ))
+      }
+    </div>
+    {
+      featuredPosts.length > 0 && (
+        <>
+          <div class="block-h">
+            <>
+              <h2>cat pinned.md</h2>
+              <span class="n">
+                {featuredPosts.length} starred · author's pick
+              </span>
+            </>
+          </div>
+          <div class="pinned">
+            {featuredPosts.map(post => (
+              <a
+                class="pin"
+                href={getPath(post.id, post.filePath)}
+                data-tag={post.data.tags?.[0] ?? "post"}
+                data-search={`${post.data.title} ${post.data.description}`}
+              >
+                <div class="head">
+                  <span class="ext">.md</span>
+                  <span style="color: var(--warn);">★</span>
+                  <span>
+                    {readMinutes(post)} min ·{" "}
+                    {formatDate(post.data.pubDatetime)}
+                  </span>
+                </div>
+                <div class="name">{post.id}.md</div>
+                <div class="desc">{post.data.description}</div>
+                <div class="meta">
+                  <span>
+                    topic <b>{post.data.tags?.[0] ?? "field-note"}</b>
+                  </span>
+                  <span>
+                    words <b>{wordCount(post).toLocaleString()}</b>
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </>
+      )
+    }
+    {
+      Object.entries(postsByYear).map(([year, posts]) => (
+        <>
+          <div class="block-h">
+            <>
+              <h2>ls -la {year}/</h2>
+              <span class="n">{posts.length} posts · sorted by mtime</span>
+            </>
+          </div>
+          <div class="year-h">
+            <>
+              <span class="y">
+                <span class="pre">$</span> cd {year}/
+              </span>
+              <span class="meta">
+                {posts
+                  .reduce((sum, post) => sum + wordCount(post), 0)
+                  .toLocaleString()}{" "}
+                words
+              </span>
+            </>
+          </div>
+          <div class="ls" data-year={year}>
+            {posts.map(post => (
+              <a
+                class="ls-row"
+                href={getPath(post.id, post.filePath)}
+                data-tag={post.data.tags?.[0] ?? "post"}
+                data-search={`${post.data.title} ${post.data.description}`}
+              >
+                <span class="date">{formatDate(post.data.pubDatetime)}</span>
+                <span class="read">{readMinutes(post)} min</span>
+                <span class="ttl">{post.id}.md</span>
+                <span class="desc">{post.data.description}</span>
+                <span class="arr">→</span>
+              </a>
+            ))}
+          </div>
+        </>
+      ))
+    }
+    <div id="empty" class="empty">
+      <span class="ps">$</span> grep returned <b>no matches</b>. try a different
+      query or <span
+        style="color: var(--accent); cursor: pointer; text-decoration: underline"
+        id="reset-link">reset</span
+      >
+    </div>
+    <div class="archive-note">
+      <div>
+        <span class="label">page {safePage} ·</span>
+        <b>showing {page.start + 1}-{page.end}</b> of {page.total} live posts.
+      </div>
+    </div>
+    <div class="block-h">
+      <h2>cat subscribe.md</h2><span class="n">stay in the loop</span>
+    </div>
+    <div class="feed">
+      <a href="/rss.xml"
+        ><span><b>RSS=</b> <span class="m">/rss.xml · standard feed</span></span
+        ><span class="m">subscribe →</span></a
+      >
+      <a href="/about/"
+        ><span
+          ><b>CONTACT=</b>
+          <span class="m">selective consulting · no other reason</span></span
+        ><span class="m">open →</span></a
+      >
+    </div>
+    <p class="out" style="margin-top: 28px;">
+      <span class="ps1"
+        >guest@berryhill <span class="sep">:</span>
+        <span class="cwd">~/posts</span> $</span
+      >
+      <span class="cmd" id="prompt-tail">_</span>
+    </p>
+  </div>
+</div>
+<Pagination {page} />
+<footer>
+  © Berryhill 2026 · <a href="/">← back to ~</a> · zero trackers · <a
+    href="/rss.xml">rss</a
+  >
+</footer>
+
+<script is:inline>
+  (function () {
+    const input = document.getElementById("q"),
+      tagsEl = document.getElementById("tags"),
+      emptyEl = document.getElementById("empty");
+    if (!input || !tagsEl || !emptyEl) return;
+    let activeTag = "all",
+      query = "";
+    const rows = Array.prototype.slice.call(
+      document.querySelectorAll(".ls-row, .pin")
+    );
+    function applyFilter() {
+      const q = query.trim().toLowerCase();
+      let anyVisible = false;
+      rows.forEach(function (row) {
+        const tag = row.getAttribute("data-tag") || "";
+        const hay = (
+          (row.getAttribute("data-search") || "") +
+          " " +
+          (row.textContent || "")
+        ).toLowerCase();
+        const show =
+          (activeTag === "all" || tag === activeTag) &&
+          (!q || hay.indexOf(q) !== -1);
+        row.classList.toggle("hidden", !show);
+        if (show) anyVisible = true;
+      });
+      emptyEl.classList.toggle("show", !anyVisible);
+    }
+    tagsEl.addEventListener("click", function (e) {
+      const t = e.target.closest(".tag");
+      if (!t) return;
+      Array.prototype.forEach.call(
+        tagsEl.querySelectorAll(".tag"),
+        function (x) {
+          x.classList.remove("on");
+        }
+      );
+      t.classList.add("on");
+      activeTag = t.getAttribute("data-tag") || "all";
+      applyFilter();
+    });
+    input.addEventListener("input", function () {
+      query = input.value;
+      applyFilter();
+    });
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        input.value = "";
+        query = "";
+        applyFilter();
+      }
+    });
+  })();
+</script>

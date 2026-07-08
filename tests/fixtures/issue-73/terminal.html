@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Matthew Berryhill — Terminal iteration</title>
+<style>
+  :root {
+    --bg:        oklch(14% 0.012 240);
+    --surface:   oklch(18% 0.012 240);
+    --surface-2: oklch(22% 0.012 240);
+    --fg:        oklch(94% 0.005 240);
+    --muted:     oklch(58% 0.012 240);
+    --dim:       oklch(38% 0.012 240);
+    --border:    oklch(28% 0.012 240);
+    --accent:    oklch(78% 0.18 145);
+    --warn:      oklch(78% 0.16 75);
+    --info:      oklch(72% 0.16 235);
+    --orange:     oklch(64% 0.18 28);
+    --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -100px, oklch(20% 0.04 220 / 0.6), transparent 70%),
+      radial-gradient(900px 500px at -10% 30%, oklch(20% 0.04 145 / 0.4), transparent 70%),
+      var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  a { color: var(--info); text-decoration: none; }
+  a:hover { color: var(--accent); }
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+  @media (max-width: 720px) { .wrap { padding: 0 16px; } }
+
+  /* Window chrome */
+  .window {
+    margin: 32px auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: oklch(13% 0.012 240 / 0.92);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px oklch(0% 0 0 / 0.5);
+    max-width: 1160px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  @media (max-width: 720px) { .window { margin: 12px; border-radius: 6px; } }
+  .titlebar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px 8px 12px;
+    border-bottom: 1px solid var(--border);
+    background: oklch(15% 0.012 320);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .hamb {
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    font-size: 16px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-family: inherit;
+    line-height: 1;
+    border-radius: 4px;
+  }
+  .hamb:hover { background: oklch(22% 0.012 320); color: var(--fg); }
+  .titlebar .path {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .titlebar .path b { color: var(--fg); font-weight: 500; }
+  .gnome-ctrls { display: flex; gap: 6px; margin-left: auto; }
+  .gctl {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 0;
+    background: oklch(26% 0.012 320);
+    color: var(--muted);
+    font-size: 10px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    font-family: inherit;
+  }
+  .gctl:hover { background: oklch(32% 0.012 320); color: var(--fg); }
+  .gctl.cls { background: var(--orange); color: oklch(98% 0.005 28); }
+  .gctl.cls:hover { background: oklch(70% 0.18 28); }
+  .tabstrip {
+    display: flex;
+    gap: 1px;
+    padding: 0 8px;
+    background: oklch(11% 0.012 320);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabstrip::-webkit-scrollbar { display: none; }
+  .tabstrip .tab {
+    padding: 9px 16px 8px;
+    color: var(--muted);
+    font-size: 11.5px;
+    cursor: pointer;
+    border-radius: 7px 7px 0 0;
+    border: 1px solid transparent;
+    border-bottom: 0;
+    text-decoration: none;
+    white-space: nowrap;
+    position: relative;
+    top: 1px;
+    background: transparent;
+    transition: color .12s, background .12s;
+  }
+  .tabstrip .tab:hover { color: var(--fg); background: oklch(15% 0.012 320); }
+  .tabstrip .tab.on {
+    color: var(--fg);
+    background: var(--bg);
+    border-color: var(--border);
+  }
+  .tabstrip .tabnew {
+    padding: 4px 10px;
+    color: var(--dim);
+    font-size: 16px;
+    cursor: pointer;
+    align-self: center;
+    line-height: 1;
+    user-select: none;
+  }
+  .tabstrip .tabnew:hover { color: var(--fg); }
+  @media (max-width: 720px) {
+    .titlebar .path { display: none; }
+  }
+
+  .term { padding: 28px 28px 36px; }
+  @media (max-width: 720px) { .term { padding: 18px 14px 24px; } }
+
+  .line { display: flex; align-items: baseline; gap: 10px; padding: 2px 0; }
+  .ps1 { color: var(--accent); white-space: nowrap; }
+  .ps1 .at { color: var(--muted); }
+  .ps1 .cwd { color: var(--info); }
+  .ps1 .sep { color: var(--muted); }
+  .cmd { color: var(--fg); }
+  .comment { color: var(--dim); }
+  .out { color: var(--muted); padding-left: 0; }
+  .out b { color: var(--fg); font-weight: 500; }
+  .out span.k { color: var(--accent); }
+  .out span.w { color: var(--warn); }
+
+  /* Header block — fancy ASCII identity */
+  .who {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: start;
+    padding: 18px 0 24px;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 24px;
+  }
+  @media (max-width: 720px) { .who { grid-template-columns: 1fr; } }
+  .who h1 {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  .who h1 b { color: var(--accent); }
+  .who h1 .cursor {
+    display: inline-block;
+    width: 0.55ch;
+    background: var(--accent);
+    animation: blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .who p { color: var(--muted); margin-top: 14px; max-width: 56ch; }
+  .who p b { color: var(--fg); font-weight: 500; }
+  .fleet-response {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+    gap: 12px;
+    margin: 10px 0 26px;
+  }
+  .fleet-meta,
+  .fleet-agents {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 14px 16px;
+  }
+  .fleet-meta div,
+  .agent-row {
+    display: grid;
+    grid-template-columns: 12ch 1fr auto;
+    gap: 12px;
+    padding: 4px 0;
+    color: var(--muted);
+    font-size: 12px;
+    border-bottom: 1px dashed oklch(28% 0.012 240 / 0.45);
+  }
+  .fleet-meta div { grid-template-columns: 11ch 1fr; }
+  .fleet-meta div:last-child,
+  .agent-row:last-child { border-bottom: 0; }
+  .fleet-meta span,
+  .agent-row span:first-child { color: var(--accent); }
+  .fleet-meta b,
+  .agent-row b { color: var(--fg); font-weight: 500; }
+  .agent-row .ok { color: var(--accent); font-size: 11px; }
+  @media (max-width: 760px) {
+    .fleet-response { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .agent-row { grid-template-columns: 1fr; gap: 0; }
+    .agent-row .ok { margin-top: 2px; }
+  }
+  .status {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    background: var(--surface);
+    font-size: 12px;
+    min-width: 220px;
+  }
+  .status .row-s {
+    display: flex; justify-content: space-between;
+    padding: 3px 0;
+    color: var(--muted);
+  }
+  .status .row-s b { color: var(--fg); font-weight: 500; }
+  .status .row-s .ok { color: var(--accent); }
+  .status .row-s .dot {
+    display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; background: var(--accent);
+    margin-right: 6px;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+
+  /* Command bar */
+  .cmdbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 20px 0 28px;
+  }
+  .cmdbar .ps { color: var(--accent); }
+  .cmdbar input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    color: var(--fg);
+    font: inherit;
+    outline: none;
+  }
+  .cmdbar input::placeholder { color: var(--dim); }
+  .cmdbar .hint {
+    color: var(--dim);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  @media (max-width: 560px) { .cmdbar .hint { display: none; } }
+
+  /* Block heading */
+  .block-h {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 32px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .block-h h2 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg);
+    text-transform: lowercase;
+  }
+  .block-h h2::before { content: "$ "; color: var(--accent); }
+  .block-h .n {
+    margin-left: auto;
+    color: var(--dim);
+    font-size: 11px;
+  }
+
+  /* Featured cards (file-listing style) */
+  .files { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 720px) { .files { grid-template-columns: 1fr; } }
+  .file {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 16px 18px;
+    background: var(--surface);
+    text-decoration: none;
+    display: block;
+    transition: border-color .15s, transform .15s;
+  }
+  .file:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .file:hover .name { color: var(--accent); }
+  .file .head {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--muted); font-size: 11px;
+  }
+  .file .head .ext {
+    color: var(--info);
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+  .file .head .star { color: var(--warn); }
+  .file .name {
+    color: var(--fg);
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 10px;
+    line-height: 1.3;
+    transition: color .15s;
+  }
+  .file .desc {
+    color: var(--muted);
+    margin-top: 8px;
+    font-size: 13px;
+  }
+  .file .stat {
+    margin-top: 14px;
+    display: flex;
+    gap: 16px;
+    color: var(--dim);
+    font-size: 11px;
+  }
+  .file .stat b { color: var(--muted); font-weight: 500; }
+
+  /* Recent table */
+  .ls {
+    display: grid;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .ls-row {
+    display: grid;
+    grid-template-columns: 24px 90px 1fr 110px 36px;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--fg);
+    text-decoration: none;
+    font-size: 13px;
+    transition: background .15s;
+  }
+  .ls-row:last-child { border-bottom: 0; }
+  .ls-row:hover { background: var(--surface); }
+  .ls-row .perm { color: var(--dim); font-size: 11px; }
+  .ls-row .date { color: var(--muted); font-size: 12px; }
+  .ls-row .topic { color: var(--info); font-size: 11px; text-align: right; }
+  .ls-row .arr { color: var(--accent); text-align: right; opacity: 0; transition: opacity .15s, transform .15s; }
+  .ls-row:hover .arr { opacity: 1; transform: translateX(4px); }
+  @media (max-width: 720px) {
+    .ls-row { grid-template-columns: 1fr auto; gap: 4px 12px; padding: 14px 14px; }
+    .ls-row .perm { display: none; }
+    .ls-row .date { grid-column: 1; font-size: 11px; }
+    .ls-row .topic { grid-column: 2; }
+    .ls-row .arr { display: none; }
+    .ls-row .name { grid-column: 1 / -1; }
+  }
+
+  /* Contact env */
+  .env {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  @media (max-width: 720px) { .env { grid-template-columns: 1fr; } }
+  .env a {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--fg);
+    transition: border-color .15s;
+  }
+  .env a:hover { border-color: var(--accent); }
+  .env a b { color: var(--accent); font-weight: 500; font-size: 12px; }
+  .env a span { color: var(--muted); font-size: 12px; }
+
+  footer {
+    color: var(--dim);
+    font-size: 11px;
+    text-align: center;
+    padding: 16px 0 32px;
+  }
+</style>
+</head>
+<body>
+
+<div class="window">
+  <div class="titlebar">
+    <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
+    <span class="path">m@berryhill: ~/<b>berryhill.dev</b></span>
+    <span class="gnome-ctrls">
+      <button class="gctl min" aria-label="Minimize" type="button">&minus;</button>
+      <button class="gctl max" aria-label="Maximize" type="button">&#9633;</button>
+      <button class="gctl cls" aria-label="Close" type="button">&times;</button>
+    </span>
+  </div>
+  <div class="tabstrip">
+    <a class="tab on" href="terminal.html">~ home</a>
+    <a class="tab" href="posts.html">posts/</a>
+    <a class="tab" href="notes.html">notes/</a>
+    <a class="tab" href="projects.html">projects/</a>
+    <a class="tab" href="about.html">about.md</a>
+    <a class="tab" href="uses.html">uses.md</a>
+    <span class="tabnew" aria-hidden="true">+</span>
+  </div>
+
+  <div class="term">
+
+    <div class="line"><span class="ps1">guest@berryhill <span class="sep">:</span> <span class="cwd">~</span> $</span><span class="cmd">whoami --verbose</span></div>
+
+    <div class="who">
+      <div>
+        <h1>matt<b>@berryhill</b><span class="cursor">&nbsp;</span></h1>
+        <p><b>builder · operator · agent conductor.</b> I run a fleet of specialized AI agents that design, research, code, review, write, analyze markets, and ship software with me. This site is the public terminal into that operating system.</p>
+      </div>
+      <div class="status">
+        <div class="row-s"><span><span class="dot"></span>status</span><b class="ok">online</b></div>
+        <div class="row-s"><span>agents</span><b>active</b></div>
+        <div class="row-s"><span>mode</span><b>human-led</b></div>
+        <div class="row-s"><span>shell</span><b>hermes</b></div>
+        <div class="row-s"><span>focus</span><b>systems</b></div>
+        <div class="row-s"><span>operator</span><b>matt</b></div>
+      </div>
+    </div>
+
+    <form class="cmdbar" onsubmit="event.preventDefault(); runCmd(this);">
+      <span class="ps">~/ $</span>
+      <input type="text" placeholder="try: fleet · posts · about · contact · curl GET /fleet" autocomplete="off" />
+      <span class="hint">⌘K · ↵ to run</span>
+    </form>
+
+    <div class="line"><span class="ps1">guest@berryhill <span class="sep">:</span> <span class="cwd">~</span> $</span><span class="cmd">curl GET /fleet</span></div>
+    <p class="out" style="padding: 8px 0 6px;">
+      <b>200 OK</b> · application/json · <span class="k">8 verified agents</span>
+    </p>
+    <div class="fleet-response" aria-label="Fleet response">
+      <div class="fleet-meta">
+        <div><span>operator</span><b>matt · human</b></div>
+        <div><span>mode</span><b>human-led</b></div>
+        <div><span>runtime</span><b>ubuntu / hermes</b></div>
+        <div><span>scope</span><b>profile-backed fleet</b></div>
+      </div>
+      <div class="fleet-agents">
+        <div class="agent-row"><span>default / silas</span><b>orchestration + operator support</b><span class="ok">verified</span></div>
+        <div class="agent-row"><span>ada-vector</span><b>taskflow intelligence + evaluation data</b><span class="ok">verified</span></div>
+        <div class="agent-row"><span>archer</span><b>financial markets analysis</b><span class="ok">verified</span></div>
+        <div class="agent-row"><span>chip-renwick</span><b>broker-dealer compliance systems</b><span class="ok">verified</span></div>
+        <div class="agent-row"><span>luca</span><b>brand architecture + marketing strategy</b><span class="ok">verified</span></div>
+        <div class="agent-row"><span>nick-mercer</span><b>OpenSCAD physical design</b><span class="ok">verified</span></div>
+        <div class="agent-row"><span>vinnie-santoro</span><b>World Cup betting analysis</b><span class="ok">verified</span></div>
+        <div class="agent-row"><span>wren-ashford</span><b>product/ui creative direction</b><span class="ok">verified</span></div>
+      </div>
+    </div>
+
+    <div class="line"><span class="ps1">guest@berryhill <span class="sep">:</span> <span class="cwd">~</span> $</span><span class="cmd">cat manifesto.md</span></div>
+    <p class="out" style="padding: 8px 0 6px;">
+      <b># Manifesto</b><br>
+      Beyond the stack lies <span class="k">the shift</span> — a new cultural operating system<br>
+      where software is grown, not shipped, and the people who steer the<br>
+      agents matter more than the people who once typed the code.<br>
+      <span class="comment"># EOF · last edit: 2026-06-02</span>
+    </p>
+
+    <div class="block-h">
+      <h2>ls featured/ --sort=stars</h2>
+      <span class="n">3 items · 2 starred</span>
+    </div>
+
+    <div class="files">
+      <a class="file" href="#">
+        <div class="head"><span class="ext">.md</span><span class="star">★</span><span>22 min · agentic-systems</span></div>
+        <div class="name">the-agentic-first-development-thesis.md</div>
+        <div class="desc">If the next decade of software is mostly written by agents, the artifact we sit inside has to change. A working sketch of what replaces the IDE.</div>
+        <div class="stat"><span>↑ <b>2.4k</b></span><span>💬 <b>38</b></span><span>updated <b>2d</b></span></div>
+      </a>
+      <a class="file" href="#">
+        <div class="head"><span class="ext">.md</span><span class="star">★</span><span>9 min · crypto / RWA</span></div>
+        <div class="name">rwa-tokenization-2026.md</div>
+        <div class="desc">Past the slide decks, three categories have working volume. A field report from the desks that touch the rails.</div>
+        <div class="stat"><span>↑ <b>1.1k</b></span><span>💬 <b>22</b></span><span>updated <b>6d</b></span></div>
+      </a>
+      <a class="file" href="#">
+        <div class="head"><span class="ext">.md</span><span style="color:var(--dim)">14 min · field-notes</span></div>
+        <div class="name">notes-from-inside-the-agentic-stack.md</div>
+        <div class="desc">Six months of building with agents as collaborators instead of tools. What stuck, what broke, the ergonomics nobody is writing about yet.</div>
+        <div class="stat"><span>↑ <b>982</b></span><span>💬 <b>17</b></span><span>updated <b>2w</b></span></div>
+      </a>
+      <a class="file" href="#">
+        <div class="head"><span class="ext">.md</span><span style="color:var(--dim)">7 min · markets</span></div>
+        <div class="name">where-the-smart-money-moved.md</div>
+        <div class="desc">A rough map of capital flows this cycle and the few categories that look like they survive past the rebate.</div>
+        <div class="stat"><span>↑ <b>644</b></span><span>💬 <b>11</b></span><span>updated <b>3w</b></span></div>
+      </a>
+    </div>
+
+    <div class="block-h">
+      <h2>ls -la recent/</h2>
+      <span class="n">4 items · sorted by mtime</span>
+    </div>
+
+    <div class="ls">
+      <a class="ls-row" href="#">
+        <span class="perm">-rw-r--</span>
+        <span class="date">2026-05-28</span>
+        <span class="name">edge-ai-is-finally-having-its-moment.md</span>
+        <span class="topic">ai / hardware</span>
+        <span class="arr">→</span>
+      </a>
+      <a class="ls-row" href="#">
+        <span class="perm">-rw-r--</span>
+        <span class="date">2026-05-11</span>
+        <span class="name">freelance-writing-in-the-age-of-llms.md</span>
+        <span class="topic">essay</span>
+        <span class="arr">→</span>
+      </a>
+      <a class="ls-row" href="#">
+        <span class="perm">-rw-r--</span>
+        <span class="date">2026-04-22</span>
+        <span class="name">the-non-coder-ceiling.md</span>
+        <span class="topic">essay</span>
+        <span class="arr">→</span>
+      </a>
+      <a class="ls-row" href="#">
+        <span class="perm">-rw-r--</span>
+        <span class="date">2026-03-30</span>
+        <span class="name">small-tools-big-leverage.md</span>
+        <span class="topic">tooling</span>
+        <span class="arr">→</span>
+      </a>
+    </div>
+
+    <div class="block-h">
+      <h2>cat .env</h2>
+      <span class="n">contact targets</span>
+    </div>
+    <div class="env">
+      <a href="https://cal.com/" target="_blank" rel="noopener">
+        <span><b>CALENDLY=</b> book/30min</span>
+        <span>schedule →</span>
+      </a>
+      <a href="mailto:matt@berryhill.dev">
+        <span><b>EMAIL=</b> matt@berryhill.dev</span>
+        <span>compose →</span>
+      </a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener">
+        <span><b>LINKEDIN=</b> /in/berryhill</span>
+        <span>connect →</span>
+      </a>
+      <a href="/rss.xml">
+        <span><b>RSS=</b> /rss.xml</span>
+        <span>subscribe →</span>
+      </a>
+    </div>
+
+    <p class="out" style="margin-top: 28px;">
+      <span class="ps1">guest@berryhill <span class="sep">:</span> <span class="cwd">~</span> $</span> <span class="cmd" id="prompt-tail">_</span>
+    </p>
+
+  </div>
+</div>
+
+<footer>© Berryhill 2026 · built quietly · zero trackers · <a href="#" style="color: var(--muted);">colophon</a></footer>
+
+<script>
+(function () {
+  // simple cursor in the trailing prompt
+  var el = document.getElementById('prompt-tail');
+  if (el) {
+    var on = true;
+    setInterval(function () {
+      on = !on;
+      el.textContent = on ? '_' : ' ';
+    }, 600);
+  }
+})();
+
+function runCmd(form) {
+  var input = form.querySelector('input');
+  var v = (input.value || '').trim().toLowerCase();
+  var target = null;
+  if (v === 'posts' || v === 'ls' || v === 'ls -la' || v === 'cd posts') target = '.files';
+  else if (v === 'about' || v === 'cat manifesto.md' || v === 'whoami') target = '.who';
+  else if (v === 'fleet' || v === '/fleet' || v === 'curl get /fleet' || v === 'ls /fleet') target = '.fleet-response';
+  else if (v === 'contact' || v === 'cat .env' || v === 'env') target = '.env';
+  else if (v === 'recent' || v === 'ls recent/') target = '.ls';
+  else if (v === 'clear') { input.value = ''; return; }
+  else if (v === 'help' || v === '?') {
+    alert('available: posts · about · contact · recent · clear');
+    input.value = '';
+    return;
+  }
+  if (target) {
+    var node = document.querySelector(target);
+    if (node) {
+      var rect = node.getBoundingClientRect();
+      var top = rect.top + (window.pageYOffset || document.documentElement.scrollTop) - 24;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }
+  }
+  input.value = '';
+}
+</script>
+
+</body>
+</html>

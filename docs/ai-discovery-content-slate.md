@@ -16,7 +16,7 @@ Topical authority builds through three mechanisms:
 
 This slate defines the clusters, names the posts that build each one, and sets the linkage and citation rules that govern future content.
 
-Public terminal-shell surfaces should be framed as a brand interface metaphor for Matt's operator/workflow positioning: a way to make the site feel like a working field console. They are not evidence of private runtime state, production queues, fleet activity, or live telemetry unless a public implementation and explicit acceptance criteria back the displayed values.
+Public terminal-shell surfaces on the home page, posts archive, about page, and post detail page are a brand/interface metaphor and a prototype-fidelity contract. They should make the site feel like a working field console while remaining grounded in public site data and visible copy. They are not evidence of private runtime state, production queues, fleet activity, live telemetry, or verified operational metrics unless a public implementation and explicit acceptance criteria back the displayed values.
 
 ---
 
@@ -199,6 +199,7 @@ This slate should be reviewed quarterly or after every 3–5 new published posts
 - Update /llms.txt representative section when new qualifying posts publish
 - Adjust cluster boundaries if the content strategy shifts
 - Verify archive, tag, card/page-shell, terminal public surface, and homepage-derived state-label framing still presents the corpus as field notes, operating questions, and evidence trails rather than generic blog inventory.
+- Verify the issue #73 terminal route set — home, posts archive including pagination, about page, and post detail — still matches the intended terminal prototype language, class contract, responsive behavior, and public-data-only integrity rule.
 
 ### Public Surface Integrity
 
