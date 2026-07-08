@@ -164,12 +164,13 @@ const page = {
               <a
                 class="pin"
                 href={getPath(post.id, post.filePath)}
+                aria-label={`Read pinned post: ${post.data.title}`}
                 data-tag={post.data.tags?.[0] ?? "post"}
                 data-search={`${post.data.title} ${post.data.description}`}
               >
                 <div class="head">
-                  <span class="ext">.md</span>
-                  <span style="color: var(--warn);">★</span>
+                  <span class="ext">PINNED</span>
+                  <span class="star">★</span>
                   <span>
                     {readMinutes(post)} min ·{" "}
                     {formatDate(post.data.pubDatetime)}
