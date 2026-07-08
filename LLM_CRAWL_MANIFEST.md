@@ -17,6 +17,7 @@
 - **Update Frequency**: Real-time (generated on-demand)
 - **Submission Status**:
   - Google Search Console: Sitemap resubmission is implemented for public post create/update when `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN` is configured; operational Search Console property/token provisioning remains environment-dependent unless separately verified.
+  - DuckDuckGo: Crawl coverage evaluation is implemented for public post create/update. It records coverage through Bing/IndexNow when IndexNow succeeds, otherwise through canonical sitemap availability plus DuckDuckBot access; no direct DuckDuckGo URL submission endpoint is implemented.
   - Bing Webmaster Tools: IndexNow post URL submission is implemented and now also provides Yahoo crawl-discovery evidence via Bing IndexNow / Yahoo Slurp; direct Bing Webmaster Tools sitemap submission remains pending.
 - **IndexNow**: ✅ **IMPLEMENTED**
   - API Key: Hosted at `/a63643bb50ffbee1ac79fcfe60003c1dc912bdee3803a9308fa313f06024d2c6.txt`
@@ -27,6 +28,11 @@
   - Supported signal is Search Console sitemap resubmission, not the unsupported per-URL Google Indexing API for ordinary blog posts.
   - Submits the canonical `/sitemap.xml` after non-draft post POST/PATCH when server-side Google credentials are configured.
   - Missing Google configuration is skipped safely and does not fail the post write.
+- **DuckDuckGo crawl signal**: ✅ **IMPLEMENTED**
+  - Records DuckDuckGo coverage evidence after non-draft post POST/PATCH without claiming guaranteed indexing.
+  - Uses Bing/IndexNow coverage when IndexNow succeeds, because DuckDuckGo can source discovery coverage through Bing-backed indexing signals.
+  - Falls back to canonical sitemap plus DuckDuckBot access evidence when IndexNow is not available or does not succeed.
+  - `DUCKDUCKGO_CRAWL_SIGNAL_DISABLED=true` disables the DuckDuckGo coverage evaluation.
 
 ### ✅ **FIXED: Blog Posts Now in Sitemap!**
 Previously, only 6 static pages were included. Now public blog posts that pass the shared filter are discoverable by search engines and LLM crawlers, excluding drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
@@ -35,7 +41,7 @@ Previously, only 6 static pages were included. Now public blog posts that pass t
 - **Location**: https://berryhill.dev/robots.txt
 - **Status**: ✅ **FULLY LLM-OPTIMIZED**
 
-### Explicitly Allowed Crawlers (18+ AI bots):
+### Explicitly Allowed Crawlers (19+ AI/search bots):
 
 **OpenAI:**
 - ✅ GPTBot (model training for GPT-4o/GPT-5)
@@ -51,6 +57,9 @@ Previously, only 6 static pages were included. Now public blog posts that pass t
 **Google AI:**
 - ✅ Google-Extended (Gemini training)
 - ✅ GoogleOther (AI products)
+
+**DuckDuckGo:**
+- ✅ DuckDuckBot (search discovery)
 
 **Perplexity:**
 - ✅ PerplexityBot
@@ -159,7 +168,8 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 5. Issue #58 crawl-signal reconciliation (2026-07-03): canonical `/sitemap.xml` signals in robots/layout/llms/check script, robots asset/index noise reduction, static sitemap redirect exclusion, and search visibility check alignment
 6. Issue #59 public-post filtering reconciliation (2026-07-03): RSS, Atom, `/llms.txt`, and `/sitemap-posts.xml` share `getSortedPosts`/`getPublicPosts` so machine-readable surfaces expose the same public corpus.
 7. Issue #97 public-post crawl signals (2026-07-08): public post create/update now sends IndexNow and Google Search Console sitemap crawl signals through shared `submitPublicPostCrawlSignals`, skipping drafts and missing Google config safely.
-8. Issue #102 Yahoo crawl-discovery evidence (2026-07-08): non-draft post create/update responses include Yahoo-specific discovery evidence via Bing IndexNow / Yahoo Slurp, sitemap, and robots visibility. This is not a standalone Yahoo-owned submit endpoint and does not guarantee indexing.
+8. Issue #101 DuckDuckGo crawl signal (2026-07-08): public post create/update now records DuckDuckGo coverage through Bing/IndexNow evidence or canonical sitemap plus DuckDuckBot access, with no direct DuckDuckGo submission endpoint claimed.
+9. Issue #102 Yahoo crawl-discovery evidence (2026-07-08): non-draft post create/update responses include Yahoo-specific discovery evidence via Bing IndexNow / Yahoo Slurp, sitemap, and robots visibility. This is not a standalone Yahoo-owned submit endpoint and does not guarantee indexing.
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -228,6 +238,7 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 ## Changelog
 
 ### 2026-07-08
+- ✅ **DuckDuckGo Crawl Signal** (Issue #101): Public post create/update now records DuckDuckGo coverage through Bing/IndexNow evidence when IndexNow succeeds, or through canonical sitemap plus DuckDuckBot access when relying on discovery. No direct DuckDuckGo URL submission endpoint is implemented, and `DUCKDUCKGO_CRAWL_SIGNAL_DISABLED=true` opts out of the evaluation.
 - ✅ **Public Post Crawl Signals** (Issue #97): Public post create/update now sends IndexNow and Google Search Console sitemap crawl signals through shared `submitPublicPostCrawlSignals`, skipping drafts and missing Google config safely. Google uses supported Search Console sitemap resubmission for the canonical `/sitemap.xml`; production credentials/property remain configuration-dependent unless separately verified.
 - ✅ **Yahoo Crawl-Discovery Evidence** (Issue #102): Non-draft post create/update responses now include Yahoo-specific evidence from `submitPublicPostCrawlSignals` via Bing IndexNow / Yahoo Slurp plus sitemap and robots visibility. This is honest discovery evidence, not a standalone Yahoo-owned submit endpoint and not guaranteed indexing. No Yahoo-specific environment variable, secret, deploy value, or Helm value is required.
 

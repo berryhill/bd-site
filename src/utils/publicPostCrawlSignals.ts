@@ -1,4 +1,5 @@
 import { submitSitemapToGoogleSearchConsole } from "./googleSearchConsole";
+import { submitDuckDuckGoCrawlSignal } from "./duckDuckGoCrawlSignal";
 import { submitToIndexNow } from "./indexnow";
 import { submitYahooPostCrawlSignal } from "./yahooPostCrawlSignals";
 
@@ -7,12 +8,14 @@ export interface PublicPostCrawlSignalResult {
   skipped?: boolean;
   reason?: string;
   indexNow?: boolean;
+  duckDuckGo?: Awaited<ReturnType<typeof submitDuckDuckGoCrawlSignal>>;
   google?: Awaited<ReturnType<typeof submitSitemapToGoogleSearchConsole>>;
   yahoo?: Awaited<ReturnType<typeof submitYahooPostCrawlSignal>>;
 }
 
 interface PublicPostCrawlSignalDeps {
   submitIndexNow?: typeof submitToIndexNow;
+  submitDuckDuckGo?: typeof submitDuckDuckGoCrawlSignal;
   submitGoogleSitemap?: typeof submitSitemapToGoogleSearchConsole;
   submitYahoo?: typeof submitYahooPostCrawlSignal;
 }
@@ -38,6 +41,8 @@ export async function submitPublicPostCrawlSignals(
   }
 
   const submitIndexNow = options?.deps?.submitIndexNow ?? submitToIndexNow;
+  const submitDuckDuckGo =
+    options?.deps?.submitDuckDuckGo ?? submitDuckDuckGoCrawlSignal;
   const submitGoogleSitemap =
     options?.deps?.submitGoogleSitemap ?? submitSitemapToGoogleSearchConsole;
 
@@ -47,10 +52,18 @@ export async function submitPublicPostCrawlSignals(
       submitGoogleSitemap(),
     ]);
     const yahoo = await submitYahoo(postUrl, { indexNowResult: indexNow });
+    const duckDuckGo = await submitDuckDuckGo(postUrl, {
+      indexNowSubmitted: indexNow,
+    });
 
     return {
-      ok: indexNow && (google.ok || google.skipped === true),
+      ok:
+        indexNow &&
+        (google.ok || google.skipped === true) &&
+        (duckDuckGo.ok || duckDuckGo.mode === "skipped") &&
+        yahoo.ok,
       indexNow,
+      duckDuckGo,
       google,
       yahoo,
     };
@@ -59,10 +72,14 @@ export async function submitPublicPostCrawlSignals(
     const yahoo = await submitYahoo(postUrl, {
       indexNowResult: false,
     });
+    const duckDuckGo = await submitDuckDuckGo(postUrl, {
+      indexNowSubmitted: false,
+    });
 
     return {
       ok: false,
       reason,
+      duckDuckGo,
       yahoo,
     };
   }

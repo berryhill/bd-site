@@ -13,6 +13,7 @@ export const CRAWLER_USER_AGENTS = [
   "Claude-User",
   "Google-Extended",
   "GoogleOther",
+  "DuckDuckBot",
   "PerplexityBot",
   "CCBot",
   "Meta-ExternalAgent",
