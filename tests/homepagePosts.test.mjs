@@ -91,10 +91,23 @@ test("featured and archive pinned cards share compact terminal styling without d
   assert.doesNotMatch(globalCssSource, /featured artifact/);
   assert.doesNotMatch(globalCssSource, /\.featured-file::(?:before|after)/);
   assert.doesNotMatch(globalCssSource, /\.pin::before\s*\{[\s\S]*📌/);
-  assert.match(globalCssSource, /\.featured-file\s*\{[\s\S]*border-radius:\s*7px;[\s\S]*padding:\s*14px 14px 15px;[\s\S]*background:\s*var\(--surface\);/);
-  assert.match(globalCssSource, /\.pin\s*\{[\s\S]*border-radius:\s*7px;[\s\S]*padding:\s*14px 14px 15px;[\s\S]*background:\s*var\(--surface\);/);
-  assert.match(globalCssSource, /\.featured-file \.name\s*\{[\s\S]*font-size:\s*clamp\(15px, 1\.35vw, 17px\);/);
-  assert.match(globalCssSource, /\.pin \.name\s*\{[\s\S]*font-size:\s*clamp\(15px, 1\.35vw, 17px\);/);
+  assert.match(
+    globalCssSource,
+    /\.files,\s*\n\.pinned\s*\{[\s\S]*grid-template-columns:\s*1fr 1fr;[\s\S]*gap:\s*12px;/
+  );
+  assert.match(
+    globalCssSource,
+    /@media \(max-width: 820px\) \{[\s\S]*\.files,\s*\n\s*\.pinned\s*\{[\s\S]*grid-template-columns:\s*1fr;/
+  );
+  assert.match(
+    globalCssSource,
+    /\.featured-file,\s*\n\.pin\s*\{[\s\S]*border:\s*1px solid color-mix\(in srgb, var\(--accent\) 24%, var\(--border\)\);[\s\S]*border-radius:\s*7px;[\s\S]*padding:\s*14px 14px 15px;[\s\S]*background:\s*var\(--surface\);[\s\S]*text-decoration:\s*none;/
+  );
+  assert.match(
+    globalCssSource,
+    /\.featured-file \.name,\s*\n\.pin \.name\s*\{[\s\S]*font-size:\s*clamp\(15px, 1\.35vw, 17px\);[\s\S]*line-height:\s*1\.3;/
+  );
+  assert.match(globalCssSource, /\.featured-file \.stat,\s*\n\.pin \.meta\s*\{[\s\S]*gap:\s*16px;/);
   assert.match(globalCssSource, /\.featured-file \.stat \.open\s*\{[\s\S]*margin-left:\s*auto;/);
   assert.match(globalCssSource, /\.ls-row\s*\{[\s\S]*grid-template-columns:\s*24px 90px 1fr 110px 36px;/);
 });
