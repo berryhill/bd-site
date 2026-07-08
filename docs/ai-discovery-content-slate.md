@@ -16,7 +16,7 @@ Topical authority builds through three mechanisms:
 
 This slate defines the clusters, names the posts that build each one, and sets the linkage and citation rules that govern future content.
 
-Public terminal-shell surfaces on the home page, posts archive, about page, and post detail page are a brand/interface metaphor and a prototype-fidelity contract. They should make the site feel like a working field console while remaining grounded in public site data and visible copy. They are not evidence of private runtime state, production queues, fleet activity, live telemetry, or verified operational metrics unless a public implementation and explicit acceptance criteria back the displayed values.
+Public terminal-shell surfaces on the home page, posts archive, about page, post detail page, and search are a brand/interface metaphor and a prototype-fidelity contract. They should make the site feel like a working field console while remaining grounded in public site data and visible copy. Issue #75 narrows terminal-shell public tabs to real public destinations only: home, posts, about.md, and search. `notes/`, `projects/`, and `uses.md` were hidden because they implied stale or non-existent route surfaces. They are not evidence of private runtime state, production queues, fleet activity, live telemetry, or verified operational metrics unless a public implementation and explicit acceptance criteria back the displayed values.
 
 ---
 
@@ -198,12 +198,12 @@ This slate should be reviewed quarterly or after every 3–5 new published posts
 - Add new candidate posts as the content corpus grows
 - Update /llms.txt representative section when new qualifying posts publish
 - Adjust cluster boundaries if the content strategy shifts
-- Verify archive, tag, card/page-shell, terminal public surface, and homepage-derived state-label framing still presents the corpus as field notes, operating questions, and evidence trails rather than generic blog inventory.
-- Verify the issue #73 terminal route set — home, posts archive including pagination, about page, and post detail — still matches the intended terminal prototype language, class contract, responsive behavior, and public-data-only integrity rule.
+- Verify tag, page, and card shells remain on-brand while stale route surfaces stay hidden or return 404 instead of presenting inactive inventory as public navigation.
+- Verify the issue #73 terminal route set, with the issue #75 refinement — home, posts archive including pagination, about page, and post detail must keep the intended terminal prototype language, class contract, responsive behavior, and public-data-only integrity rule, while tab navigation must not reintroduce `notes/`, `projects/`, or `uses.md` labels unless those routes are rebuilt as real public surfaces.
 
 ### Public Surface Integrity
 
-Public terminal surfaces may only display values derived from public site data, such as published post count, tag count, latest post date, total word count, frontmatter previews, and per-post word count. Do not invent fake views, fake agent counts, private fleet dashboards, production queue claims, live telemetry, or verified telemetry. Any telemetry-style claim must be backed by a public implementation and acceptance criteria before it appears on the site.
+Public terminal surfaces may only display values derived from public site data, such as published post count, tag count, latest post date, total word count, frontmatter previews, and per-post word count. Do not invent fake views, fake agent counts, private fleet dashboards, production queue claims, live telemetry, or verified telemetry. Route-like labels in terminal chrome are treated as product promises: do not show `notes/`, `projects/`, `uses.md`, archived project pages, or telemetry-like shells unless the route is current, public, and intentionally accepted; `/archives/` and `/projects/draftfly/` are intentionally hidden or 404 under issue #75 until future scoped work restores them. Any telemetry-style claim must be backed by a public implementation and acceptance criteria before it appears on the site.
 
 ---
 
@@ -221,6 +221,6 @@ Public terminal surfaces may only display values derived from public site data, 
 
 ---
 
-*Last updated: 2026-07-04*
+*Last updated: 2026-07-08*
 *Owner: Luca Vale (brand architect)*
 *Next review: after 3 new posts publish or Q3 2026*
