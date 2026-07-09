@@ -109,10 +109,12 @@ test("featured and archive pinned cards share the issue 95 target terminal-card 
     globalCssSource,
     /@media \(max-width: 820px\) \{[\s\S]*\.files,\s*\n\s*\.pinned\s*\{[\s\S]*grid-template-columns:\s*1fr;/
   );
-  assert.match(
-    globalCssSource,
-    /\.featured-shell-heading,\s*\n\.pinned-shell-heading\s*\{[\s\S]*margin-bottom:\s*0;/
-  );
+  const featuredHeadingRule = cssRule(".featured-shell-heading");
+  assert.match(featuredHeadingRule, /margin-top:\s*32px;/);
+  assert.match(featuredHeadingRule, /margin-bottom:\s*14px;/);
+  const pinnedHeadingRule = cssRule(".pinned-shell-heading");
+  assert.match(pinnedHeadingRule, /margin-top:\s*36px;/);
+  assert.match(pinnedHeadingRule, /margin-bottom:\s*14px;/);
   const cardRule = cssRule(".featured-file, .pin");
   assert.match(cardRule, /position:\s*relative;/);
   assert.match(cardRule, /border:\s*1px solid var\(--border\);/);
@@ -120,9 +122,13 @@ test("featured and archive pinned cards share the issue 95 target terminal-card 
   assert.match(cardRule, /padding:\s*16px 16px 18px;/);
   assert.match(cardRule, /background:\s*var\(--surface\);/);
   assert.match(cardRule, /text-decoration:\s*none;/);
+  assert.match(cardRule, /display:\s*block;/);
+  assert.doesNotMatch(cardRule, /flex-direction:\s*column;/);
   assert.doesNotMatch(cardRule, /color-mix\(in srgb, var\(--accent\) 24%, var\(--border\)\)/);
 
   const headRule = cssRule(".featured-file .head, .pin .head");
+  assert.match(headRule, /gap:\s*10px;/);
+  assert.doesNotMatch(headRule, /line-height:\s*1;/);
   assert.doesNotMatch(headRule, /text-transform:\s*uppercase/);
   assert.doesNotMatch(headRule, /letter-spacing:/);
 
@@ -134,11 +140,18 @@ test("featured and archive pinned cards share the issue 95 target terminal-card 
   assert.match(badgeRule, /font-size:\s*10px;/);
 
   const titleRule = cssRule(".featured-file .name, .pin .name");
-  assert.match(titleRule, /font-size:\s*15px;/);
+  assert.match(titleRule, /margin-top:\s*10px;/);
+  assert.match(titleRule, /font-size:\s*16px;/);
   assert.match(titleRule, /font-weight:\s*500;/);
   assert.match(titleRule, /line-height:\s*1\.3;/);
-  assert.match(globalCssSource, /\.featured-file \.stat,\s*\n\.pin \.meta\s*\{[\s\S]*gap:\s*16px;/);
-  assert.match(globalCssSource, /\.featured-file \.stat \.open\s*\{[\s\S]*margin-left:\s*auto;/);
+  const descRule = cssRule(".featured-file .desc, .pin .desc");
+  assert.match(descRule, /margin-top:\s*8px;/);
+  assert.match(descRule, /font-size:\s*13px;/);
+  assert.match(descRule, /line-height:\s*1\.45;/);
+  assert.match(descRule, /-webkit-line-clamp:\s*2;/);
+  assert.match(globalCssSource, /\.featured-file \.stat,\s*\n\.pin \.meta\s*\{[\s\S]*margin-top:\s*14px;[\s\S]*gap:\s*16px;[\s\S]*line-height:\s*1\.2;/);
+  assert.match(postsArchiveSource, /class="open">open →<\/span>/);
+  assert.match(globalCssSource, /\.featured-file \.stat \.open,\s*\n\.pin \.meta \.open\s*\{[\s\S]*margin-left:\s*auto;/);
   assert.match(globalCssSource, /\.ls-row\s*\{[\s\S]*grid-template-columns:\s*24px 90px 1fr 110px 36px;/);
 });
 
