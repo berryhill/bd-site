@@ -130,7 +130,7 @@ test("featured and archive pinned cards share the issue 95 target terminal-card 
   assert.match(headRule, /gap:\s*10px;/);
   assert.match(headRule, /margin:\s*0;/);
   assert.match(headRule, /padding-block:\s*0;/);
-  assert.doesNotMatch(headRule, /line-height:\s*1;/);
+  assert.match(headRule, /line-height:\s*1\.2;/);
   assert.doesNotMatch(headRule, /text-transform:\s*uppercase/);
   assert.doesNotMatch(headRule, /letter-spacing:/);
 

@@ -1030,6 +1030,7 @@ a:hover {
   padding-block: 0;
   color: var(--muted);
   font-size: 11px;
+  line-height: 1.2;
 }
 .featured-file .head .ext,
 .pin .head .ext {
