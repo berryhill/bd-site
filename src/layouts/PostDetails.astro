@@ -2,11 +2,13 @@
 import { type CollectionEntry } from "astro:content";
 import { marked } from "marked";
 import Layout from "@/layouts/Layout.astro";
+import EditPost from "@/components/EditPost.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
 import { getPath } from "@/utils/getPath";
 import { getRelatedPosts } from "@/utils/getRelatedPosts";
 import { slugifyStr } from "@/utils/slugify";
 import { SITE } from "@/config";
+import { SHARE_LINKS } from "@/constants";
 import { buildBlogPostingJsonLd } from "@/utils/structuredData";
 import { toAbsoluteSiteUrl, toPostUrl } from "@/utils/url";
 
@@ -25,6 +27,7 @@ const {
   pubDatetime,
   modDatetime,
   tags,
+  hideEditPost,
 } = post.data;
 const htmlContent = await marked.parse(post.body || "");
 let ogImageUrl: string | undefined;
@@ -79,6 +82,10 @@ const toc = Array.from((post.body || "").matchAll(/^##\s+(.+)$/gm))
   .map(label => ({ label, href: `#${slugifyStr(label)}` }));
 const published = formatDate(pubDatetime) ?? "pending";
 const updated = formatDate(modDatetime) ?? published;
+const footerShareLinks = SHARE_LINKS.map(social => ({
+  ...social,
+  href: `${social.href}${encodeURIComponent(postUrl)}`,
+}));
 ---
 
 <Layout
@@ -190,6 +197,66 @@ const updated = formatDate(modDatetime) ?? published;
           }
           <div class="post-body astro-post-content" set:html={htmlContent} />
         </div>
+        <section class="terminal-post-footer" data-pagefind-ignore>
+          <div class="line terminal-post-footer__prompt">
+            <span class="ps1"
+              >m@berryhill <span class="sep">in</span>
+              <span class="cwd">~/posts/{post.id}</span></span
+            ><span class="cmd">$ tail -f post.meta</span>
+          </div>
+          <div class="terminal-post-footer__row">
+            <nav class="terminal-post-footer__items" aria-label="post tags">
+              {
+                postTags.length > 0 ? (
+                  postTags.map(tag => (
+                    <a
+                      class="terminal-post-footer__chip"
+                      href={`/tags/${slugifyStr(tag)}/`}
+                    >
+                      #{tag}
+                    </a>
+                  ))
+                ) : (
+                  <span class="terminal-post-footer__empty">untagged</span>
+                )
+              }
+            </nav>
+            <nav
+              class="terminal-post-footer__items"
+              aria-label="share this post"
+            >
+              {
+                footerShareLinks.map(link => (
+                  <a
+                    class="terminal-post-footer__chip"
+                    href={link.href}
+                    title={link.linkTitle}
+                    rel="noopener noreferrer"
+                  >
+                    {link.name.toLowerCase()}
+                  </a>
+                ))
+              }
+            </nav>
+            <div
+              class="terminal-post-footer__items"
+              aria-label="post operations"
+            >
+              <EditPost
+                class="terminal-post-footer__chip terminal-post-footer__chip--edit"
+                {hideEditPost}
+                {post}
+              />
+              <button
+                class="terminal-post-footer__chip terminal-post-footer__chip--button"
+                type="button"
+                data-terminal-top
+              >
+                top ↑
+              </button>
+            </div>
+          </div>
+        </section>
         <div class="line end-prompt">
           <span class="ps1"
             >m@berryhill <span class="sep">in</span>
@@ -260,4 +327,10 @@ const updated = formatDate(modDatetime) ?? published;
   window.addEventListener("scroll", tickProgress, { passive: true });
   window.addEventListener("resize", tickProgress);
   tickProgress();
+
+  document.querySelectorAll("[data-terminal-top]").forEach(button => {
+    button.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
 </script>

@@ -3280,6 +3280,67 @@ a:hover {
   top: 0;
   color: var(--accent);
 }
+.terminal-post-footer {
+  margin-top: 40px;
+  padding: 12px 14px 14px;
+  max-width: 68ch;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+}
+.terminal-post-footer__prompt {
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border);
+  font-size: 12px;
+}
+.terminal-post-footer__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px 10px;
+  padding-top: 10px;
+}
+.terminal-post-footer__items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+.terminal-post-footer__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: oklch(11% 0.012 240 / 0.58);
+  color: var(--muted);
+  font: inherit;
+  font-size: 11.5px;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
+}
+.terminal-post-footer__chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: oklch(14% 0.03 145 / 0.64);
+}
+.terminal-post-footer__chip--button {
+  cursor: pointer;
+}
+.terminal-post-footer__chip--edit svg {
+  width: 13px;
+  height: 13px;
+}
+.terminal-post-footer__empty {
+  color: var(--dim);
+  font-size: 11.5px;
+}
 .end-prompt {
   margin-top: 48px;
 }
