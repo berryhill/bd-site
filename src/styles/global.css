@@ -1026,16 +1026,20 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin: 0;
+  padding-block: 0;
   color: var(--muted);
   font-size: 11px;
+  line-height: 1.2;
 }
 .featured-file .head .ext,
 .pin .head .ext {
   color: var(--info);
   background: var(--surface-2);
-  padding: 2px 6px;
+  padding: 1px 5px;
   border-radius: 3px;
   font-size: 10px;
+  line-height: 1.2;
 }
 .featured-file .head .star,
 .pin .head .star {
@@ -1044,7 +1048,7 @@ a:hover {
 .featured-file .name,
 .pin .name {
   color: var(--fg);
-  margin-top: 10px;
+  margin-top: 8px;
   font-size: 16px;
   font-weight: 500;
   line-height: 1.3;

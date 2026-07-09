@@ -128,19 +128,22 @@ test("featured and archive pinned cards share the issue 95 target terminal-card 
 
   const headRule = cssRule(".featured-file .head, .pin .head");
   assert.match(headRule, /gap:\s*10px;/);
-  assert.doesNotMatch(headRule, /line-height:\s*1;/);
+  assert.match(headRule, /margin:\s*0;/);
+  assert.match(headRule, /padding-block:\s*0;/);
+  assert.match(headRule, /line-height:\s*1\.2;/);
   assert.doesNotMatch(headRule, /text-transform:\s*uppercase/);
   assert.doesNotMatch(headRule, /letter-spacing:/);
 
   const badgeRule = cssRule(".featured-file .head .ext, .pin .head .ext");
   assert.match(badgeRule, /color:\s*var\(--info\);/);
   assert.match(badgeRule, /background:\s*var\(--surface-2\);/);
-  assert.match(badgeRule, /padding:\s*2px 6px;/);
+  assert.match(badgeRule, /padding:\s*1px 5px;/);
   assert.match(badgeRule, /border-radius:\s*3px;/);
   assert.match(badgeRule, /font-size:\s*10px;/);
+  assert.match(badgeRule, /line-height:\s*1\.2;/);
 
   const titleRule = cssRule(".featured-file .name, .pin .name");
-  assert.match(titleRule, /margin-top:\s*10px;/);
+  assert.match(titleRule, /margin-top:\s*8px;/);
   assert.match(titleRule, /font-size:\s*16px;/);
   assert.match(titleRule, /font-weight:\s*500;/);
   assert.match(titleRule, /line-height:\s*1\.3;/);
