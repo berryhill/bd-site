@@ -93,6 +93,8 @@ test("homepage renders pinned card styling only behind the featured-post guard",
 
 test("featured and archive pinned cards share the issue 95 target terminal-card contract", () => {
   assert.match(postsArchiveSource, /aria-label=\{`Read pinned post: \$\{post\.data\.title\}`\}/);
+  assert.match(homepageSource, /class="block-h featured-shell-heading"/);
+  assert.match(postsArchiveSource, /class="block-h pinned-shell-heading"/);
   assert.match(homepageSource, /<span class="ext">\.md<\/span>/);
   assert.match(postsArchiveSource, /<span class="ext">\.md<\/span>/);
   assert.doesNotMatch(postsArchiveSource, /style="color: var\(--warn\);"/);
@@ -106,6 +108,10 @@ test("featured and archive pinned cards share the issue 95 target terminal-card 
   assert.match(
     globalCssSource,
     /@media \(max-width: 820px\) \{[\s\S]*\.files,\s*\n\s*\.pinned\s*\{[\s\S]*grid-template-columns:\s*1fr;/
+  );
+  assert.match(
+    globalCssSource,
+    /\.featured-shell-heading,\s*\n\.pinned-shell-heading\s*\{[\s\S]*margin-bottom:\s*0;/
   );
   const cardRule = cssRule(".featured-file, .pin");
   assert.match(cardRule, /position:\s*relative;/);
