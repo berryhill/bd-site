@@ -95,19 +95,28 @@ test("about page preserves contact destination and terminal classes", () => {
 });
 test("about page bottom CTA uses compact prototype footer presentation", () => {
   assert.match(aboutSource, /<section id="connect"><h2>Let's connect\.\.<\/h2>/);
+  assert.match(aboutSource, /class="connect-deck">Skip the vague AI strategy call\./);
+  assert.match(aboutSource, /<div class="contact-grid" aria-label="Contact options">/);
+  assert.equal((aboutSource.match(/<a class="primary"/g) ?? []).length, 2);
   assert.match(aboutSource, /<a href="#connect">Let's connect\.\.<\/a>/);
   assert.match(aboutSource, /<div class="terminal-exit">/);
   assert.match(aboutSource, /← cd \.\.\/<\/a> back to ~/);
-  assert.match(aboutSource, /<span class="eof">EOF<\/span> · field notes · last touched 2026/);
+  assert.match(aboutSource, /<span class="eof">EOF<\/span> · field notes · © Berryhill 2026 · <a href="\/rss\.xml">rss<\/a>/);
   assert.equal((aboutSource.match(/<span class="m">/g) ?? []).length, 4);
+  assert.doesNotMatch(aboutSource, /<\/div>\s*<footer>/, "about page must not keep a detached footer below the terminal window");
+  assert.equal(aboutSource.includes("built quietly · zero trackers"), false);
 });
 test("about page contact cards match target vertical card structure", () => {
   const contactCardBlock =
     globalStylesSource.match(/\.contact-grid a \{[\s\S]*?\n\}/)?.[0] ?? "";
-  assert.match(contactCardBlock, /min-height:\s*75px;/);
+  assert.match(contactCardBlock, /min-height:\s*72px;/);
   assert.match(contactCardBlock, /flex-direction:\s*column;/);
   assert.match(contactCardBlock, /align-items:\s*flex-start;/);
   assert.doesNotMatch(contactCardBlock, /justify-content:\s*space-between;/);
+  assert.match(globalStylesSource, /\.connect-deck \{[\s\S]*?max-width:\s*62ch;/);
+  assert.match(globalStylesSource, /\.contact-grid \{[\s\S]*?padding:\s*14px;[\s\S]*?background:\s*oklch\(11% 0\.012 240 \/ 0\.72\);/);
+  assert.match(globalStylesSource, /\.contact-grid a\.primary \{[\s\S]*?border-color:\s*oklch\(42% 0\.05 145\);/);
+  assert.match(globalStylesSource, /\.terminal-exit \{[\s\S]*?margin-top:\s*28px;[\s\S]*?border:\s*1px dashed var\(--border\);[\s\S]*?background:\s*oklch\(11% 0\.012 240 \/ 0\.72\);/);
   assert.match(globalStylesSource, /\.contact-grid a span:first-child \{[\s\S]*?text-overflow:\s*ellipsis;[\s\S]*?white-space:\s*nowrap;/);
   assert.match(globalStylesSource, /\.contact-grid a span\.m \{[\s\S]*?display:\s*block;[\s\S]*?line-height:\s*1\.35;/);
 });
