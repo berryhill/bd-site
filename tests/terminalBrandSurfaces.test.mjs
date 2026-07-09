@@ -202,11 +202,16 @@ const terminalPostFooterMarkup = sources.postDetail.match(
   /<section class=\"terminal-post-footer\"[\s\S]*?<\/section>/
 )?.[0] ?? "";
 assert.ok(terminalPostFooterMarkup, "post detail must restore the issue #89 terminal post footer card");
-assert.match(terminalPostFooterMarkup, /class=\"line terminal-post-footer__prompt\"/);
-assert.match(terminalPostFooterMarkup, /\$ tail -f post\.meta/);
+assert.match(terminalPostFooterMarkup, /class=\"block-h terminal-post-footer__heading\"/);
+assert.match(terminalPostFooterMarkup, /<h2>cat post\.meta<\/h2>/);
+assert.match(terminalPostFooterMarkup, /<span class=\"n\">reader actions<\/span>/);
+assert.match(terminalPostFooterMarkup, /class=\"env terminal-post-footer__env\"/);
 assert.match(terminalPostFooterMarkup, /aria-label=\"post tags\"/);
 assert.match(terminalPostFooterMarkup, /aria-label=\"share this post\"/);
 assert.match(terminalPostFooterMarkup, /aria-label=\"post operations\"/);
+assert.match(terminalPostFooterMarkup, /<b>TAG=<\/b> #\{tag\}/);
+assert.match(terminalPostFooterMarkup, /<b>SHARE=<\/b> \{link\.name\.toLowerCase\(\)\}/);
+assert.match(terminalPostFooterMarkup, /<b>TOP=<\/b> scroll/);
 assert.match(terminalPostFooterMarkup, /href=\{`\/tags\/\$\{slugifyStr\(tag\)\}\/`\}/);
 assert.match(sources.postDetail, /encodeURIComponent\(postUrl\)/);
 assert.match(terminalPostFooterMarkup, /postTags\.length > 0/);
@@ -214,27 +219,24 @@ assert.match(terminalPostFooterMarkup, /terminal-post-footer__empty/);
 assert.match(terminalPostFooterMarkup, /data-terminal-top/);
 assert.doesNotMatch(
   terminalPostFooterMarkup,
-  /terminal-post-footer__rail|terminal-post-footer__group|terminal-post-footer__label|<span class=\"terminal-post-footer__label\">(?:tags|share|ops)<\/span>|<ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
-  "post detail footer must avoid removed rail/non-target share chrome"
-);
-assert.match(terminalPostFooterMarkup, /class=\"terminal-post-footer__row\"/);
-assert.match(
-  terminalPostFooterMarkup,
-  /<nav\s+class=\"terminal-post-footer__items\"\s+aria-label=\"post tags\">/
-);
-assert.match(
-  terminalPostFooterMarkup,
-  /<nav\s+class=\"terminal-post-footer__items\"\s+aria-label=\"share this post\"\s*>/
+  /terminal-post-footer__rail|terminal-post-footer__row|terminal-post-footer__items|terminal-post-footer__chip|terminal-post-footer__group|terminal-post-footer__label|<span class=\"terminal-post-footer__label\">(?:tags|share|ops)<\/span>|\$ tail -f post\.meta|<ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
+  "post detail footer must use the raw terminal.html block-h/env language, not the rejected bespoke chip/footer chrome"
 );
 assert.match(sources.styles, /\.terminal-post-footer \{/);
-assert.match(sources.styles, /\.terminal-post-footer__chip \{/);
+assert.match(sources.styles, /\.terminal-post-footer__env \{/);
+assert.match(sources.styles, /\.terminal-post-footer__env a,\s*\n\.terminal-post-footer__env button \{/);
 const compactPostFooterCss =
   sources.styles.match(/\.terminal-post-footer \{[\s\S]*?\.end-prompt \{/)?.[0] ?? "";
 assert.ok(compactPostFooterCss, "post detail footer CSS block must be present");
 assert.match(compactPostFooterCss, /max-width:\s*68ch;/);
-assert.match(compactPostFooterCss, /\.terminal-post-footer__row \{[\s\S]*?flex-wrap:\s*wrap;/);
-assert.match(compactPostFooterCss, /min-height:\s*26px;/);
-assert.doesNotMatch(compactPostFooterCss, /terminal-post-footer__rail|terminal-post-footer__group|terminal-post-footer__label/);
+assert.match(compactPostFooterCss, /\.terminal-post-footer__env \{[\s\S]*?grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/);
+assert.match(compactPostFooterCss, /padding:\s*14px 16px;/);
+assert.match(compactPostFooterCss, /border:\s*1px solid var\(--border\);/);
+assert.match(compactPostFooterCss, /border-radius:\s*6px;/);
+assert.match(compactPostFooterCss, /background:\s*var\(--surface\);/);
+assert.match(compactPostFooterCss, /transition:\s*border-color 0\.15s;/);
+assert.match(compactPostFooterCss, /@media \(max-width: 720px\) \{[\s\S]*?grid-template-columns:\s*1fr;/);
+assert.doesNotMatch(compactPostFooterCss, /terminal-post-footer__rail|terminal-post-footer__row|terminal-post-footer__items|terminal-post-footer__chip|terminal-post-footer__group|terminal-post-footer__label/);
 assert.doesNotMatch(compactPostFooterCss, /border-left:\s*2px solid var\(--accent\);/);
 assert.doesNotMatch(compactPostFooterCss, /grid-template-columns:\s*62px 1fr;/);
 assert.doesNotMatch(compactPostFooterCss, /grid-template-columns:\s*minmax\(0, 1fr\) auto;/);
