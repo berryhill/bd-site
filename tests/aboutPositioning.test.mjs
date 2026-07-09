@@ -27,6 +27,7 @@ function textOnly(source) {
 }
 const aboutSource = readFileSync(new URL("../src/pages/about.md", import.meta.url), "utf8");
 const aboutLayoutSource = readFileSync(new URL("../src/layouts/AboutLayout.astro", import.meta.url), "utf8");
+const globalStylesSource = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
 const expected = [
   "name</span><span class=\"sep\">:</span> <span class=\"v\">Matthew Berryhill</span>",
   "engineer + writer + operator",
@@ -99,6 +100,16 @@ test("about page bottom CTA uses compact prototype footer presentation", () => {
   assert.match(aboutSource, /← cd \.\.\/<\/a> back to ~/);
   assert.match(aboutSource, /<span class="eof">EOF<\/span> · field notes · last touched 2026/);
   assert.equal((aboutSource.match(/<span class="m">/g) ?? []).length, 4);
+});
+test("about page contact cards match target vertical card structure", () => {
+  const contactCardBlock =
+    globalStylesSource.match(/\.contact-grid a \{[\s\S]*?\n\}/)?.[0] ?? "";
+  assert.match(contactCardBlock, /min-height:\s*75px;/);
+  assert.match(contactCardBlock, /flex-direction:\s*column;/);
+  assert.match(contactCardBlock, /align-items:\s*flex-start;/);
+  assert.doesNotMatch(contactCardBlock, /justify-content:\s*space-between;/);
+  assert.match(globalStylesSource, /\.contact-grid a span:first-child \{[\s\S]*?text-overflow:\s*ellipsis;[\s\S]*?white-space:\s*nowrap;/);
+  assert.match(globalStylesSource, /\.contact-grid a span\.m \{[\s\S]*?display:\s*block;[\s\S]*?line-height:\s*1\.35;/);
 });
 test("about layout passes page metadata description through", () => {
   assert.match(aboutLayoutSource, /description=\{frontmatter\.description\s+\?\?\s+SITE\.desc\}/);

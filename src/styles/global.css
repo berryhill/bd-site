@@ -2510,17 +2510,28 @@ a:hover {
 }
 .contact-grid a {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  min-height: 75px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--surface);
   color: var(--fg);
+  line-height: 1.35;
   transition: border-color 0.15s;
 }
 .contact-grid a:hover {
   border-color: var(--accent);
+}
+.contact-grid a span:first-child {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .contact-grid a b {
   color: var(--accent);
@@ -2528,8 +2539,10 @@ a:hover {
   font-size: 12px;
 }
 .contact-grid a span.m {
+  display: block;
   color: var(--muted);
   font-size: 12px;
+  line-height: 1.35;
 }
 
 .terminal-exit {
