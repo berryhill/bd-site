@@ -7,6 +7,7 @@ import {
   isPublicPost,
   isPublishTimePassed,
 } from "../src/utils/postFilter.ts";
+import getSortedPosts from "../src/utils/getSortedPosts.ts";
 
 let passed = 0;
 let failed = 0;
@@ -89,6 +90,31 @@ test("underscore path detection checks both IDs and file paths", () => {
   assert.equal(isIgnoredPost(post({ id: "_draft-note" })), true);
   assert.equal(isIgnoredPost(post({ id: "notes/public", filePath: "notes/_private.md" })), true);
   assert.equal(isIgnoredPost(post({ id: "notes/public", filePath: "notes/public.md" })), false);
+});
+
+test("shared post sorter orders by publish timestamp newest first, not modified timestamp", () => {
+  const entries = [
+    post({
+      id: "older-but-edited",
+      data: {
+        pubDatetime: "2026-01-01T08:00:00.000Z",
+        modDatetime: "2026-01-03T08:00:00.000Z",
+      },
+    }),
+    post({
+      id: "newer-published",
+      data: {
+        pubDatetime: "2026-01-02T08:00:00.000Z",
+        modDatetime: "2026-01-02T08:00:00.000Z",
+      },
+    }),
+    post({ id: "draft-newest", data: { draft: true, pubDatetime: "2026-01-04T08:00:00.000Z" } }),
+  ];
+
+  assert.deepEqual(
+    getSortedPosts(entries).map(entry => entry.id),
+    ["newer-published", "older-but-edited"]
+  );
 });
 
 test("RSS, Atom, llms.txt, and sitemap posts routes use the shared sorted public-post filter", () => {

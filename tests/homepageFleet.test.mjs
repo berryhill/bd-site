@@ -28,7 +28,7 @@ const homepageSource = readFileSync(
 const expectedFleet = [
   [
     "default-silas",
-    "default / silas",
+    "silas",
     "default Hermes operator/orchestrator; task queue, plans, dispatch, and system support",
   ],
   [
@@ -77,6 +77,10 @@ test("curated homepage fleet includes the expected public agents in order", () =
   assert.deepEqual(
     curatedHomepageFleet.map(agent => [agent.slug, agent.label, agent.description]),
     expectedFleet
+  );
+  assert.equal(
+    curatedHomepageFleet.some(agent => agent.label === "default / silas"),
+    false
   );
   assert.ok(curatedHomepageFleet.every(agent => agent.status === "verified"));
 });

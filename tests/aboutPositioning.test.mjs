@@ -32,7 +32,9 @@ const expected = [
   "name</span><span class=\"sep\">:</span> <span class=\"v\">Matthew Berryhill</span>",
   "engineer + writer + operator",
   "Los Santos, Panamá",
-  "berryhill.dev",
+  "nationality</span><span class=\"sep\">:</span> <span class=\"v acc\">USA</span>",
+  "Nationality",
+  "USA",
   "I build AI-native systems and write about the operator work behind them.",
   "The background is not a minimalist placeholder",
   "Experience arc",
@@ -56,6 +58,8 @@ const forbidden = [
   "Employer, client, acquisition, and year-by-year history is intentionally omitted until Matt verifies exact wording.",
   "public LinkedIn readback",
   "Education shown",
+  "current</span><span class=\"sep\">:</span>",
+  "Current surface",
 ];
 const timeline = [
   "Oct 2025 – Present Builder berryhill.dev · Self-employed · Remote",

@@ -158,6 +158,19 @@ test("featured and archive pinned cards share the issue 95 target terminal-card 
   assert.match(globalCssSource, /\.ls-row\s*\{[\s\S]*grid-template-columns:\s*24px 90px 1fr 110px 36px;/);
 });
 
+test("posts archive renders year groups from newest timestamp buckets first", () => {
+  assert.match(
+    postsArchiveSource,
+    /const postYearEntries = Object\.entries\(postsByYear\)\.sort\(/
+  );
+  assert.match(postsArchiveSource, /Number\(yearB\) - Number\(yearA\)/);
+  assert.match(postsArchiveSource, /postYearEntries\.map\(\(\[year, posts\]\) =>/);
+  assert.doesNotMatch(
+    postsArchiveSource,
+    /Object\.entries\(postsByYear\)\.map\(\(\[year, posts\]\) =>/
+  );
+});
+
 console.log(`PASS ${passed} FAIL ${failed}`);
 
 if (failed > 0) {

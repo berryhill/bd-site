@@ -8,7 +8,7 @@ export type HomepageFleetAgent = {
 export const curatedHomepageFleet = [
   {
     slug: "default-silas",
-    label: "default / silas",
+    label: "silas",
     description:
       "default Hermes operator/orchestrator; task queue, plans, dispatch, and system support",
     status: "verified",

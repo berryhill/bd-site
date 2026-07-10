@@ -49,6 +49,9 @@ const postsByYear = paginatedPosts.reduce<
   acc[year].push(post);
   return acc;
 }, {});
+const postYearEntries = Object.entries(postsByYear).sort(
+  ([yearA], [yearB]) => Number(yearB) - Number(yearA)
+);
 const page = {
   data: paginatedPosts,
   start,
@@ -194,12 +197,12 @@ const page = {
       )
     }
     {
-      Object.entries(postsByYear).map(([year, posts]) => (
+      postYearEntries.map(([year, posts]) => (
         <>
           <div class="block-h">
             <>
               <h2>ls -la {year}/</h2>
-              <span class="n">{posts.length} posts · sorted by mtime</span>
+              <span class="n">{posts.length} posts · sorted by timestamp</span>
             </>
           </div>
           <div class="year-h">
