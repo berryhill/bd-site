@@ -198,70 +198,28 @@ assert.match(sources.about, /class=\"terminal-exit\"/, "about bottom rail must u
 assert.match(sources.about, /<span class=\"eof\">EOF<\/span>/, "about bottom rail must show an EOF marker");
 assert.doesNotMatch(sources.about, /If you want to hire me/, "about CTA must use the issue #81 approved wording");
 
-const terminalPostFooterMarkup = sources.postDetail.match(
-  /<section[\s\S]*?class=\"terminal-post-footer\"[\s\S]*?<\/section>/
-)?.[0] ?? "";
-assert.ok(terminalPostFooterMarkup, "post detail must restore the issue #89 terminal post footer card");
-assert.match(terminalPostFooterMarkup, /class=\"block-h terminal-post-footer__heading\"/);
-assert.match(terminalPostFooterMarkup, /<h2>cat post\.meta<\/h2>/);
-assert.match(terminalPostFooterMarkup, /<span class=\"n\">reader actions<\/span>/);
-assert.match(terminalPostFooterMarkup, /class=\"env terminal-post-footer__env\"/);
-assert.match(terminalPostFooterMarkup, /aria-label=\"post tags\"/);
-assert.match(terminalPostFooterMarkup, /aria-label=\"share this post\"/);
-assert.match(terminalPostFooterMarkup, /aria-label=\"edit this post/);
-assert.match(terminalPostFooterMarkup, /aria-label=\"post operations: scroll to top\"/);
-assert.match(terminalPostFooterMarkup, /<b>TAGS=<\/b>/);
-assert.match(terminalPostFooterMarkup, /<b>SHARE=<\/b>/);
-assert.match(terminalPostFooterMarkup, /<b>EDIT=<\/b> source/);
-assert.match(terminalPostFooterMarkup, /<b>TOP=<\/b> scroll/);
-assert.match(terminalPostFooterMarkup, /href=\{`\/tags\/\$\{slugifyStr\(tag\)\}\/`\}/);
-assert.match(sources.postDetail, /encodeURIComponent\(postUrl\)/);
-assert.match(terminalPostFooterMarkup, /postTags\.length > 0/);
-assert.match(terminalPostFooterMarkup, /showEditPost/);
-assert.match(terminalPostFooterMarkup, /data-terminal-top/);
-const footerCards = terminalPostFooterMarkup.match(/terminal-post-footer__card/g) ?? [];
-assert.ok(
-  footerCards.length >= 4 && footerCards.length <= 6,
-  "issue #89 footer must collapse to the prototype-sized 2x2 env surface, not render one card per tag/share provider"
-);
-assert.doesNotMatch(
-  terminalPostFooterMarkup,
-  /terminal-post-footer__rail|terminal-post-footer__row|terminal-post-footer__items|terminal-post-footer__chip|terminal-post-footer__group|terminal-post-footer__label|terminal-post-footer__tags|terminal-post-footer__share|terminal-post-footer__ops|<span class=\"terminal-post-footer__label\">(?:tags|share|ops)<\/span>|\$ tail -f post\.meta|<ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
-  "post detail footer must use direct raw terminal.html block-h/env primitives, not rejected bespoke chip/footer chrome"
-);
-assert.doesNotMatch(
-  terminalPostFooterMarkup,
-  /<nav[\s\S]*terminal-post-footer|display: contents/,
-  "post detail footer must not depend on wrapper nav/display:contents layout to fake the prototype env grid"
-);
-assert.match(sources.styles, /\.terminal-post-footer \{/);
-assert.match(
-  sources.styles,
-  /\.terminal-post-footer__env > \.terminal-post-footer__card \{/
-);
-const compactPostFooterCss =
-  sources.styles.match(/\.terminal-post-footer \{[\s\S]*?\.end-prompt \{/)?.[0] ?? "";
-assert.ok(compactPostFooterCss, "post detail footer CSS block must be present");
-assert.doesNotMatch(compactPostFooterCss, /max-width:\s*68ch;/);
-assert.doesNotMatch(compactPostFooterCss, /grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/);
-assert.match(sources.styles, /\.env \{[\s\S]*?grid-template-columns:\s*1fr 1fr;/);
-assert.match(compactPostFooterCss, /padding:\s*14px 16px;/);
-assert.match(compactPostFooterCss, /border:\s*1px solid var\(--border\);/);
-assert.match(compactPostFooterCss, /border-radius:\s*6px;/);
-assert.match(compactPostFooterCss, /background:\s*var\(--surface\);/);
-assert.match(compactPostFooterCss, /transition:\s*border-color 0\.15s;/);
-assert.match(sources.styles, /@media \(max-width: 720px\) \{\s*\.env \{\s*grid-template-columns:\s*1fr;/);
-assert.doesNotMatch(compactPostFooterCss, /terminal-post-footer__rail|terminal-post-footer__row|terminal-post-footer__items|terminal-post-footer__chip|terminal-post-footer__group|terminal-post-footer__label|display:\s*contents/);
-assert.doesNotMatch(compactPostFooterCss, /border-left:\s*2px solid var\(--accent\);/);
-assert.doesNotMatch(compactPostFooterCss, /grid-template-columns:\s*62px 1fr;/);
-assert.doesNotMatch(compactPostFooterCss, /grid-template-columns:\s*minmax\(0, 1fr\) auto;/);
 const postFooterSequence = sources.postDetail.match(
-  /<section[\s\S]*?class=\"terminal-post-footer\"[\s\S]*?<div class=\"line end-prompt\">[\s\S]*?<nav class=\"adjacent\"[\s\S]*?<a class=\"back\"/
+  /<div class="block-h" data-pagefind-ignore>[\s\S]*?<div class="line end-prompt">[\s\S]*?<nav class="adjacent"[\s\S]*?<a class="back"/
 )?.[0] ?? "";
-assert.ok(
+assert.ok(postFooterSequence, "post detail footer must use the raw terminal.html block-h/env sequence before end prompt, adjacent posts, and back-link");
+assert.match(postFooterSequence, /<h2>cat post\.meta<\/h2>/);
+assert.match(postFooterSequence, /<span class="n">reader actions<\/span>/);
+assert.match(postFooterSequence, /class="env post-actions"/);
+assert.match(postFooterSequence, /<b>TAGS=<\/b> \[\{tagSummary\}\]/);
+assert.match(postFooterSequence, /<b>SHARE=<\/b> \{post\.id\}/);
+assert.match(postFooterSequence, /<b>EDIT=<\/b> source/);
+assert.match(postFooterSequence, /<b>TOP=<\/b> scroll/);
+assert.match(postFooterSequence, /primaryTagHref/);
+assert.match(postFooterSequence, /primaryShareHref/);
+assert.match(postFooterSequence, /data-terminal-top/);
+assert.doesNotMatch(
   postFooterSequence,
-  "post detail footer must flow from restored footer card to end-prompt, adjacent-post cards, and back-link"
+  /terminal-post-footer|terminal-post-footer__|terminal-post-footer__card|terminal-post-footer__rail|terminal-post-footer__row|terminal-post-footer__items|terminal-post-footer__chip|terminal-post-footer__group|terminal-post-footer__label|<ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
+  "post detail footer must use raw terminal.html block-h/env primitives, not custom terminal-post-footer chrome"
 );
+assert.match(sources.styles, /\.env \{[\s\S]*?grid-template-columns:\s*1fr 1fr;/);
+assert.match(sources.styles, /\.env a \{[\s\S]*?padding:\s*14px 16px;/);
+assert.match(sources.styles, /@media \(max-width: 720px\) \{\s*\.env \{\s*grid-template-columns:\s*1fr;/);
 assert.match(postFooterSequence, /<span class=\"cmd\">\$ <\/span>/);
 assert.match(postFooterSequence, /aria-label=\"adjacent posts\"/);
 

@@ -86,8 +86,11 @@ const footerShareLinks = SHARE_LINKS.map(social => ({
   href: `${social.href}${encodeURIComponent(postUrl)}`,
 }));
 const editPostHref = `${SITE.editPost.url}${post.filePath}`;
-const showEditPost =
-  SITE.editPost.enabled && !hideEditPost && editPostHref.trim() !== "";
+const showEditPost = SITE.editPost.enabled && !hideEditPost;
+const tagSummary = postTags.length > 0 ? postTags.join(", ") : "untagged";
+const primaryTagHref =
+  postTags.length > 0 ? `/tags/${slugifyStr(postTags[0])}/` : "/tags/";
+const primaryShareHref = footerShareLinks[0]?.href ?? postUrl;
 ---
 
 <Layout
@@ -199,96 +202,62 @@ const showEditPost =
           }
           <div class="post-body astro-post-content" set:html={htmlContent} />
         </div>
-        <section
-          class="terminal-post-footer"
+        <div class="block-h" data-pagefind-ignore>
+          <h2>cat post.meta</h2>
+          <span class="n">reader actions</span>
+        </div>
+        <div
+          class="env post-actions"
           aria-label="post footer reader actions"
           data-pagefind-ignore
         >
-          <div class="block-h terminal-post-footer__heading">
-            <h2>cat post.meta</h2>
-            <span class="n">reader actions</span>
-          </div>
-          <div class="env terminal-post-footer__env">
-            <div class="terminal-post-footer__card" aria-label="post tags">
-              <span>
-                <b>TAGS=</b>
-                {
-                  postTags.length > 0 ? (
-                    postTags.map((tag, index) => (
-                      <>
-                        {index > 0 && <span class="sep">, </span>}
-                        <a href={`/tags/${slugifyStr(tag)}/`}>#{tag}</a>
-                      </>
-                    ))
-                  ) : (
-                    <span>untagged</span>
-                  )
-                }
-              </span>
-              <span>open →</span>
-            </div>
-            <div
-              class="terminal-post-footer__card"
-              aria-label="share this post"
-            >
-              <span>
-                <b>SHARE=</b>
-                {
-                  footerShareLinks.map((link, index) => (
-                    <>
-                      {index > 0 && <span class="sep"> / </span>}
-                      <a
-                        href={link.href}
-                        title={link.linkTitle}
-                        rel="noopener noreferrer"
-                      >
-                        {link.name.toLowerCase()}
-                      </a>
-                    </>
-                  ))
-                }
-              </span>
-              <span>send →</span>
-            </div>
-            {
-              showEditPost ? (
-                <a
-                  class="terminal-post-footer__card"
-                  href={editPostHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="edit this post"
-                >
-                  <span>
-                    <b>EDIT=</b> source
-                  </span>
-                  <span>patch →</span>
-                </a>
-              ) : (
-                <span
-                  class="terminal-post-footer__card terminal-post-footer__empty"
-                  aria-label="edit this post unavailable"
-                >
-                  <span>
-                    <b>EDIT=</b> source
-                  </span>
-                  <span>disabled</span>
+          <a href={primaryTagHref} aria-label={`post tags: ${tagSummary}`}>
+            <span><b>TAGS=</b> [{tagSummary}]</span>
+            <span>open →</span>
+          </a>
+          <a
+            href={primaryShareHref}
+            title="Share this post"
+            rel="noopener noreferrer"
+            aria-label="share this post"
+          >
+            <span><b>SHARE=</b> {post.id}</span>
+            <span>send →</span>
+          </a>
+          {
+            showEditPost ? (
+              <a
+                href={editPostHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="edit this post"
+              >
+                <span>
+                  <b>EDIT=</b> source
                 </span>
-              )
-            }
-            <button
-              class="terminal-post-footer__card"
-              type="button"
-              aria-label="post operations: scroll to top"
-              data-terminal-top
-            >
-              <span>
-                <b>TOP=</b> scroll
+                <span>patch →</span>
+              </a>
+            ) : (
+              <span
+                class="env-disabled"
+                aria-label="edit this post unavailable"
+              >
+                <span>
+                  <b>EDIT=</b> source
+                </span>
+                <span>disabled</span>
               </span>
-              <span>top ↑</span>
-            </button>
-          </div>
-        </section>
+            )
+          }
+          <button
+            type="button"
+            aria-label="post operations: scroll to top"
+            data-terminal-top
+          >
+            <span><b>TOP=</b> scroll</span>
+            <span>top ↑</span>
+          </button>
+        </div>
         <div class="line end-prompt">
           <span class="ps1"
             >m@berryhill <span class="sep">in</span>
