@@ -3281,27 +3281,14 @@ a:hover {
   color: var(--accent);
 }
 .terminal-post-footer {
-  margin-top: 32px;
-  max-width: 68ch;
-}
-.terminal-post-footer__heading {
   margin-top: 0;
 }
-.terminal-post-footer__env {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-.terminal-post-footer__tags,
-.terminal-post-footer__share,
-.terminal-post-footer__ops {
-  display: contents;
-}
 .terminal-post-footer__env a,
+.terminal-post-footer__env > span,
 .terminal-post-footer__env button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 14px;
-  min-width: 0;
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -3317,22 +3304,17 @@ a:hover {
   border-color: var(--accent);
 }
 .terminal-post-footer__env a b,
+.terminal-post-footer__env > span b,
 .terminal-post-footer__env button b {
   color: var(--accent);
   font-weight: 500;
   font-size: 12px;
 }
 .terminal-post-footer__env a span,
+.terminal-post-footer__env > span span,
 .terminal-post-footer__env button span {
-  min-width: 0;
   color: var(--muted);
   font-size: 12px;
-}
-.terminal-post-footer__env a span:first-child,
-.terminal-post-footer__env button span:first-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .terminal-post-footer__env button {
   cursor: pointer;
@@ -3342,24 +3324,7 @@ a:hover {
   height: 13px;
 }
 .terminal-post-footer__empty {
-  display: flex;
-  align-items: center;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
   color: var(--dim);
-  font-size: 12px;
-}
-@media (max-width: 920px) {
-  .terminal-post-footer__env {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-@media (max-width: 720px) {
-  .terminal-post-footer__env {
-    grid-template-columns: 1fr;
-  }
 }
 .end-prompt {
   margin-top: 48px;
