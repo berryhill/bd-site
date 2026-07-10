@@ -2,7 +2,6 @@
 import { type CollectionEntry } from "astro:content";
 import { marked } from "marked";
 import Layout from "@/layouts/Layout.astro";
-import EditPost from "@/components/EditPost.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
 import { getPath } from "@/utils/getPath";
 import { getRelatedPosts } from "@/utils/getRelatedPosts";
@@ -86,6 +85,9 @@ const footerShareLinks = SHARE_LINKS.map(social => ({
   ...social,
   href: `${social.href}${encodeURIComponent(postUrl)}`,
 }));
+const editPostHref = `${SITE.editPost.url}${post.filePath}`;
+const showEditPost =
+  SITE.editPost.enabled && !hideEditPost && editPostHref.trim() !== "";
 ---
 
 <Layout
@@ -207,52 +209,75 @@ const footerShareLinks = SHARE_LINKS.map(social => ({
             <span class="n">reader actions</span>
           </div>
           <div class="env terminal-post-footer__env">
+            <div class="terminal-post-footer__card" aria-label="post tags">
+              <span>
+                <b>TAGS=</b>
+                {
+                  postTags.length > 0 ? (
+                    postTags.map((tag, index) => (
+                      <>
+                        {index > 0 && <span class="sep">, </span>}
+                        <a href={`/tags/${slugifyStr(tag)}/`}>#{tag}</a>
+                      </>
+                    ))
+                  ) : (
+                    <span>untagged</span>
+                  )
+                }
+              </span>
+              <span>open →</span>
+            </div>
+            <div
+              class="terminal-post-footer__card"
+              aria-label="share this post"
+            >
+              <span>
+                <b>SHARE=</b>
+                {
+                  footerShareLinks.map((link, index) => (
+                    <>
+                      {index > 0 && <span class="sep"> / </span>}
+                      <a
+                        href={link.href}
+                        title={link.linkTitle}
+                        rel="noopener noreferrer"
+                      >
+                        {link.name.toLowerCase()}
+                      </a>
+                    </>
+                  ))
+                }
+              </span>
+              <span>send →</span>
+            </div>
             {
-              postTags.length > 0 ? (
-                postTags.map(tag => (
-                  <a
-                    href={`/tags/${slugifyStr(tag)}/`}
-                    aria-label={`post tags: ${tag}`}
-                  >
-                    <span>
-                      <b>TAG=</b> #{tag}
-                    </span>
-                    <span>open →</span>
-                  </a>
-                ))
-              ) : (
-                <span
-                  class="terminal-post-footer__empty"
-                  aria-label="post tags"
+              showEditPost ? (
+                <a
+                  class="terminal-post-footer__card"
+                  href={editPostHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="edit this post"
                 >
                   <span>
-                    <b>TAG=</b> untagged
+                    <b>EDIT=</b> source
                   </span>
-                  <span>none</span>
+                  <span>patch →</span>
+                </a>
+              ) : (
+                <span
+                  class="terminal-post-footer__card terminal-post-footer__empty"
+                  aria-label="edit this post unavailable"
+                >
+                  <span>
+                    <b>EDIT=</b> source
+                  </span>
+                  <span>disabled</span>
                 </span>
               )
             }
-            {
-              footerShareLinks.map(link => (
-                <a
-                  href={link.href}
-                  title={link.linkTitle}
-                  rel="noopener noreferrer"
-                  aria-label={`share this post on ${link.name}`}
-                >
-                  <span>
-                    <b>SHARE=</b> {link.name.toLowerCase()}
-                  </span>
-                  <span>send →</span>
-                </a>
-              ))
-            }
-            <EditPost
-              class="terminal-post-footer__edit"
-              {hideEditPost}
-              {post}
-            />
             <button
+              class="terminal-post-footer__card"
               type="button"
               aria-label="post operations: scroll to top"
               data-terminal-top

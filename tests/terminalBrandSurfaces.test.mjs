@@ -206,17 +206,24 @@ assert.match(terminalPostFooterMarkup, /class=\"block-h terminal-post-footer__he
 assert.match(terminalPostFooterMarkup, /<h2>cat post\.meta<\/h2>/);
 assert.match(terminalPostFooterMarkup, /<span class=\"n\">reader actions<\/span>/);
 assert.match(terminalPostFooterMarkup, /class=\"env terminal-post-footer__env\"/);
-assert.match(terminalPostFooterMarkup, /aria-label=\{`post tags: \$\{tag\}`\}/);
-assert.match(terminalPostFooterMarkup, /aria-label=\{`share this post on \$\{link\.name\}`\}/);
+assert.match(terminalPostFooterMarkup, /aria-label=\"post tags\"/);
+assert.match(terminalPostFooterMarkup, /aria-label=\"share this post\"/);
+assert.match(terminalPostFooterMarkup, /aria-label=\"edit this post/);
 assert.match(terminalPostFooterMarkup, /aria-label=\"post operations: scroll to top\"/);
-assert.match(terminalPostFooterMarkup, /<b>TAG=<\/b> #\{tag\}/);
-assert.match(terminalPostFooterMarkup, /<b>SHARE=<\/b> \{link\.name\.toLowerCase\(\)\}/);
+assert.match(terminalPostFooterMarkup, /<b>TAGS=<\/b>/);
+assert.match(terminalPostFooterMarkup, /<b>SHARE=<\/b>/);
+assert.match(terminalPostFooterMarkup, /<b>EDIT=<\/b> source/);
 assert.match(terminalPostFooterMarkup, /<b>TOP=<\/b> scroll/);
 assert.match(terminalPostFooterMarkup, /href=\{`\/tags\/\$\{slugifyStr\(tag\)\}\/`\}/);
 assert.match(sources.postDetail, /encodeURIComponent\(postUrl\)/);
 assert.match(terminalPostFooterMarkup, /postTags\.length > 0/);
-assert.match(terminalPostFooterMarkup, /terminal-post-footer__empty/);
+assert.match(terminalPostFooterMarkup, /showEditPost/);
 assert.match(terminalPostFooterMarkup, /data-terminal-top/);
+const footerCards = terminalPostFooterMarkup.match(/terminal-post-footer__card/g) ?? [];
+assert.ok(
+  footerCards.length >= 4 && footerCards.length <= 6,
+  "issue #89 footer must collapse to the prototype-sized 2x2 env surface, not render one card per tag/share provider"
+);
 assert.doesNotMatch(
   terminalPostFooterMarkup,
   /terminal-post-footer__rail|terminal-post-footer__row|terminal-post-footer__items|terminal-post-footer__chip|terminal-post-footer__group|terminal-post-footer__label|terminal-post-footer__tags|terminal-post-footer__share|terminal-post-footer__ops|<span class=\"terminal-post-footer__label\">(?:tags|share|ops)<\/span>|\$ tail -f post\.meta|<ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
@@ -230,7 +237,7 @@ assert.doesNotMatch(
 assert.match(sources.styles, /\.terminal-post-footer \{/);
 assert.match(
   sources.styles,
-  /\.terminal-post-footer__env a,\s*\n\.terminal-post-footer__env > span,\s*\n\.terminal-post-footer__env button \{/
+  /\.terminal-post-footer__env > \.terminal-post-footer__card \{/
 );
 const compactPostFooterCss =
   sources.styles.match(/\.terminal-post-footer \{[\s\S]*?\.end-prompt \{/)?.[0] ?? "";

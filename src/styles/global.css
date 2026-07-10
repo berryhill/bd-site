@@ -3283,12 +3283,12 @@ a:hover {
 .terminal-post-footer {
   margin-top: 0;
 }
-.terminal-post-footer__env a,
-.terminal-post-footer__env > span,
-.terminal-post-footer__env button {
+.terminal-post-footer__env > .terminal-post-footer__card {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 14px;
+  min-width: 0;
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -3299,29 +3299,41 @@ a:hover {
   text-decoration: none;
   transition: border-color 0.15s;
 }
-.terminal-post-footer__env a:hover,
-.terminal-post-footer__env button:hover {
+.terminal-post-footer__env > a.terminal-post-footer__card:hover,
+.terminal-post-footer__env > button.terminal-post-footer__card:hover {
   border-color: var(--accent);
 }
-.terminal-post-footer__env a b,
-.terminal-post-footer__env > span b,
-.terminal-post-footer__env button b {
+.terminal-post-footer__card b {
   color: var(--accent);
   font-weight: 500;
   font-size: 12px;
 }
-.terminal-post-footer__env a span,
-.terminal-post-footer__env > span span,
-.terminal-post-footer__env button span {
+.terminal-post-footer__card span {
+  min-width: 0;
   color: var(--muted);
   font-size: 12px;
 }
-.terminal-post-footer__env button {
-  cursor: pointer;
+.terminal-post-footer__card > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.terminal-post-footer__edit svg {
-  width: 13px;
-  height: 13px;
+.terminal-post-footer__card a {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--info);
+  text-decoration: none;
+}
+.terminal-post-footer__card a:hover {
+  color: var(--accent);
+}
+.terminal-post-footer__card .sep {
+  color: var(--dim);
+}
+.terminal-post-footer__env > button.terminal-post-footer__card {
+  cursor: pointer;
 }
 .terminal-post-footer__empty {
   color: var(--dim);
