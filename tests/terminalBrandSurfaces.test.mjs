@@ -204,7 +204,8 @@ const postFooterSequence = sources.postDetail.match(
 assert.ok(postFooterSequence, "post detail footer must use the raw terminal.html block-h/env sequence before end prompt, adjacent posts, and back-link");
 assert.match(postFooterSequence, /<h2>cat post\.meta<\/h2>/);
 assert.match(postFooterSequence, /<span class="n">reader actions<\/span>/);
-assert.match(postFooterSequence, /class="env post-actions"/);
+assert.match(postFooterSequence, /class="env"/);
+assert.doesNotMatch(postFooterSequence, /class="env post-actions"|<button|env-disabled|post-actions/);
 assert.match(postFooterSequence, /<b>TAGS=<\/b> \[\{tagSummary\}\]/);
 assert.match(postFooterSequence, /<b>SHARE=<\/b> \{post\.id\}/);
 assert.match(postFooterSequence, /<b>EDIT=<\/b> source/);

@@ -207,7 +207,7 @@ const primaryShareHref = footerShareLinks[0]?.href ?? postUrl;
           <span class="n">reader actions</span>
         </div>
         <div
-          class="env post-actions"
+          class="env"
           aria-label="post footer reader actions"
           data-pagefind-ignore
         >
@@ -224,39 +224,26 @@ const primaryShareHref = footerShareLinks[0]?.href ?? postUrl;
             <span><b>SHARE=</b> {post.id}</span>
             <span>send →</span>
           </a>
-          {
-            showEditPost ? (
-              <a
-                href={editPostHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="edit this post"
-              >
-                <span>
-                  <b>EDIT=</b> source
-                </span>
-                <span>patch →</span>
-              </a>
-            ) : (
-              <span
-                class="env-disabled"
-                aria-label="edit this post unavailable"
-              >
-                <span>
-                  <b>EDIT=</b> source
-                </span>
-                <span>disabled</span>
-              </span>
-            )
-          }
-          <button
-            type="button"
+          <a
+            href={showEditPost ? editPostHref : "#"}
+            target={showEditPost ? "_blank" : undefined}
+            rel={showEditPost ? "noopener noreferrer" : undefined}
+            aria-label={showEditPost
+              ? "edit this post"
+              : "edit this post unavailable"}
+            aria-disabled={showEditPost ? undefined : "true"}
+          >
+            <span><b>EDIT=</b> source</span>
+            <span>{showEditPost ? "patch →" : "disabled"}</span>
+          </a>
+          <a
+            href="#top"
             aria-label="post operations: scroll to top"
             data-terminal-top
           >
             <span><b>TOP=</b> scroll</span>
             <span>top ↑</span>
-          </button>
+          </a>
         </div>
         <div class="line end-prompt">
           <span class="ps1"

@@ -3280,38 +3280,6 @@ a:hover {
   top: 0;
   color: var(--accent);
 }
-.post-actions button,
-.post-actions .env-disabled {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--fg);
-  font: inherit;
-  text-align: left;
-  text-decoration: none;
-  transition: border-color 0.15s;
-}
-.post-actions button {
-  cursor: pointer;
-}
-.post-actions button:hover {
-  border-color: var(--accent);
-}
-.post-actions button b,
-.post-actions .env-disabled b {
-  color: var(--accent);
-  font-weight: 500;
-  font-size: 12px;
-}
-.post-actions button span,
-.post-actions .env-disabled span {
-  color: var(--muted);
-  font-size: 12px;
-}
 .end-prompt {
   margin-top: 48px;
 }
