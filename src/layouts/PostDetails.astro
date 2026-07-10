@@ -3,6 +3,11 @@ import { type CollectionEntry } from "astro:content";
 import { marked } from "marked";
 import Layout from "@/layouts/Layout.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
+import IconBrandX from "@/assets/icons/IconBrandX.svg";
+import IconFacebook from "@/assets/icons/IconFacebook.svg";
+import IconMail from "@/assets/icons/IconMail.svg";
+import IconTelegram from "@/assets/icons/IconTelegram.svg";
+import IconWhatsapp from "@/assets/icons/IconWhatsapp.svg";
 import { getPath } from "@/utils/getPath";
 import { getRelatedPosts } from "@/utils/getRelatedPosts";
 import { slugifyStr } from "@/utils/slugify";
@@ -79,6 +84,14 @@ const toc = Array.from((post.body || "").matchAll(/^##\s+(.+)$/gm))
   .map(label => ({ label, href: `#${slugifyStr(label)}` }));
 const published = formatDate(pubDatetime) ?? "pending";
 const updated = formatDate(modDatetime) ?? published;
+const encodedPostUrl = encodeURIComponent(postUrl);
+const encodedShareTitle = encodeURIComponent(`${title} — ${SITE.author}`);
+const shareText = `${title} — ${SITE.author}`;
+const shareXHref = `https://twitter.com/intent/tweet?text=${encodedShareTitle}&url=${encodedPostUrl}`;
+const shareFacebookHref = `https://www.facebook.com/sharer/sharer.php?u=${encodedPostUrl}`;
+const shareWhatsappHref = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareText} — ${postUrl}`)}`;
+const shareTelegramHref = `https://t.me/share/url?url=${encodedPostUrl}&text=${encodedShareTitle}`;
+const shareMailHref = `mailto:?subject=${encodedShareTitle}&body=${encodedPostUrl}`;
 ---
 
 <Layout
@@ -189,6 +202,100 @@ const updated = formatDate(modDatetime) ?? published;
             )
           }
           <div class="post-body astro-post-content" set:html={htmlContent} />
+          <div
+            class="post-meta"
+            aria-label="post metadata"
+            data-pagefind-ignore
+          >
+            <div class="tags-row">
+              <span class="meta-label"><b>#</b>tags</span>
+              {
+                postTags.length > 0 ? (
+                  postTags.map(tag => (
+                    <a class="tag" href={`/tags/${slugifyStr(tag)}/`}>
+                      <>
+                        <span class="hash">#</span>
+                        <span>{tag}</span>
+                      </>
+                    </a>
+                  ))
+                ) : (
+                  <span class="tag tag--empty">
+                    <span class="hash">#</span>untagged
+                  </span>
+                )
+              }
+            </div>
+            <div class="share-row" role="group" aria-label="share">
+              <span class="meta-label"><b>$</b>share</span>
+              <div class="share-buttons">
+                <a
+                  id="sh-x"
+                  href={shareXHref}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label="Post on X"
+                  title="Post on X"
+                >
+                  <IconBrandX aria-hidden="true" />
+                </a>
+                <a
+                  id="sh-fb"
+                  href={shareFacebookHref}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label="Share on Facebook"
+                  title="Share on Facebook"
+                >
+                  <IconFacebook aria-hidden="true" />
+                </a>
+                <a
+                  id="sh-wa"
+                  href={shareWhatsappHref}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label="Share on WhatsApp"
+                  title="Share on WhatsApp"
+                >
+                  <IconWhatsapp aria-hidden="true" />
+                </a>
+                <a
+                  id="sh-tg"
+                  href={shareTelegramHref}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label="Share on Telegram"
+                  title="Share on Telegram"
+                >
+                  <IconTelegram aria-hidden="true" />
+                </a>
+                <a
+                  id="sh-mail"
+                  href={shareMailHref}
+                  aria-label="Share via email"
+                  title="Share via email"
+                >
+                  <IconMail aria-hidden="true" />
+                </a>
+                <button
+                  type="button"
+                  id="sh-copy"
+                  data-copy-post-url={postUrl}
+                  aria-label="Copy link to clipboard"
+                  title="Copy link to clipboard"
+                >
+                  <svg data-stroke viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                    ></path>
+                    <path
+                      d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="line end-prompt">
           <span class="ps1"
@@ -260,4 +367,17 @@ const updated = formatDate(modDatetime) ?? published;
   window.addEventListener("scroll", tickProgress, { passive: true });
   window.addEventListener("resize", tickProgress);
   tickProgress();
+
+  const copyButton = document.getElementById("sh-copy");
+  copyButton?.addEventListener("click", async () => {
+    const url =
+      copyButton.getAttribute("data-copy-post-url") || window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      copyButton.classList.add("copied");
+      window.setTimeout(() => copyButton.classList.remove("copied"), 1400);
+    } catch {
+      window.location.href = url;
+    }
+  });
 </script>

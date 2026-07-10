@@ -3027,10 +3027,26 @@ a:hover {
   margin: 28px 0 0;
   align-items: start;
 }
+.post-layout > .toc {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+.post-layout > .post-body {
+  grid-column: 2;
+  grid-row: 1;
+}
+.post-layout > .post-meta {
+  grid-column: 2;
+  grid-row: 2;
+}
 @media (max-width: 900px) {
   .post-layout {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+  .post-layout > .post-body,
+  .post-layout > .post-meta {
+    grid-column: 1;
   }
 }
 .toc {
@@ -3279,6 +3295,115 @@ a:hover {
   left: 0;
   top: 0;
   color: var(--accent);
+}
+.post-meta {
+  max-width: 68ch;
+  margin-top: 48px;
+  padding: 18px 0;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+@media (max-width: 720px) {
+  .post-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+.post-meta .meta-label {
+  color: var(--dim);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.post-meta .meta-label b {
+  color: var(--accent);
+  font-weight: 500;
+  margin-right: 4px;
+}
+.tags-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-family: var(--font-mono);
+}
+.tags-row a.tag,
+.tags-row .tag--empty {
+  color: var(--info);
+  font-size: 13px;
+  text-decoration: none;
+  letter-spacing: -0.005em;
+  transition: color 0.15s;
+}
+.tags-row a.tag:hover {
+  color: var(--accent);
+}
+.tags-row a.tag .hash,
+.tags-row .tag--empty .hash {
+  color: var(--info);
+  opacity: 0.65;
+  margin-right: 1px;
+}
+.tags-row a.tag:hover .hash {
+  color: var(--accent);
+  opacity: 1;
+}
+.share-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.share-buttons {
+  display: inline-flex;
+  gap: 4px;
+}
+.share-buttons a,
+.share-buttons button {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.share-buttons a:hover,
+.share-buttons button:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.share-buttons svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+  stroke: currentColor;
+}
+.share-buttons svg[data-stroke] {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+.share-buttons button.copied {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: oklch(20% 0.05 145 / 0.4);
 }
 .end-prompt {
   margin-top: 48px;

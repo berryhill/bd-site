@@ -198,23 +198,42 @@ assert.match(sources.about, /class=\"terminal-exit\"/, "about bottom rail must u
 assert.match(sources.about, /<span class=\"eof\">EOF<\/span>/, "about bottom rail must show an EOF marker");
 assert.doesNotMatch(sources.about, /If you want to hire me/, "about CTA must use the issue #81 approved wording");
 
-const postFooterSequence = sources.postDetail.match(
-  /<div class="line end-prompt">[\s\S]*?<nav class="adjacent"[\s\S]*?<a class="back"/
+const postMetaSequence = sources.postDetail.match(
+  /<div[\s\S]*?class="post-meta"[\s\S]*?aria-label="post metadata"[\s\S]*?<div class="line end-prompt">[\s\S]*?<nav class="adjacent"[\s\S]*?<a class="back"/
 )?.[0] ?? "";
-assert.ok(postFooterSequence, "post detail footer must match the terminal prototype: end prompt, adjacent posts, then back-link");
+assert.ok(
+  postMetaSequence,
+  "post detail must preserve the supplied prototype sequence: post-meta tags/share row, end prompt, adjacent posts, then back-link"
+);
 assert.doesNotMatch(
   sources.postDetail,
   /cat post\.meta|reader actions|<b>TAGS=<\/b>|<b>SHARE=<\/b>|<b>EDIT=<\/b>|<b>TOP=<\/b>|primaryTagHref|primaryShareHref|data-terminal-top|terminal-post-footer|terminal-post-footer__|post-actions|env-disabled|<ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
-  "post detail must not insert a custom reader-actions/env footer; the supplied prototype has no such block"
+  "post detail must not reintroduce rejected custom reader-actions/env footer chrome"
 );
-assert.match(postFooterSequence, /class="line end-prompt"/);
-assert.match(postFooterSequence, /<nav class="adjacent"/);
-assert.match(postFooterSequence, /<a\s+class="back"/);
-assert.match(sources.styles, /\.env \{[\s\S]*?grid-template-columns:\s*1fr 1fr;/);
-assert.match(sources.styles, /\.env a \{[\s\S]*?padding:\s*14px 16px;/);
-assert.match(sources.styles, /@media \(max-width: 720px\) \{\s*\.env \{\s*grid-template-columns:\s*1fr;/);
-assert.match(postFooterSequence, /<span class=\"cmd\">\$ <\/span>/);
-assert.match(postFooterSequence, /aria-label=\"adjacent posts\"/);
+assert.match(postMetaSequence, /class="post-meta"/);
+assert.match(postMetaSequence, /aria-label="post metadata"/);
+assert.match(postMetaSequence, /<div class="tags-row">/);
+assert.match(postMetaSequence, /<span class="meta-label"><b>#<\/b>tags<\/span>/);
+assert.match(postMetaSequence, /<a class="tag" href=\{`\/tags\/\$\{slugifyStr\(tag\)\}\/`\}>/);
+assert.match(postMetaSequence, /<span class="hash">#<\/span>/);
+assert.match(postMetaSequence, /<div class="share-row" role="group" aria-label="share">/);
+assert.match(postMetaSequence, /<span class="meta-label"><b>\$<\/b>share<\/span>/);
+assert.match(postMetaSequence, /<div class="share-buttons">/);
+assert.match(postMetaSequence, /id="sh-x"/);
+assert.match(postMetaSequence, /id="sh-fb"/);
+assert.match(postMetaSequence, /id="sh-wa"/);
+assert.match(postMetaSequence, /id="sh-tg"/);
+assert.match(postMetaSequence, /id="sh-mail"/);
+assert.match(postMetaSequence, /id="sh-copy"/);
+assert.match(postMetaSequence, /class="line end-prompt"/);
+assert.match(postMetaSequence, /<nav class="adjacent"/);
+assert.match(postMetaSequence, /<a\s+class="back"/);
+assert.match(sources.styles, /\.post-meta \{[\s\S]*?max-width:\s*68ch;[\s\S]*?margin-top:\s*48px;[\s\S]*?border-top:\s*1px dashed var\(--border\);/);
+assert.match(sources.styles, /\.tags-row \{[\s\S]*?display:\s*inline-flex;[\s\S]*?gap:\s*4px 12px;/);
+assert.match(sources.styles, /\.share-buttons a,\s*\n\.share-buttons button \{[\s\S]*?width:\s*26px;[\s\S]*?height:\s*26px;/);
+assert.match(sources.styles, /\.share-buttons svg \{[\s\S]*?width:\s*13px;[\s\S]*?height:\s*13px;/);
+assert.match(postMetaSequence, /<span class=\"cmd\">\$ <\/span>/);
+assert.match(postMetaSequence, /aria-label=\"adjacent posts\"/);
 
 for (const [name, source] of [
   ["archivesRoute", sources.archivesRoute],
