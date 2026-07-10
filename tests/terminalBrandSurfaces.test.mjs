@@ -199,25 +199,17 @@ assert.match(sources.about, /<span class=\"eof\">EOF<\/span>/, "about bottom rai
 assert.doesNotMatch(sources.about, /If you want to hire me/, "about CTA must use the issue #81 approved wording");
 
 const postFooterSequence = sources.postDetail.match(
-  /<div class="block-h" data-pagefind-ignore>[\s\S]*?<div class="line end-prompt">[\s\S]*?<nav class="adjacent"[\s\S]*?<a class="back"/
+  /<div class="line end-prompt">[\s\S]*?<nav class="adjacent"[\s\S]*?<a class="back"/
 )?.[0] ?? "";
-assert.ok(postFooterSequence, "post detail footer must use the raw terminal.html block-h/env sequence before end prompt, adjacent posts, and back-link");
-assert.match(postFooterSequence, /<h2>cat post\.meta<\/h2>/);
-assert.match(postFooterSequence, /<span class="n">reader actions<\/span>/);
-assert.match(postFooterSequence, /class="env"/);
-assert.doesNotMatch(postFooterSequence, /class="env post-actions"|<button|env-disabled|post-actions/);
-assert.match(postFooterSequence, /<b>TAGS=<\/b> \[\{tagSummary\}\]/);
-assert.match(postFooterSequence, /<b>SHARE=<\/b> \{post\.id\}/);
-assert.match(postFooterSequence, /<b>EDIT=<\/b> source/);
-assert.match(postFooterSequence, /<b>TOP=<\/b> scroll/);
-assert.match(postFooterSequence, /primaryTagHref/);
-assert.match(postFooterSequence, /primaryShareHref/);
-assert.match(postFooterSequence, /data-terminal-top/);
+assert.ok(postFooterSequence, "post detail footer must match the terminal prototype: end prompt, adjacent posts, then back-link");
 assert.doesNotMatch(
-  postFooterSequence,
-  /terminal-post-footer|terminal-post-footer__|terminal-post-footer__card|terminal-post-footer__rail|terminal-post-footer__row|terminal-post-footer__items|terminal-post-footer__chip|terminal-post-footer__group|terminal-post-footer__label|<ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
-  "post detail footer must use raw terminal.html block-h/env primitives, not custom terminal-post-footer chrome"
+  sources.postDetail,
+  /cat post\.meta|reader actions|<b>TAGS=<\/b>|<b>SHARE=<\/b>|<b>EDIT=<\/b>|<b>TOP=<\/b>|primaryTagHref|primaryShareHref|data-terminal-top|terminal-post-footer|terminal-post-footer__|post-actions|env-disabled|<ShareLinks|Share this post on:|post tools|<Tag tag=|mt-2 mb-6/,
+  "post detail must not insert a custom reader-actions/env footer; the supplied prototype has no such block"
 );
+assert.match(postFooterSequence, /class="line end-prompt"/);
+assert.match(postFooterSequence, /<nav class="adjacent"/);
+assert.match(postFooterSequence, /<a\s+class="back"/);
 assert.match(sources.styles, /\.env \{[\s\S]*?grid-template-columns:\s*1fr 1fr;/);
 assert.match(sources.styles, /\.env a \{[\s\S]*?padding:\s*14px 16px;/);
 assert.match(sources.styles, /@media \(max-width: 720px\) \{\s*\.env \{\s*grid-template-columns:\s*1fr;/);
