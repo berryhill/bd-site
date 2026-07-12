@@ -152,8 +152,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
   - `<link rel="alternate" type="application/rss+xml">` in site layout
   - `<link rel="alternate" type="application/atom+xml">` in site layout
   - All pages advertise both RSS and Atom feeds for feed readers and LLM crawlers
-- **Open Graph**: ✅ Configured with dark theme
-- **Twitter Cards**: ✅ summary_large_image
+- **Open Graph / Twitter preview images**: ✅ Site-level `/og.png` and dynamic post `/posts/<slug>/index.png` use the shared terminal/operator brand template system, with metadata still emitted as `summary_large_image` and absolute image URLs.
 - **Canonical URLs**: ✅ Set on all pages; post canonical URLs are normalized through the shared URL helper
 - **Post URL normalization**: ✅ Post canonical, OG image, and JSON-LD URL fields share the same `SITE.website` normalization path
 - **Meta Descriptions**: ✅ Unique per page
@@ -170,6 +169,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 7. Issue #97 public-post crawl signals (2026-07-08): public post create/update now sends IndexNow and Google Search Console sitemap crawl signals through shared `submitPublicPostCrawlSignals`, skipping drafts and missing Google config safely.
 8. Issue #101 DuckDuckGo crawl signal (2026-07-08): public post create/update now records DuckDuckGo coverage through Bing/IndexNow evidence or canonical sitemap plus DuckDuckBot access, with no direct DuckDuckGo submission endpoint claimed.
 9. Issue #102 Yahoo crawl-discovery evidence (2026-07-08): non-draft post create/update responses include Yahoo-specific discovery evidence via Bing IndexNow / Yahoo Slurp, sitemap, and robots visibility. This is not a standalone Yahoo-owned submit endpoint and does not guarantee indexing.
+10. Issue #118 social preview brand patterns (2026-07-12): site and post OG image templates now share the berryhill.dev terminal/operator brand system and tests reject the prior off-brand color palette.
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -236,6 +236,9 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 - All major AI companies (OpenAI, Anthropic, Google, Meta, Apple, Amazon) are explicitly welcomed
 
 ## Changelog
+
+### 2026-07-12
+- ✅ **Social Preview Brand Patterns** (Issue #118): Replaced old generic OG image templates with shared terminal/operator brand templates for site and post previews; added regression coverage for brand tokens, required data, title truncation, and old off-brand colors.
 
 ### 2026-07-08
 - ✅ **DuckDuckGo Crawl Signal** (Issue #101): Public post create/update now records DuckDuckGo coverage through Bing/IndexNow evidence when IndexNow succeeds, or through canonical sitemap plus DuckDuckBot access when relying on discovery. No direct DuckDuckGo URL submission endpoint is implemented, and `DUCKDUCKGO_CRAWL_SIGNAL_DISABLED=true` opts out of the evaluation.
