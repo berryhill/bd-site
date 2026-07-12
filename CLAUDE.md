@@ -76,6 +76,7 @@ pnpm run format:check # Check formatting without writing
 - **OG Image Generation**: [src/utils/generateOgImages.ts](src/utils/generateOgImages.ts) - Dynamic OG images using Satori and @resvg/resvg-js
   - Post OG images: `/posts/[slug]/index.png.ts`
   - Site OG image: `/og.png.ts`
+  - Shared social-preview brand templates live in `src/utils/og-templates/brand.js`; `site.js` and `post.js` should stay thin Satori wrappers around the shared terminal/operator brand builders.
 - **URL Normalization**: [src/utils/url.ts](src/utils/url.ts) - Normalizes `SITE.website`, site-relative paths, post URLs, and post asset URLs to absolute URLs for post metadata and custom sitemap routes
 - **Crawl Signals**: [src/utils/crawlSignals.ts](src/utils/crawlSignals.ts) - Shared source for canonical sitemap path, robots.txt crawler groups, generated asset disallow policy, and Layout sitemap href
 - **DuckDuckGo Crawl Signal**: [src/utils/duckDuckGoCrawlSignal.ts](src/utils/duckDuckGoCrawlSignal.ts) - Records DuckDuckGo coverage evidence through Bing/IndexNow success or canonical sitemap plus DuckDuckBot access; it is not a direct DuckDuckGo submission API

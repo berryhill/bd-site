@@ -205,7 +205,7 @@ The check also accepts a built HTML file path, for example:
 pnpm run check:social-preview -- dist/client/posts/<post-slug>/index.html
 ```
 
-The command fails if required title/description/image metadata is missing or if Open Graph and Twitter values disagree.
+The command fails if required title/description/image metadata is missing or if Open Graph and Twitter values disagree. The generated site and post preview images use the shared terminal/operator brand template in `src/utils/og-templates/brand.js`, rendered through `site.js` and `post.js`. Keep `/og.png` and dynamic post `/index.png` previews aligned with the live berryhill.dev brand system rather than reverting to generic AstroPaper-style palette/layouts.
 
 To update blog content in production:
 
@@ -233,7 +233,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 - Dark/light mode toggle
 - Fuzzy search with Pagefind (`/search`; generated `/pagefind/` assets are not crawler-facing content)
 - RSS feed plus canonical `/sitemap.xml` crawler surface (`/sitemap-index.xml` redirects only for compatibility), with public-post crawl signal submission on API publish/update; Google Search Console submission is best-effort and configuration-dependent, DuckDuckGo coverage is evaluated through Bing/IndexNow plus sitemap/DuckDuckBot discovery, and Yahoo discovery evidence is surfaced through Bing IndexNow / Yahoo Slurp without a Yahoo-specific environment variable
-- Dynamic OG image generation
+- Dynamic OG image generation through shared terminal/operator brand templates for site and post social previews.
 
 ## 📜 License
 
