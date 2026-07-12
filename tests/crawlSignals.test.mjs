@@ -9,6 +9,7 @@ import {
   getRobotsTxt,
 } from "../src/utils/crawlSignals.ts";
 import {
+  HIDDEN_STATIC_SITEMAP_PATHS,
   REDIRECT_ONLY_SITEMAP_PATHS,
   buildStaticSitemapXml,
   getStaticSitemapPaths,
@@ -85,16 +86,21 @@ test("canonical sitemap helper rejects bad site input instead of emitting invali
   assert.throws(() => getRobotsTxt("not a url"), /Invalid URL/);
 });
 
-test("static sitemap URL collection excludes redirect-only sitemap-index.xml", () => {
+test("static sitemap URL collection excludes redirect-only and hidden 404 surfaces", () => {
   const withArchives = getStaticSitemapPaths({ showArchives: true });
   const withoutArchives = getStaticSitemapPaths({ showArchives: false });
 
-  assert.deepEqual(withArchives, ["", "about", "posts", "tags", "archives"]);
+  assert.deepEqual(withArchives, ["", "about", "posts", "tags"]);
   assert.deepEqual(withoutArchives, ["", "about", "posts", "tags"]);
 
   for (const redirectPath of REDIRECT_ONLY_SITEMAP_PATHS) {
     assert.equal(withArchives.includes(redirectPath), false);
     assert.equal(withoutArchives.includes(redirectPath), false);
+  }
+
+  for (const hiddenPath of HIDDEN_STATIC_SITEMAP_PATHS) {
+    assert.equal(withArchives.includes(hiddenPath), false);
+    assert.equal(withoutArchives.includes(hiddenPath), false);
   }
 });
 
@@ -106,6 +112,7 @@ test("static sitemap XML includes canonical static pages and omits redirect/stal
 
   assert.match(xml, /<loc>https:\/\/berryhill\.dev\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/berryhill\.dev\/about\/<\/loc>/);
+  assert.doesNotMatch(xml, /<loc>https:\/\/berryhill\.dev\/archives\/<\/loc>/);
   assert.doesNotMatch(xml, /<loc>https:\/\/berryhill\.dev\/search\/<\/loc>/);
   assert.doesNotMatch(xml, /sitemap-index\.xml/);
   assert.doesNotMatch(xml, /pagefind/);

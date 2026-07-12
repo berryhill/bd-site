@@ -9,11 +9,19 @@ export const STATIC_SITEMAP_PATHS = ["", "about", "posts", "tags"] as const;
 
 export const REDIRECT_ONLY_SITEMAP_PATHS = ["sitemap-index.xml"] as const;
 
+export const HIDDEN_STATIC_SITEMAP_PATHS = ["archives"] as const;
+
 export const getStaticSitemapPaths = ({
   showArchives = true,
 }: {
   showArchives?: boolean;
-} = {}) => [...STATIC_SITEMAP_PATHS, ...(showArchives ? ["archives"] : [])];
+} = {}) =>
+  [...STATIC_SITEMAP_PATHS, ...(showArchives ? ["archives"] : [])].filter(
+    path =>
+      !HIDDEN_STATIC_SITEMAP_PATHS.includes(
+        path as (typeof HIDDEN_STATIC_SITEMAP_PATHS)[number]
+      )
+  );
 
 export const buildStaticSitemapXml = ({
   site = DEFAULT_SITE,
