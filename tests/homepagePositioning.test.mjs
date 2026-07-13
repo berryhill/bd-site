@@ -26,7 +26,7 @@ const prototypeAnchors = [
   "I run a fleet of specialized AI agents that design, research, code, review, write, analyze markets, and ship software with me. This site is the public terminal into that operating system.",
   "curl GET /fleet",
   "cat manifesto.md",
-  "ls featured/ --sort=stars",
+  "ls featured/ --sort=latest",
   "ls -la recent/",
   "cat .env",
 ];
@@ -34,6 +34,7 @@ const forbidden = ["Welcome to my corner of the internet", "Matt Berryhill build
 
 test("homepage renders issue 73 prototype copy anchors", () => {
   for (const copy of prototypeAnchors) includesCollapsed(homepageSource, copy);
+  assert.doesNotMatch(homepageSource, /ls featured\/ --sort=stars/);
 });
 test("site metadata description remains approved and safe", () => {
   assert.equal(SITE.desc, expectedSiteDescription);
