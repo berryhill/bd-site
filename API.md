@@ -170,6 +170,8 @@ Content-Type: application/json
 - `hideEditPost` (optional): Hide the edit link for this post
 - `timezone` (optional): IANA timezone override for datetime display
 
+**Title quality behavior:** non-draft creates validate the rendered title tag before writing. The rendered title is the post title plus the site suffix (` | berryhill.dev`), with a default maximum length of 65 characters. The same gate checks for near-duplicate similarity against recent public posts. Draft creates bypass this gate until they are made non-draft.
+
 **Content image references:** POST `content` may include normal external images. Repo-backed blog visuals must be referenced as `/assets/blog/<slug>/filename.svg` or `/assets/blog/<slug>/filename.png`, include alt text plus a caption/title in Markdown, and have an existing backing file under `public/assets/blog/<slug>/`. Inline `data:image` URIs are invalid.
 
 **Social preview behavior:** `ogImage` is written to frontmatter and becomes the rendered post's `og:image`, `twitter:image`, and JSON-LD image. Stored `ogImage` values may be absolute URLs, site-relative paths, or relative paths; rendered post metadata normalizes site-relative and relative values to absolute URLs using `SITE.website` without mutating the stored frontmatter value. `featured_image` is only a backward-compatible alias; `ogImage` wins when both are supplied. If no `ogImage` is stored and the post is not a draft, the site falls back to the dynamic `/posts/<slug>/index.png` image route when `SITE.dynamicOgImage` is enabled.
@@ -214,6 +216,28 @@ The command verifies `<title>`, meta description, Open Graph title/description/i
 ```
 
 `crawlSignals` appears only for non-draft writes. The `yahoo` object is honest discovery evidence through Bing IndexNow / Yahoo Slurp and sitemap/robots visibility; it is not proof of guaranteed Yahoo indexing.
+
+**Response (400 Bad Request — title quality):**
+```json
+{
+  "error": "Invalid post title quality",
+  "details": [
+    {
+      "code": "rendered_title_too_long",
+      "message": "Rendered title exceeds the maximum length"
+    },
+    {
+      "code": "near_duplicate_title",
+      "message": "Title is too similar to a recent public post"
+    }
+  ],
+  "titleQuality": {
+    "renderedTitle": "My New Post | berryhill.dev",
+    "renderedTitleLength": 28,
+    "maxRenderedTitleLength": 65
+  }
+}
+```
 
 ## 5. Update Post
 
@@ -267,6 +291,8 @@ Content-Type: application/json
 - `timezone` (optional): Update IANA timezone override
 - `content` (optional): Update post content in Markdown
 
+**Title quality behavior:** PATCH validates the resulting title/frontmatter before the file is rewritten when the resulting post is non-draft. The rendered title is the post title plus the site suffix (` | berryhill.dev`), with a default maximum length of 65 characters. Near-duplicate comparison is against recent public posts and excludes the current slug. Draft results bypass this gate.
+
 **Content image references:** PATCH `content` may include normal external images. Repo-backed blog visuals must be referenced as `/assets/blog/<slug>/filename.svg` or `/assets/blog/<slug>/filename.png`, include alt text plus a caption/title in Markdown, and have an existing backing file under `public/assets/blog/<slug>/`. Inline `data:image` URIs are invalid.
 
 **Social preview behavior:** PATCH follows the same `ogImage` / `featured_image` precedence as create: `ogImage` is stored in frontmatter when supplied, `featured_image` is only a backward-compatible alias, and `ogImage` wins when both are supplied. Stored `ogImage` values may be absolute URLs, site-relative paths, or relative paths; rendered post metadata normalizes site-relative and relative values to absolute URLs using `SITE.website` without mutating the stored frontmatter value. Updated post pages can be verified with `pnpm run check:social-preview -- http://localhost:4321/posts/<slug>/` after building or running preview.
@@ -306,6 +332,28 @@ Content-Type: application/json
 ```
 
 `crawlSignals` appears only when the resulting post is non-draft. The `yahoo` object is honest discovery evidence through Bing IndexNow / Yahoo Slurp and sitemap/robots visibility; it is not proof of guaranteed Yahoo indexing.
+
+**Response (400 Bad Request — title quality):**
+```json
+{
+  "error": "Invalid post title quality",
+  "details": [
+    {
+      "code": "rendered_title_too_long",
+      "message": "Rendered title exceeds the maximum length"
+    },
+    {
+      "code": "near_duplicate_title",
+      "message": "Title is too similar to a recent public post"
+    }
+  ],
+  "titleQuality": {
+    "renderedTitle": "Updated Title | berryhill.dev",
+    "renderedTitleLength": 29,
+    "maxRenderedTitleLength": 65
+  }
+}
+```
 
 ## 6. Delete Post
 
@@ -401,6 +449,25 @@ Endpoint-specific validation failures may also return:
       "reason": "Missing caption/title for local blog visual"
     }
   ]
+}
+```
+
+or:
+
+```json
+{
+  "error": "Invalid post title quality",
+  "details": [
+    {
+      "code": "rendered_title_too_long",
+      "message": "Rendered title exceeds the maximum length"
+    }
+  ],
+  "titleQuality": {
+    "renderedTitle": "A title that is too long once the site suffix is appended | berryhill.dev",
+    "renderedTitleLength": 74,
+    "maxRenderedTitleLength": 65
+  }
 }
 ```
 

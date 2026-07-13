@@ -207,12 +207,20 @@ curl -si https://berryhill.dev/llms.txt | head -5
 
 ## Verification Script
 
-A repeatable verification harness verifies all crawl surfaces in one command:
+`check:search-visibility` verifies the live/public crawl endpoints exposed by a running site:
 
 ```bash
 pnpm run check:search-visibility
 # Optional: point at a different base URL
 pnpm run check:search-visibility -- https://staging.berryhill.dev
+```
+
+`check:seo-crawl-surface` audits local source and built crawl-surface invariants, broken public post links, malformed sitemap/canonical/feed URLs, search noindex behavior, and legacy title-quality advisories:
+
+```bash
+pnpm run check:seo-crawl-surface
+# Optional: run against a live network base URL
+pnpm run check:seo-crawl-surface -- --base-url https://berryhill.dev
 ```
 
 Checks performed:
@@ -239,6 +247,7 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 ## Changelog
 
 ### 2026-07-12
+- ✅ **SEO Title Guardrails** (Issue #99): Non-draft post create/update now rejects overlong rendered title tags and near-duplicate recent public titles; `check:seo-crawl-surface` reports legacy public title-quality advisories while retaining crawl/link URL failures as hard failures.
 - ✅ **Static Sitemap Archives Exclusion** (Issue #98 follow-up): Reconciled the reopened Bing-reported 404 URL by keeping `/archives/` out of `/sitemap-static.xml`; redirect-only and hidden/404-only surfaces such as `/sitemap-index.xml` and `/archives/` are not advertised.
 - ✅ **Social Preview Brand Patterns** (Issue #118): Replaced old generic OG image templates with shared terminal/operator brand templates for site and post previews; added regression coverage for brand tokens, required data, title truncation, and old off-brand colors.
 
