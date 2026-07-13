@@ -10,7 +10,7 @@
 - **Sitemap Type**: Custom dynamic sitemap (SSR)
 - **Sitemaps**:
   - `/sitemap.xml` - Canonical crawler-facing master index. Robots.txt, layout metadata, `/llms.txt`, and verification checks advertise this URL directly.
-  - `/sitemap-static.xml` - Real static content pages only (`/`, `/about/`, `/posts/`, `/tags/`, `/search/`, and `/archives/` when enabled); redirect-only endpoints such as `/sitemap-index.xml` are excluded.
+  - `/sitemap-static.xml` - Real canonical static content pages only: `/`, `/about/`, `/posts/`, and `/tags/`. Redirect-only endpoints and hidden/404-only surfaces such as `/sitemap-index.xml` and `/archives/` are excluded.
   - `/sitemap-posts.xml` - Public blog posts only, excluding drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
   - `/sitemap-index.xml` - Backward-compatibility redirect only; not an advertised sitemap surface.
 - **URL normalization**: Static page `<loc>` values in `/sitemap-static.xml` and post `<loc>` values in `/sitemap-posts.xml` are normalized through the shared URL helper using `SITE.website`.
@@ -170,6 +170,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 8. Issue #101 DuckDuckGo crawl signal (2026-07-08): public post create/update now records DuckDuckGo coverage through Bing/IndexNow evidence or canonical sitemap plus DuckDuckBot access, with no direct DuckDuckGo submission endpoint claimed.
 9. Issue #102 Yahoo crawl-discovery evidence (2026-07-08): non-draft post create/update responses include Yahoo-specific discovery evidence via Bing IndexNow / Yahoo Slurp, sitemap, and robots visibility. This is not a standalone Yahoo-owned submit endpoint and does not guarantee indexing.
 10. Issue #118 social preview brand patterns (2026-07-12): site and post OG image templates now share the berryhill.dev terminal/operator brand system and tests reject the prior off-brand color palette.
+11. Issue #98 follow-up static sitemap reconciliation (2026-07-12): `/sitemap-static.xml` no longer advertises the reopened Bing-reported 404 `/archives/` URL; `/archives/` remains an intentional hidden/404-only surface.
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -226,7 +227,7 @@ Checks performed:
 | llms.txt | /llms.txt | title + sitemap + RSS references and shared public corpus alignment (requires PR #35 deployed) |
 | post JSON-LD | /posts/{slug}/ | JSON-LD structured data (optional) |
 
-URL readback should confirm that `/sitemap-static.xml` and `/sitemap-posts.xml` emit absolute `<loc>` values using `SITE.website`, that sitemap/feed/llms checks validate the shared public corpus rather than XML shape alone, and that post detail pages emit canonical, Open Graph, and JSON-LD URLs through the shared URL helper.
+URL readback should confirm that `/sitemap-static.xml` and `/sitemap-posts.xml` emit absolute `<loc>` values using `SITE.website`, that `/archives/` is absent from `/sitemap-static.xml`, that sitemap/feed/llms checks validate the shared public corpus rather than XML shape alone, and that post detail pages emit canonical, Open Graph, and JSON-LD URLs through the shared URL helper.
 
 Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` index assets are intentionally disallowed in robots.txt as crawl noise. `pnpm run build` currently maps to `astro build`, and CI does not generate Pagefind index assets unless package scripts or CI are explicitly changed. Verify Pagefind index presence only in environments that actually generate `public/pagefind/`.
 
@@ -238,6 +239,7 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 ## Changelog
 
 ### 2026-07-12
+- ✅ **Static Sitemap Archives Exclusion** (Issue #98 follow-up): Reconciled the reopened Bing-reported 404 URL by keeping `/archives/` out of `/sitemap-static.xml`; redirect-only and hidden/404-only surfaces such as `/sitemap-index.xml` and `/archives/` are not advertised.
 - ✅ **Social Preview Brand Patterns** (Issue #118): Replaced old generic OG image templates with shared terminal/operator brand templates for site and post previews; added regression coverage for brand tokens, required data, title truncation, and old off-brand colors.
 
 ### 2026-07-08
@@ -277,4 +279,4 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 - ✅ Created LLM Crawl Manifest documentation
 
 ## Last Updated
-2026-07-08
+2026-07-12

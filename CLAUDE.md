@@ -48,7 +48,7 @@ pnpm run format:check # Check formatting without writing
 - `/posts/[slug]/` - Individual post pages
 - `/tags/` - Tag index page
 - `/tags/[tag]/[page]` - Posts filtered by tag (paginated)
-- `/archives/` - Archive view (controlled by `SITE.showArchives`)
+- `/archives/` - Intentional 404-only hidden surface until future scoped work restores an archive view
 - `/search` - Client-side search powered by Pagefind; generated Pagefind index assets under `/pagefind/` are not a crawler target and are disallowed in robots.txt as generated search-index noise
 - `/about` - About page (Markdown file at `src/pages/about.md`)
 
@@ -83,7 +83,7 @@ pnpm run format:check # Check formatting without writing
 - **Yahoo Post Crawl Signals**: [src/utils/yahooPostCrawlSignals.ts](src/utils/yahooPostCrawlSignals.ts) - Returns Yahoo-specific discovery evidence via Bing IndexNow / Yahoo Slurp; Yahoo evidence is not a standalone Yahoo-owned submit endpoint and does not guarantee indexing
 - **Public Post Crawl Signals**: [src/utils/publicPostCrawlSignals.ts](src/utils/publicPostCrawlSignals.ts) - Coordinates IndexNow, DuckDuckGo coverage evaluation, Yahoo discovery evidence, and Google Search Console sitemap submission for public posts
 - **Google Search Console Submission**: [src/utils/googleSearchConsole.ts](src/utils/googleSearchConsole.ts) - Submits `/sitemap.xml` to Google Search Console using optional server-side environment configuration
-- **Static Sitemap**: [src/utils/staticSitemap.ts](src/utils/staticSitemap.ts) - Shared source for static sitemap page selection and XML generation
+- **Static Sitemap**: [src/utils/staticSitemap.ts](src/utils/staticSitemap.ts) - Shared source for canonical static sitemap page selection and XML generation; hidden/404-only surfaces are excluded via `HIDDEN_STATIC_SITEMAP_PATHS`
 - **Tag Management**: `getUniqueTags.ts`, `getPostsByTag.ts` for tag-based filtering
 - **Slugification**: `slugify.ts` uses lodash.kebabcase for URL-friendly slugs
 
@@ -121,7 +121,7 @@ Search is powered by Pagefind, which indexes the built site and provides client-
 
 - **Dynamic OG Images**: Automatically generated for posts if `SITE.dynamicOgImage` is true
 - **RSS Feed**: Generated at `/rss.xml` using `@astrojs/rss`
-- **Sitemap**: Custom SSR sitemap routes generate canonical crawler-facing `/sitemap.xml`, `/sitemap-static.xml` for real static pages only, and `/sitemap-posts.xml` for posts; `/sitemap-index.xml` redirects only for backward compatibility and should not be newly advertised
+- **Sitemap**: Custom SSR sitemap routes generate canonical crawler-facing `/sitemap.xml`, `/sitemap-static.xml` for helper-approved static pages only, and `/sitemap-posts.xml` for posts; `/sitemap-static.xml` excludes hidden/404-only surfaces such as `/archives/`, and `/sitemap-index.xml` redirects only for backward compatibility and should not be newly advertised
 - **Robots.txt**: Dynamically generated at `/robots.txt.ts` from shared crawlSignals rules, including explicit crawler groups and generated asset/index disallows
 
 ## Important Notes
@@ -132,4 +132,4 @@ Search is powered by Pagefind, which indexes the built site and provides client-
 - POST/PATCH `/api/posts` include `crawlSignals` responses only for non-draft posts after successful file writes. IndexNow submits the post URL immediately; DuckDuckGo coverage is recorded through Bing/IndexNow evidence or canonical sitemap plus DuckDuckBot access without claiming a direct DuckDuckGo submit endpoint; Google Search Console sitemap submission is best-effort and skipped when credentials are missing; Yahoo-specific evidence is discovery via Bing IndexNow / Yahoo Slurp, not guaranteed Yahoo indexing.
 - Posts are timezone-aware; global timezone is set in `SITE.timezone` (IANA format), individual posts can override with frontmatter `timezone`
 - The edit post feature links to a GitHub repository URL (configurable in `SITE.editPost`)
-- Archives page visibility is controlled by `SITE.showArchives` in the sitemap filter
+- `SITE.showArchives` remains false, but `/archives/` is also blocked from static sitemap output by the hidden-path guard while the route returns 404
