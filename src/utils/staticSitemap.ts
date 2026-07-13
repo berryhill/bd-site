@@ -42,3 +42,17 @@ ${getStaticSitemapPaths({ showArchives })
   })
   .join("\n")}
 </urlset>`;
+
+export const buildStaticSitemapResponse = ({
+  site = DEFAULT_SITE,
+  showArchives = true,
+}: {
+  site?: string;
+  showArchives?: boolean;
+} = {}) =>
+  new Response(buildStaticSitemapXml({ site, showArchives }), {
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=3600",
+    },
+  });
