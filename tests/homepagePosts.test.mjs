@@ -85,6 +85,8 @@ test("homepage post metadata helpers handle word-count, one-minute floor, and in
 
 test("homepage renders pinned card styling only behind the featured-post guard", () => {
   assert.match(homepageSource, /featuredPosts\.length > 0 &&/);
+  assert.match(homepageSource, /<h2>ls featured\/ --sort=latest<\/h2>/);
+  assert.doesNotMatch(homepageSource, /ls featured\/ --sort=stars/);
   assert.match(homepageSource, /class="files featured-files"/);
   assert.match(homepageSource, /class="file featured-file"/);
   assert.match(homepageSource, /aria-label=\{`Read featured post: \$\{post\.data\.title\}`\}/);

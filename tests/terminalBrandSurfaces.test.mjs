@@ -85,7 +85,7 @@ const exactCopyAnchors = [
   [sources.home, "I run a fleet of specialized AI agents that design, research, code, review, write, analyze markets, and ship software with me. This site is the public terminal into that operating system."],
   [sources.home, "curl GET /fleet"],
   [sources.home, "cat manifesto.md"],
-  [sources.home, "ls featured/ --sort=stars"],
+  [sources.home, "ls featured/ --sort=latest"],
   [sources.home, "ls -la recent/"],
   [sources.home, "cat .env"],
   [sources.postsArchive, "posts<span class=\"slash\">/</span><b>archive</b>"],
@@ -112,6 +112,8 @@ const exactCopyAnchors = [
 for (const [source, anchor] of exactCopyAnchors) {
   assert.ok(source.replace(/\s+/g, " ").includes(anchor), `missing exact prototype copy anchor: ${anchor}`);
 }
+
+assert.doesNotMatch(sources.home, /ls featured\/ --sort=stars/, "homepage must not regress to the old stars sort label");
 
 const terminalNavSources = {
   home: sources.home,
