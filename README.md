@@ -102,9 +102,12 @@ pnpm run format
 
 # Crawl/search visibility validation
 pnpm run check:search-visibility
+pnpm run check:seo-crawl-surface
 ```
 
 `pnpm run check:search-visibility` checks robots.txt, canonical `/sitemap.xml`, rss.xml, llms.txt, and representative JSON-LD.
+
+`pnpm run check:seo-crawl-surface` validates local source and built crawl surfaces, including public post links, sitemap/canonical/feed URL shape, search noindex behavior, and legacy title-quality advisories.
 
 ## 🐳 Docker
 
@@ -185,6 +188,8 @@ Blog posts are stored as Markdown files in `src/data/blog/`. In production, the 
 
 API-created or API-updated non-draft posts trigger public crawl signals after the Markdown write: IndexNow performs immediate URL submission, Google uses supported Search Console sitemap resubmission, DuckDuckGo coverage is evaluated through Bing/IndexNow evidence plus canonical sitemap and DuckDuckBot access, and Yahoo-specific discovery evidence is returned through Bing IndexNow / Yahoo Slurp plus sitemap and robots visibility. DuckDuckGo and Yahoo evidence are not standalone direct submission endpoints and do not guarantee indexing. Draft posts are skipped.
 
+API-created or API-updated non-draft posts also reject titles that produce overlong rendered `<title>` tags or near-duplicate recent public titles. The rendered title budget is 65 characters including the site suffix, so authors should budget for ` | berryhill.dev` instead of judging the raw frontmatter title alone. Draft posts skip this title-quality gate until made non-draft.
+
 Durable local blog visuals belong under `public/assets/blog/<post-slug>/` and should be referenced from Markdown as `/assets/blog/<post-slug>/filename.svg` or `/assets/blog/<post-slug>/filename.png`. Use normal Markdown image syntax with useful alt text and a caption/title; inline `data:image` URIs are rejected.
 
 ### Blog social preview checks
@@ -206,6 +211,8 @@ pnpm run check:social-preview -- dist/client/posts/<post-slug>/index.html
 ```
 
 The command fails if required title/description/image metadata is missing or if Open Graph and Twitter values disagree. The generated site and post preview images use the shared terminal/operator brand template in `src/utils/og-templates/brand.js`, rendered through `site.js` and `post.js`. Keep `/og.png` and dynamic post `/index.png` previews aligned with the live berryhill.dev brand system rather than reverting to generic AstroPaper-style palette/layouts.
+
+Adjacent SEO validation also includes title-quality readback through `pnpm run check:seo-crawl-surface`. That command reports legacy public title-quality advisories while preserving crawl/link URL failures as hard failures.
 
 To update blog content in production:
 

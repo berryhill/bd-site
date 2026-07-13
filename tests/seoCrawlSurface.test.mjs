@@ -6,6 +6,7 @@ import path from "node:path";
 import {
   auditInternalPostLinks,
   auditLocalCrawlSurface,
+  auditPublishedPostTitleQuality,
   extractXmlLocs,
   isMalformedCrawlUrl,
   loadSourcePosts,
@@ -153,6 +154,39 @@ test("local audit returns error path for broken public post links", async () => 
       assert.equal(result.mode, "local");
       assert.equal(result.issues.length, 1);
       assert.equal(result.issues[0].message, "Published post links to a draft or scheduled post route");
+    }
+  );
+});
+
+test("local audit reports legacy title quality as advisory without failing issues", async () => {
+  await withTempContent(
+    {
+      "long-title.md": markdown({ title: "A".repeat(60) }),
+      "duplicate-a.md": markdown({
+        title: "Agentic Workflows That Ship",
+        pubDatetime: "2024-01-03T00:00:00Z",
+      }),
+      "duplicate-b.md": markdown({
+        title: "Agentic Workflows That Ship Fast",
+        pubDatetime: "2024-01-04T00:00:00Z",
+      }),
+    },
+    async contentDir => {
+      const posts = await loadSourcePosts({ contentDir, now: new Date("2025-01-01T00:00:00Z").getTime() });
+      const advisories = auditPublishedPostTitleQuality(posts);
+      const result = await auditLocalCrawlSurface({ contentDir, distDir: path.join(contentDir, "missing-dist") });
+
+      assert.ok(
+        advisories.some(
+          advisory => advisory.issue.code === "rendered_title_too_long"
+        )
+      );
+      assert.ok(
+        advisories.some(advisory => advisory.issue.code === "near_duplicate_title")
+      );
+      assert.equal(result.issues.length, 0);
+      assert.equal(result.titleQualityAdvisories.length, advisories.length);
+      assert.equal(result.checked.titleQualityAdvisories, advisories.length);
     }
   );
 });
