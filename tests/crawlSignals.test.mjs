@@ -11,21 +11,34 @@ import {
 import {
   HIDDEN_STATIC_SITEMAP_PATHS,
   REDIRECT_ONLY_SITEMAP_PATHS,
+  buildStaticSitemapResponse,
   buildStaticSitemapXml,
   getStaticSitemapPaths,
 } from "../src/utils/staticSitemap.ts";
+import { SITE } from "../src/config.ts";
 
 let passed = 0;
 let failed = 0;
+const pending = [];
+
+function recordFailure(name, error) {
+  failed += 1;
+  console.error(`FAIL ${name}`);
+  console.error(error);
+}
 
 function test(name, fn) {
   try {
-    fn();
+    const result = fn();
+    if (result && typeof result.then === "function") {
+      pending.push(
+        result.then(() => (passed += 1)).catch(error => recordFailure(name, error))
+      );
+      return;
+    }
     passed += 1;
   } catch (error) {
-    failed += 1;
-    console.error(`FAIL ${name}`);
-    console.error(error);
+    recordFailure(name, error);
   }
 }
 
@@ -118,6 +131,31 @@ test("static sitemap XML includes canonical static pages and omits redirect/stal
   assert.doesNotMatch(xml, /pagefind/);
 });
 
+test("static sitemap route response cannot advertise the 404-only archives surface", async () => {
+  const response = buildStaticSitemapResponse({
+    site: SITE.website,
+    showArchives: SITE.showArchives,
+  });
+  const xml = await response.text();
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("Content-Type"), "application/xml; charset=utf-8");
+  assert.match(xml, /<loc>https:\/\/berryhill\.dev\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/berryhill\.dev\/about\/<\/loc>/);
+  assert.doesNotMatch(xml, /<loc>https:\/\/berryhill\.dev\/archives\/<\/loc>/);
+  assert.doesNotMatch(xml, /sitemap-index\.xml/);
+});
+
+test("archives config stays disabled while the archives route intentionally returns 404", () => {
+  const archivesSource = readFileSync(
+    new URL("../src/pages/archives/index.astro", import.meta.url),
+    "utf8"
+  );
+
+  assert.equal(SITE.showArchives, false);
+  assert.match(archivesSource, /return new Response\(null, \{ status: 404 \}\);/);
+});
+
 test("layout source links the canonical sitemap.xml surface", () => {
   const layout = readFileSync(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
 
@@ -125,6 +163,8 @@ test("layout source links the canonical sitemap.xml surface", () => {
   assert.match(layout, /href=\{sitemapHref\}/);
   assert.doesNotMatch(layout, /href="\/sitemap-index\.xml"/);
 });
+
+await Promise.all(pending);
 
 console.log(`PASS ${passed} FAIL ${failed}`);
 
