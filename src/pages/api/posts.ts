@@ -7,6 +7,7 @@ import { SITE } from "@/config";
 import { submitPublicPostCrawlSignals } from "@/utils/publicPostCrawlSignals";
 import { requireApiKey } from "@/utils/apiAuth";
 import { validateBlogVisualAssets } from "@/utils/blogVisualAssets";
+import { auditPostTitleQuality } from "@/utils/postTitleQuality";
 
 export const prerender = false;
 
@@ -53,6 +54,63 @@ const blogVisualValidationErrorResponse = (content: string, slug: string) => {
     JSON.stringify({
       error: "Invalid blog visual asset reference",
       details: result.issues,
+    }),
+    {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+};
+
+const loadTitleComparisonPosts = async () => {
+  const blogDir = join(process.cwd(), "src", "data", "blog");
+  const files = await readdir(blogDir);
+  const markdownFiles = files.filter(
+    file => file.endsWith(".md") && !file.startsWith("_")
+  );
+
+  return Promise.all(
+    markdownFiles.map(async filename => {
+      const fileContent = await readFile(join(blogDir, filename), "utf-8");
+      const parsed = matter(fileContent);
+      return {
+        slug: filename.replace(/\.md$/i, ""),
+        title: String(parsed.data.title ?? ""),
+        draft: Boolean(parsed.data.draft),
+        pubDatetime: parsed.data.pubDatetime as
+          | string
+          | Date
+          | null
+          | undefined,
+      };
+    })
+  );
+};
+
+const titleQualityValidationErrorResponse = async (
+  title: string,
+  { currentSlug, draft }: { currentSlug?: string; draft?: boolean } = {}
+) => {
+  if (draft) return null;
+
+  const result = auditPostTitleQuality(
+    title,
+    await loadTitleComparisonPosts(),
+    {
+      currentSlug,
+    }
+  );
+  if (result.ok) return null;
+
+  return new Response(
+    JSON.stringify({
+      error: "Invalid post title quality",
+      details: result.issues,
+      titleQuality: {
+        renderedTitle: result.renderedTitle,
+        renderedTitleLength: result.renderedTitleLength,
+        maxRenderedTitleLength: result.maxRenderedTitleLength,
+      },
     }),
     {
       status: 400,
@@ -231,6 +289,12 @@ export const POST: APIRoute = async context => {
 
     // Generate slug from title
     const slug = slugifyStr(title);
+
+    const titleQualityError = await titleQualityValidationErrorResponse(title, {
+      currentSlug: slug,
+      draft,
+    });
+    if (titleQualityError) return titleQualityError;
 
     const validationError = blogVisualValidationErrorResponse(content, slug);
     if (validationError) return validationError;
@@ -444,6 +508,16 @@ export const PATCH: APIRoute = async context => {
     // Use updated content if provided, otherwise keep original
     const updatedContent = content !== undefined ? content : originalContent;
 
+    const isDraft = draft !== undefined ? draft : frontmatterData.draft;
+    const titleQualityError = await titleQualityValidationErrorResponse(
+      String(frontmatterData.title ?? ""),
+      {
+        currentSlug: slug,
+        draft: Boolean(isDraft),
+      }
+    );
+    if (titleQualityError) return titleQualityError;
+
     const validationError = blogVisualValidationErrorResponse(
       updatedContent,
       slug
@@ -457,7 +531,6 @@ export const PATCH: APIRoute = async context => {
     await writeFile(filePath, updatedFile, "utf-8");
 
     // Submit public crawl signals if not a draft
-    const isDraft = draft !== undefined ? draft : frontmatterData.draft;
     const crawlSignals = !isDraft
       ? await submitPublicPostCrawlSignals(`${SITE.website}posts/${slug}/`)
       : undefined;

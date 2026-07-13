@@ -8,6 +8,7 @@ import { SITE } from "../src/config.ts";
 import { getRobotsTxt } from "../src/utils/crawlSignals.ts";
 import { buildStaticSitemapXml } from "../src/utils/staticSitemap.ts";
 import { normalizeSiteWebsite, toAbsoluteSiteUrl } from "../src/utils/url.ts";
+import { auditPostTitleQuality } from "../src/utils/postTitleQuality.ts";
 
 const DEFAULT_BASE_URL = normalizeSiteWebsite(SITE.website);
 const MARKDOWN_LINK_RE = /!?(?:\[[^\]]*\]|\[[^\]]*\]\[[^\]]*\])\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
@@ -127,6 +128,46 @@ export function auditInternalPostLinks(posts) {
   return issues;
 }
 
+function slugFromRoute(route) {
+  return route?.replace(/^\/posts\//, "").replace(/\/$/, "");
+}
+
+export function auditPublishedPostTitleQuality(posts) {
+  const publishedPosts = posts.filter(post => post.published);
+  const comparisonPosts = publishedPosts.map(post => ({
+    slug: slugFromRoute(post.route),
+    route: post.route,
+    title: String(post.data.title ?? ""),
+    draft: Boolean(post.data.draft),
+    pubDatetime: post.data.pubDatetime,
+    published: post.published,
+  }));
+  const advisories = [];
+
+  for (const post of publishedPosts) {
+    const title = String(post.data.title ?? "").trim();
+    if (!title) continue;
+
+    const result = auditPostTitleQuality(title, comparisonPosts, {
+      currentSlug: slugFromRoute(post.route),
+    });
+
+    for (const issue of result.issues) {
+      advisories.push({
+        message: "Legacy public post title quality advisory",
+        source: path.relative(process.cwd(), post.filePath),
+        route: post.route,
+        title,
+        renderedTitle: result.renderedTitle,
+        renderedTitleLength: result.renderedTitleLength,
+        issue,
+      });
+    }
+  }
+
+  return advisories;
+}
+
 export function extractXmlLocs(xml) {
   return [...xml.matchAll(/<loc>([^<]+)<\/loc>/gi)].map(match => match[1].trim());
 }
@@ -169,11 +210,13 @@ async function readBuiltHtml(distDir, routePath) {
 
 export async function auditLocalCrawlSurface({ contentDir = "src/data/blog", distDir = "dist" } = {}) {
   const issues = [];
+  const titleQualityAdvisories = [];
   const expectedOrigin = new URL(DEFAULT_BASE_URL).origin;
   const posts = await loadSourcePosts({ contentDir });
   const publicRoutes = posts.filter(post => post.published).map(post => post.route);
 
   issues.push(...auditInternalPostLinks(posts));
+  titleQualityAdvisories.push(...auditPublishedPostTitleQuality(posts));
 
   const sitemapXml = buildStaticSitemapXml({ site: DEFAULT_BASE_URL, showArchives: SITE.showArchives });
   const sitemapLocs = extractXmlLocs(sitemapXml);
@@ -217,10 +260,12 @@ export async function auditLocalCrawlSurface({ contentDir = "src/data/blog", dis
     checked: {
       posts: posts.length,
       publishedPosts: publicRoutes.length,
+      titleQualityAdvisories: titleQualityAdvisories.length,
       sitemapLocs: sitemapLocs.length,
       builtHtml: await fileExists(distDir),
     },
     issues,
+    titleQualityAdvisories,
   };
 }
 
@@ -326,6 +371,15 @@ Default mode is deterministic and local: source Markdown plus built dist HTML wh
 function printResult(result) {
   console.log(`SEO crawl-surface audit mode=${result.mode}`);
   console.log(`Checked: ${JSON.stringify(result.checked)}`);
+
+  if (result.titleQualityAdvisories?.length > 0) {
+    console.warn(
+      `WARN ${result.titleQualityAdvisories.length} legacy title-quality advisory item(s) found; not failing local legacy inventory audit.`
+    );
+    for (const advisory of result.titleQualityAdvisories) {
+      console.warn(`- ${advisory.message}: ${JSON.stringify(advisory)}`);
+    }
+  }
 
   if (result.issues.length === 0) {
     console.log("PASS zero malformed sitemap/canonical/feed URLs and zero broken public post links found");
