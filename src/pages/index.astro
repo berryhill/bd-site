@@ -28,8 +28,12 @@ const jsonLd = buildWebSiteJsonLd({
   name: SITE.title,
   url: SITE.website,
   description: SITE.desc,
-  image: new URL(SITE.ogImage ? `/${SITE.ogImage}` : "/og.png", SITE.website)
-    .href,
+  image: new URL(
+    SITE.ogImage
+      ? `/${SITE.ogImage}`
+      : `/og.png?v=${SITE.socialPreview.imageVersion}`,
+    SITE.website
+  ).href,
   author: SITE.author,
   authorUrl: SITE.profile,
 });

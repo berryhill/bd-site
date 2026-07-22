@@ -199,6 +199,13 @@ export function buildSiteOgTree(site) {
     );
   }
 
+  const positioning = site.socialPreview?.title;
+  if (typeof positioning !== "string" || !positioning.trim()) {
+    throw new TypeError(
+      "Site social preview title is required to build the site OG preview"
+    );
+  }
+
   return {
     type: "div",
     props: {
@@ -210,8 +217,8 @@ export function buildSiteOgTree(site) {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "60px 72px 56px",
+        justifyContent: "center",
+        padding: "72px",
         fontFamily: OG_BRAND.fontFamily,
       },
       children: [
@@ -219,61 +226,37 @@ export function buildSiteOgTree(site) {
         div(
           {
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            width: "100%",
-          },
-          [brandMark(58), statusPill("mode", "operator", OG_BRAND.accent)]
-        ),
-        div(
-          {
-            display: "flex",
             flexDirection: "column",
-            gap: 28,
-            width: 760,
+            justifyContent: "center",
+            gap: 34,
+            width: 900,
             border: `1px solid ${OG_BRAND.border}`,
             borderRadius: 28,
             background: "rgba(16, 27, 36, 0.92)",
-            padding: "38px 42px",
+            padding: "54px 58px",
           },
           [
-            shellLine(
-              "ship --with-proof",
-              "Field notes from agentic systems, review gates, and the operator work between AI output and production.",
-              OG_BRAND.accent
-            ),
+            brandMark(64),
             div(
               {
                 display: "flex",
-                fontSize: 30,
-                lineHeight: 1.35,
+                fontSize: 54,
+                lineHeight: 1.08,
                 color: OG_BRAND.foreground,
                 fontWeight: 700,
                 letterSpacing: "-0.02em",
               },
-              truncatePreviewText(site.desc, 168)
+              truncatePreviewText(positioning, 72)
             ),
-          ]
-        ),
-        div(
-          {
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            width: "100%",
-            fontFamily: OG_BRAND.fontFamily,
-            fontSize: 22,
-          },
-          [
-            div({ display: "flex", gap: 14 }, [
-              statusPill(
-                "surface",
-                "AI-native discovery",
-                OG_BRAND.accentSecondary
-              ),
-              statusPill("evidence", "shipped systems", OG_BRAND.accent),
-            ]),
-            span({ color: OG_BRAND.foregroundMuted }, site.website),
+            span(
+              {
+                color: OG_BRAND.foregroundMuted,
+                fontSize: 24,
+                lineHeight: 1.25,
+                fontWeight: 500,
+              },
+              "operator notes · shipped systems · review gates"
+            ),
           ]
         ),
       ],

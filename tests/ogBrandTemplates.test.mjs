@@ -48,6 +48,9 @@ const site = {
   website: "https://berryhill.dev/",
   author: "Berryhill",
   desc: "Field notes on AI-native discovery systems, agent governance, provenance, review gates, protocol boundaries, and the operator work required to turn agent output into shipped proof.",
+  socialPreview: {
+    title: "Field notes from an AI systems operator",
+  },
 };
 
 const post = {
@@ -59,13 +62,25 @@ const post = {
 
 const oldOffBrandColors = ["#1c1917", "#ff8c42", "#a0153e"];
 
-test("site OG tree uses the terminal/operator brand system", () => {
+test("site OG tree uses the simplified terminal/operator brand system", () => {
   const tree = buildSiteOgTree(site);
   const serialized = stringifyTree(tree);
+  const strings = collectStrings(tree);
 
-  assert.match(serialized, /berryhill/);
-  assert.match(serialized, /ship --with-proof/);
-  assert.match(serialized, /AI-native discovery/);
+  assert.equal(strings.filter(value => value === "berryhill").length, 1);
+  assert.equal(strings.filter(value => value === ".").length, 1);
+  assert.equal(strings.filter(value => value === "dev").length, 1);
+  assert.equal(
+    strings.filter(value => value === site.socialPreview.title).length,
+    1
+  );
+  assert.doesNotMatch(serialized, new RegExp(site.desc.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.doesNotMatch(serialized, /ship --with-proof/);
+  assert.doesNotMatch(serialized, /"mode"/);
+  assert.doesNotMatch(serialized, /"surface"/);
+  assert.doesNotMatch(serialized, /"evidence"/);
+  assert.doesNotMatch(serialized, /AI-native discovery/);
+  assert.doesNotMatch(serialized, /https:\/\/berryhill\.dev\//);
   assert.match(serialized, /shipped systems/);
   assert.match(serialized, new RegExp(OG_BRAND.background.replace("#", "#")));
   assert.match(serialized, new RegExp(OG_BRAND.accent.replace("#", "#")));
@@ -111,6 +126,10 @@ test("preview text truncation validates edge and error paths", () => {
 
 test("OG builders reject missing required data instead of rendering broken cards", () => {
   assert.throws(() => buildSiteOgTree({ ...site, desc: "" }), /Site description is required/);
+  assert.throws(
+    () => buildSiteOgTree({ ...site, socialPreview: { title: "" } }),
+    /Site social preview title is required/
+  );
   assert.throws(() => buildPostOgTree({ data: { author: "Berryhill" } }, site), /Post title is required/);
   assert.throws(() => buildPostOgTree(null, site), /Post data is required/);
 });

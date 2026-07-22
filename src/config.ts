@@ -5,6 +5,11 @@ export const SITE = {
   desc: "Field notes on AI-native discovery systems, agent governance, provenance, review gates, protocol boundaries, and the operator work required to turn agent output into shipped proof.",
   title: "berryhill.dev",
   ogImage: "",
+  socialPreview: {
+    title: "Field notes from an AI systems operator",
+    imageAlt: "Berryhill.dev — field notes from an AI systems operator",
+    imageVersion: "2",
+  },
   lightAndDarkMode: false,
   postPerIndex: 6,
   postPerPage: 6,

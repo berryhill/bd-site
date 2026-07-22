@@ -1,13 +1,22 @@
 export interface SocialPreviewMetadata {
   title?: string;
   description?: string;
+  ogType?: string;
+  ogSiteName?: string;
   ogTitle?: string;
   ogDescription?: string;
+  ogUrl?: string;
   ogImage?: string;
+  ogImageType?: string;
+  ogImageWidth?: string;
+  ogImageHeight?: string;
+  ogImageAlt?: string;
   twitterCard?: string;
+  twitterUrl?: string;
   twitterTitle?: string;
   twitterDescription?: string;
   twitterImage?: string;
+  twitterImageAlt?: string;
 }
 
 export interface SocialPreviewIssue {
@@ -37,14 +46,32 @@ export interface SocialPreviewImageReachabilityResult {
 const REQUIRED_FIELDS: Array<keyof SocialPreviewMetadata> = [
   "title",
   "description",
+  "ogType",
+  "ogSiteName",
   "ogTitle",
   "ogDescription",
+  "ogUrl",
   "ogImage",
+  "ogImageType",
+  "ogImageWidth",
+  "ogImageHeight",
+  "ogImageAlt",
   "twitterCard",
+  "twitterUrl",
   "twitterTitle",
   "twitterDescription",
   "twitterImage",
+  "twitterImageAlt",
 ];
+
+const TWITTER_FIELDS = [
+  "twitter:card",
+  "twitter:url",
+  "twitter:title",
+  "twitter:description",
+  "twitter:image",
+  "twitter:image:alt",
+] as const;
 
 function decodeHtmlEntity(entity: string): string {
   if (entity.startsWith("&#x") || entity.startsWith("&#X")) {
@@ -113,23 +140,36 @@ function extractMetaContent(
   return undefined;
 }
 
+function hasMetaTag(
+  html: string,
+  keyName: "name" | "property",
+  keyValue: string
+): boolean {
+  return Boolean(extractMetaContent(html, keyName, keyValue));
+}
+
 export function extractSocialPreviewMetadata(
   html: string
 ): SocialPreviewMetadata {
   return {
     title: extractTitle(html),
     description: extractMetaContent(html, "name", "description"),
+    ogType: extractMetaContent(html, "property", "og:type"),
+    ogSiteName: extractMetaContent(html, "property", "og:site_name"),
     ogTitle: extractMetaContent(html, "property", "og:title"),
     ogDescription: extractMetaContent(html, "property", "og:description"),
+    ogUrl: extractMetaContent(html, "property", "og:url"),
     ogImage: extractMetaContent(html, "property", "og:image"),
-    twitterCard: extractMetaContent(html, "property", "twitter:card"),
-    twitterTitle: extractMetaContent(html, "property", "twitter:title"),
-    twitterDescription: extractMetaContent(
-      html,
-      "property",
-      "twitter:description"
-    ),
-    twitterImage: extractMetaContent(html, "property", "twitter:image"),
+    ogImageType: extractMetaContent(html, "property", "og:image:type"),
+    ogImageWidth: extractMetaContent(html, "property", "og:image:width"),
+    ogImageHeight: extractMetaContent(html, "property", "og:image:height"),
+    ogImageAlt: extractMetaContent(html, "property", "og:image:alt"),
+    twitterCard: extractMetaContent(html, "name", "twitter:card"),
+    twitterUrl: extractMetaContent(html, "name", "twitter:url"),
+    twitterTitle: extractMetaContent(html, "name", "twitter:title"),
+    twitterDescription: extractMetaContent(html, "name", "twitter:description"),
+    twitterImage: extractMetaContent(html, "name", "twitter:image"),
+    twitterImageAlt: extractMetaContent(html, "name", "twitter:image:alt"),
   };
 }
 
@@ -148,6 +188,15 @@ export function validateSocialPreviewMetadata(
     }
   }
 
+  for (const twitterField of TWITTER_FIELDS) {
+    if (hasMetaTag(html, "property", twitterField)) {
+      issues.push({
+        field: "twitterCard",
+        reason: `Twitter metadata should use name=, not property=, for ${twitterField}`,
+      });
+    }
+  }
+
   if (metadata.twitterCard && metadata.twitterCard !== "summary_large_image") {
     issues.push({
       field: "twitterCard",
@@ -159,12 +208,36 @@ export function validateSocialPreviewMetadata(
     metadata.title &&
     metadata.ogTitle &&
     metadata.twitterTitle &&
+    metadata.ogType !== "website" &&
     (metadata.ogTitle !== metadata.title ||
       metadata.twitterTitle !== metadata.title)
   ) {
     issues.push({
       field: "ogTitle",
-      reason: "Title, og:title, and twitter:title should match",
+      reason:
+        "Title, og:title, and twitter:title should match for article previews",
+    });
+  }
+
+  if (
+    metadata.ogTitle &&
+    metadata.twitterTitle &&
+    metadata.ogTitle !== metadata.twitterTitle
+  ) {
+    issues.push({
+      field: "ogTitle",
+      reason: "og:title and twitter:title should match",
+    });
+  }
+
+  if (
+    metadata.ogSiteName &&
+    metadata.ogTitle &&
+    metadata.ogSiteName === metadata.ogTitle
+  ) {
+    issues.push({
+      field: "ogTitle",
+      reason: "og:site_name and og:title should not duplicate the same value",
     });
   }
 
@@ -183,6 +256,17 @@ export function validateSocialPreviewMetadata(
   }
 
   if (
+    metadata.ogUrl &&
+    metadata.twitterUrl &&
+    metadata.ogUrl !== metadata.twitterUrl
+  ) {
+    issues.push({
+      field: "ogUrl",
+      reason: "og:url and twitter:url should match",
+    });
+  }
+
+  if (
     metadata.ogImage &&
     metadata.twitterImage &&
     metadata.ogImage !== metadata.twitterImage
@@ -190,6 +274,38 @@ export function validateSocialPreviewMetadata(
     issues.push({
       field: "ogImage",
       reason: "og:image and twitter:image should match",
+    });
+  }
+
+  if (metadata.ogImageType && metadata.ogImageType !== "image/png") {
+    issues.push({
+      field: "ogImageType",
+      reason: "og:image:type should be image/png",
+    });
+  }
+
+  if (metadata.ogImageWidth && metadata.ogImageWidth !== "1200") {
+    issues.push({
+      field: "ogImageWidth",
+      reason: "og:image:width should be 1200",
+    });
+  }
+
+  if (metadata.ogImageHeight && metadata.ogImageHeight !== "630") {
+    issues.push({
+      field: "ogImageHeight",
+      reason: "og:image:height should be 630",
+    });
+  }
+
+  if (
+    metadata.ogImageAlt &&
+    metadata.twitterImageAlt &&
+    metadata.ogImageAlt !== metadata.twitterImageAlt
+  ) {
+    issues.push({
+      field: "ogImageAlt",
+      reason: "og:image:alt and twitter:image:alt should match",
     });
   }
 
