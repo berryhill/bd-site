@@ -196,7 +196,7 @@ Durable local blog visuals belong under `public/assets/blog/<post-slug>/` and sh
 
 Blog post pages emit `<title>`, meta description, Open Graph title/description/image, and Twitter card/title/description/image tags from the shared layout. Per-post `ogImage` frontmatter, or the API `ogImage` / `featured_image` field, is rendered through `SITE.website`-normalized absolute URLs when it is relative or site-relative; custom absolute external image URLs remain absolute. When a published post has no custom `ogImage` and `SITE.dynamicOgImage` is enabled, the post preview image still resolves to `/posts/<slug>/index.png` and is generated dynamically. Draft posts and posts with a custom `ogImage` do not receive a dynamic `/index.png` image route.
 
-For future Luca publishing checks, verify the built or previewed post HTML before treating social previews as ready:
+For future Luca publishing checks, verify the built or previewed post URL before treating social previews as ready:
 
 ```bash
 pnpm run build
@@ -204,13 +204,15 @@ pnpm run preview
 pnpm run check:social-preview -- http://localhost:4321/posts/<post-slug>/
 ```
 
+When the input is an HTTP(S) URL, `check:social-preview` validates the rendered metadata and then fetches the advertised Open Graph/Twitter image URL as Twitterbot, follows redirects, and rejects unreachable responses or responses that do not return an image content type.
+
 The check also accepts a built HTML file path, for example:
 
 ```bash
 pnpm run check:social-preview -- dist/client/posts/<post-slug>/index.html
 ```
 
-The command fails if required title/description/image metadata is missing or if Open Graph and Twitter values disagree. The generated site and post preview images use the shared terminal/operator brand template in `src/utils/og-templates/brand.js`, rendered through `site.js` and `post.js`. Keep `/og.png` and dynamic post `/index.png` previews aligned with the live berryhill.dev brand system rather than reverting to generic AstroPaper-style palette/layouts.
+For local HTML-file input, `check:social-preview` is metadata-only: it verifies the file's title, description, Open Graph, and Twitter tags, but it cannot validate whether the advertised image endpoint is reachable. The command fails if required title/description/image metadata is missing or if Open Graph and Twitter values disagree. The generated site and post preview images use the shared terminal/operator brand template in `src/utils/og-templates/brand.js`, rendered through `site.js` and `post.js`. Keep `/og.png` and dynamic post `/index.png` previews aligned with the live berryhill.dev brand system rather than reverting to generic AstroPaper-style palette/layouts.
 
 Adjacent SEO validation also includes title-quality readback through `pnpm run check:seo-crawl-surface`. That command reports legacy public title-quality advisories while preserving crawl/link URL failures as hard failures.
 

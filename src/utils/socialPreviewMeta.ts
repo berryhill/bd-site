@@ -21,6 +21,19 @@ export interface SocialPreviewValidationResult {
   issues: SocialPreviewIssue[];
 }
 
+type SocialPreviewImageField = "ogImage" | "twitterImage";
+
+export interface SocialPreviewImageReachabilityIssue {
+  field: SocialPreviewImageField;
+  url: string;
+  reason: string;
+}
+
+export interface SocialPreviewImageReachabilityResult {
+  valid: boolean;
+  issues: SocialPreviewImageReachabilityIssue[];
+}
+
 const REQUIRED_FIELDS: Array<keyof SocialPreviewMetadata> = [
   "title",
   "description",
@@ -183,6 +196,61 @@ export function validateSocialPreviewMetadata(
   return {
     valid: issues.length === 0,
     metadata,
+    issues,
+  };
+}
+
+export async function validateSocialPreviewImageReachability(
+  metadata: SocialPreviewMetadata,
+  fetcher: typeof fetch = fetch
+): Promise<SocialPreviewImageReachabilityResult> {
+  const issues: SocialPreviewImageReachabilityIssue[] = [];
+  const imageEntries = [
+    ["ogImage", metadata.ogImage],
+    ["twitterImage", metadata.twitterImage],
+  ] as const;
+  const checkedUrls = new Map<string, string>();
+
+  for (const [field, imageUrl] of imageEntries) {
+    if (!imageUrl) continue;
+
+    if (checkedUrls.has(imageUrl)) {
+      const priorIssue = checkedUrls.get(imageUrl);
+      if (priorIssue) {
+        issues.push({ field, url: imageUrl, reason: priorIssue });
+      }
+      continue;
+    }
+
+    try {
+      const response = await fetcher(imageUrl, {
+        headers: { "User-Agent": "Twitterbot/1.0" },
+        redirect: "follow",
+      });
+      const contentType = response.headers.get("content-type") ?? "";
+      let issueReason = "";
+
+      if (!response.ok) {
+        issueReason =
+          `Image URL returned ${response.status} ${response.statusText}`.trim();
+      } else if (!contentType.toLowerCase().startsWith("image/")) {
+        issueReason = `Image URL returned non-image content type ${contentType || "unknown"}`;
+      }
+
+      checkedUrls.set(imageUrl, issueReason);
+      if (issueReason)
+        issues.push({ field, url: imageUrl, reason: issueReason });
+    } catch (error) {
+      const issueReason = `Image URL fetch failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+      checkedUrls.set(imageUrl, issueReason);
+      issues.push({ field, url: imageUrl, reason: issueReason });
+    }
+  }
+
+  return {
+    valid: issues.length === 0,
     issues,
   };
 }

@@ -3,15 +3,32 @@ import assert from "node:assert/strict";
 import {
   assertValidSocialPreviewMetadata,
   extractSocialPreviewMetadata,
+  validateSocialPreviewImageReachability,
   validateSocialPreviewMetadata,
 } from "../src/utils/socialPreviewMeta.ts";
 
 let passed = 0;
 let failed = 0;
 
+const pending = [];
+
 function test(name, fn) {
   try {
-    fn();
+    const result = fn();
+    if (result && typeof result.then === "function") {
+      pending.push(
+        result
+          .then(() => {
+            passed += 1;
+          })
+          .catch(error => {
+            failed += 1;
+            console.error(`FAIL ${name}`);
+            console.error(error);
+          })
+      );
+      return;
+    }
     passed += 1;
   } catch (error) {
     failed += 1;
@@ -118,6 +135,65 @@ test("rejects mismatched title, description, image, and card type", () => {
     /og:image and twitter:image should match/
   );
 });
+
+test("validates that advertised social preview images are reachable images", async () => {
+  const metadata = extractSocialPreviewMetadata(validHtml);
+  const requested = [];
+  const result = await validateSocialPreviewImageReachability(
+    metadata,
+    async (url, init) => {
+      requested.push({ url: String(url), userAgent: init?.headers?.["User-Agent"] });
+      return new Response(new Uint8Array([1, 2, 3]), {
+        status: 200,
+        headers: { "Content-Type": "image/png" },
+      });
+    }
+  );
+
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.issues, []);
+  assert.equal(requested.length, 1);
+  assert.equal(requested[0].url, "https://berryhill.dev/posts/agentic-workflows/index.png");
+  assert.equal(requested[0].userAgent, "Twitterbot/1.0");
+});
+
+test("rejects unreachable or non-image advertised social preview images", async () => {
+  const metadata = {
+    ...extractSocialPreviewMetadata(validHtml),
+    twitterImage: "https://berryhill.dev/posts/agentic-workflows/not-image.txt",
+  };
+  const result = await validateSocialPreviewImageReachability(
+    metadata,
+    async url => {
+      if (String(url).endsWith("index.png")) {
+        return new Response(null, { status: 404, statusText: "Not Found" });
+      }
+
+      return new Response("not an image", {
+        status: 200,
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
+  );
+
+  assert.equal(result.valid, false);
+  assert.deepEqual(
+    result.issues.map(issue => issue.field),
+    ["ogImage", "twitterImage"]
+  );
+  assert.match(
+    result.issues.map(issue => issue.reason).join("\n"),
+    /Image URL returned 404 Not Found/
+  );
+  assert.match(
+    result.issues.map(issue => issue.reason).join("\n"),
+    /non-image content type text\/plain/
+  );
+});
+
+for (const maybePromise of pending) {
+  await maybePromise;
+}
 
 console.log(`PASS ${passed} FAIL ${failed}`);
 

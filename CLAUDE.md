@@ -74,7 +74,9 @@ pnpm run format:check # Check formatting without writing
 - **Post Filtering**: [src/utils/postFilter.ts](src/utils/postFilter.ts) - Filters drafts and scheduled posts
 - **Post Sorting**: [src/utils/getSortedPosts.ts](src/utils/getSortedPosts.ts) - Sorts by `modDatetime` or `pubDatetime` (descending)
 - **OG Image Generation**: [src/utils/generateOgImages.ts](src/utils/generateOgImages.ts) - Dynamic OG images using Satori and @resvg/resvg-js
-  - Post OG images: `/posts/[slug]/index.png.ts`
+  - Post OG images: `/posts/[slug]/index.png.ts`, with route selection and status/content-type responses coordinated by `src/utils/dynamicPostOgImageEndpoint.ts`
+  - Dynamic post OG eligibility requires an exact live collection entry id match, a public non-draft post, and no custom `ogImage`.
+  - Regression coverage includes endpoint status behavior, PNG response shape, and representative live Astro routes.
   - Site OG image: `/og.png.ts`
   - Shared social-preview brand templates live in `src/utils/og-templates/brand.js`; `site.js` and `post.js` should stay thin Satori wrappers around the shared terminal/operator brand builders.
 - **URL Normalization**: [src/utils/url.ts](src/utils/url.ts) - Normalizes `SITE.website`, site-relative paths, post URLs, and post asset URLs to absolute URLs for post metadata and custom sitemap routes
@@ -119,7 +121,7 @@ Search is powered by Pagefind, which indexes the built site and provides client-
 
 ### Dynamic Features
 
-- **Dynamic OG Images**: Automatically generated for posts if `SITE.dynamicOgImage` is true
+- **Dynamic OG Images**: Automatically generated for eligible posts when `SITE.dynamicOgImage` is true; eligible post image routes must exactly match a live collection entry id, be public/non-draft, and have no custom `ogImage`. `src/utils/dynamicPostOgImageEndpoint.ts` owns the route-selection and response helper behavior, with regression coverage for endpoint status, PNG response shape, and representative live Astro routes.
 - **RSS Feed**: Generated at `/rss.xml` using `@astrojs/rss`
 - **Sitemap**: Custom SSR sitemap routes generate canonical crawler-facing `/sitemap.xml`, `/sitemap-static.xml` for helper-approved static pages only, and `/sitemap-posts.xml` for posts; `/sitemap-static.xml` excludes hidden/404-only surfaces such as `/archives/`, and `/sitemap-index.xml` redirects only for backward compatibility and should not be newly advertised
 - **Robots.txt**: Dynamically generated at `/robots.txt.ts` from shared crawlSignals rules, including explicit crawler groups and generated asset/index disallows
