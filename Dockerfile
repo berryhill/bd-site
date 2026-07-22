@@ -22,6 +22,9 @@ RUN pnpm run build
 FROM node:lts-alpine AS runtime
 WORKDIR /app
 
+# Link the GHCR package to the repository so Actions inherits package access.
+LABEL org.opencontainers.image.source="https://github.com/berryhill/bd-site"
+
 # Install Doppler CLI
 RUN apk add --no-cache ca-certificates && \
     wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
