@@ -194,7 +194,9 @@ Durable local blog visuals belong under `public/assets/blog/<post-slug>/` and sh
 
 ### Blog social preview checks
 
-Blog post pages emit `<title>`, meta description, Open Graph title/description/image, and Twitter card/title/description/image tags from the shared layout. Per-post `ogImage` frontmatter, or the API `ogImage` / `featured_image` field, is rendered through `SITE.website`-normalized absolute URLs when it is relative or site-relative; custom absolute external image URLs remain absolute. When a published post has no custom `ogImage` and `SITE.dynamicOgImage` is enabled, the post preview image still resolves to `/posts/<slug>/index.png` and is generated dynamically. Draft posts and posts with a custom `ogImage` do not receive a dynamic `/index.png` image route.
+Blog post pages emit `<title>`, meta description, Open Graph title/description/image, and Twitter card/title/description/image tags from the shared layout. The homepage document title remains `berryhill.dev`; the homepage Open Graph and Twitter titles use the dedicated social headline from `SITE.socialPreview.title` instead of replacing the browser title. The default homepage preview image resolves from `SITE.socialPreview.image` and is cache-versioned by `SITE.socialPreview.imageVersion`.
+
+Homepage social metadata includes `og:type` `website`, `og:site_name`, the canonical social URL, `image/png`, 1200x630 image dimensions, and matching Open Graph/Twitter image alt text. Twitter metadata uses standards-correct `name` attributes. Post pages are distinct: they use `og:type` `article`, post-specific title/description, and post-specific image behavior. Per-post `ogImage` frontmatter, or the API `ogImage` / `featured_image` field, is rendered through `SITE.website`-normalized absolute URLs when it is relative or site-relative; custom absolute external image URLs remain absolute. When a published post has no custom `ogImage` and `SITE.dynamicOgImage` is enabled, the post preview image still resolves to `/posts/<slug>/index.png` and is generated dynamically. Draft posts and posts with a custom `ogImage` do not receive a dynamic `/index.png` image route.
 
 For future Luca publishing checks, verify the built or previewed post URL before treating social previews as ready:
 
@@ -212,7 +214,7 @@ The check also accepts a built HTML file path, for example:
 pnpm run check:social-preview -- dist/client/posts/<post-slug>/index.html
 ```
 
-For local HTML-file input, `check:social-preview` is metadata-only: it verifies the file's title, description, Open Graph, and Twitter tags, but it cannot validate whether the advertised image endpoint is reachable. The command fails if required title/description/image metadata is missing or if Open Graph and Twitter values disagree. The generated site and post preview images use the shared terminal/operator brand template in `src/utils/og-templates/brand.js`, rendered through `site.js` and `post.js`. Keep `/og.png` and dynamic post `/index.png` previews aligned with the live berryhill.dev brand system rather than reverting to generic AstroPaper-style palette/layouts.
+For local HTML-file input, `check:social-preview` is metadata-only: it verifies the file's title, description, Open Graph, and Twitter tags, but it cannot validate whether the advertised image endpoint is reachable. The command fails if required title/description/image metadata is missing or if Open Graph and Twitter values disagree. The generated site and post preview images use the shared terminal/operator brand template in `src/utils/og-templates/brand.js`, rendered through `site.js` and `post.js`. Keep `/og.png` and dynamic post `/index.png` previews aligned with the live berryhill.dev brand system rather than reverting to generic AstroPaper-style palette/layouts. The homepage card should stay simplified around one berryhill.dev brand mark, the dedicated social headline, restrained operator/shipped-systems/review-gates support copy, complete image metadata/alt, and no shell-command/status-pill/raw-URL clutter; post-specific cards must remain article-specific.
 
 Adjacent SEO validation also includes title-quality readback through `pnpm run check:seo-crawl-surface`. That command reports legacy public title-quality advisories while preserving crawl/link URL failures as hard failures.
 
@@ -242,7 +244,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 - Dark/light mode toggle
 - Fuzzy search with Pagefind (`/search`; generated `/pagefind/` assets are not crawler-facing content)
 - RSS feed plus canonical `/sitemap.xml` crawler surface (`/sitemap-index.xml` redirects only for compatibility), with public-post crawl signal submission on API publish/update; Google Search Console submission is best-effort and configuration-dependent, DuckDuckGo coverage is evaluated through Bing/IndexNow plus sitemap/DuckDuckBot discovery, and Yahoo discovery evidence is surfaced through Bing IndexNow / Yahoo Slurp without a Yahoo-specific environment variable
-- Dynamic OG image generation through shared terminal/operator brand templates for site and post social previews.
+- Dynamic OG image generation through shared terminal/operator brand templates for site and post social previews. The homepage document title remains `berryhill.dev`, while Open Graph/Twitter use `SITE.socialPreview.title`; the default homepage image URL is versioned through `SITE.socialPreview.imageVersion` and carries image/png, 1200x630, canonical social URL, site name, and matching alt metadata. Post pages preserve article-specific titles and images, including custom `ogImage` overrides and dynamic `/posts/<slug>/index.png` fallback behavior.
 
 ## 📜 License
 
