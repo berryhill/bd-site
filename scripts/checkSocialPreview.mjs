@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 import fs from "node:fs/promises";
-import { validateSocialPreviewMetadata } from "../src/utils/socialPreviewMeta.ts";
+import {
+  validateSocialPreviewImageReachability,
+  validateSocialPreviewMetadata,
+} from "../src/utils/socialPreviewMeta.ts";
 
 function printUsage() {
   console.error(`Usage: pnpm run check:social-preview -- <post-url-or-html-file>
@@ -12,7 +15,9 @@ Examples:
   pnpm run check:social-preview -- dist/client/posts/my-post/index.html
 
 Checks: <title>, meta description, og:title, og:description, og:image,
-twitter:card, twitter:title, twitter:description, and twitter:image.`);
+twitter:card, twitter:title, twitter:description, and twitter:image.
+For URL input, also fetches the advertised image with a Twitterbot user agent
+and fails when it is unreachable or is not an image resource.`);
 }
 
 async function readHtml(source) {
@@ -58,6 +63,22 @@ if (!source || source === "--help" || source === "-h") {
 
     if (!result.valid) {
       process.exitCode = 1;
+    }
+
+    if (/^https?:\/\//i.test(source) && result.valid) {
+      const imageResult = await validateSocialPreviewImageReachability(
+        result.metadata
+      );
+
+      if (imageResult.valid) {
+        console.log("PASS social preview images are reachable image resources");
+      } else {
+        console.error("FAIL social preview image issues:");
+        for (const issue of imageResult.issues) {
+          console.error(`- ${issue.field}: ${issue.reason} (${issue.url})`);
+        }
+        process.exitCode = 1;
+      }
     }
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
