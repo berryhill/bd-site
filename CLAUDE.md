@@ -60,6 +60,7 @@ pnpm run format:check # Check formatting without writing
   - Pagination settings (`postPerIndex`, `postPerPage`)
   - Timezone and language settings
   - Edit post URL configuration
+  - `SITE.socialPreview` owns the homepage social headline, homepage preview image alt text, and homepage image cache version. Keep the browser/document title as `SITE.title` (`berryhill.dev`) while using `SITE.socialPreview.title` only for homepage Open Graph/Twitter preview titles.
 
 - **Astro Config**: [astro.config.ts](astro.config.ts) configures:
   - Sitemap integration
@@ -79,6 +80,8 @@ pnpm run format:check # Check formatting without writing
   - Regression coverage includes endpoint status behavior, PNG response shape, and representative live Astro routes.
   - Site OG image: `/og.png.ts`
   - Shared social-preview brand templates live in `src/utils/og-templates/brand.js`; `site.js` and `post.js` should stay thin Satori wrappers around the shared terminal/operator brand builders.
+  - Homepage `/og.png` uses `SITE.socialPreview` for headline, image alt, and cache version ownership; it should stay simplified around one berryhill.dev mark and restrained operator/shipped-systems/review-gates support copy.
+  - Preserve post-specific previews: article pages use post-specific title/description/image metadata, custom `ogImage` values win, and eligible public posts without custom images use dynamic `/posts/<slug>/index.png` cards instead of the homepage card.
 - **URL Normalization**: [src/utils/url.ts](src/utils/url.ts) - Normalizes `SITE.website`, site-relative paths, post URLs, and post asset URLs to absolute URLs for post metadata and custom sitemap routes
 - **Crawl Signals**: [src/utils/crawlSignals.ts](src/utils/crawlSignals.ts) - Shared source for canonical sitemap path, robots.txt crawler groups, generated asset disallow policy, and Layout sitemap href
 - **DuckDuckGo Crawl Signal**: [src/utils/duckDuckGoCrawlSignal.ts](src/utils/duckDuckGoCrawlSignal.ts) - Records DuckDuckGo coverage evidence through Bing/IndexNow success or canonical sitemap plus DuckDuckBot access; it is not a direct DuckDuckGo submission API
@@ -91,7 +94,7 @@ pnpm run format:check # Check formatting without writing
 
 ### Layouts
 
-- **Layout.astro**: Base layout with HTML structure, SEO meta tags, and theme toggle
+- **Layout.astro**: Base layout with HTML structure, SEO meta tags, social metadata, and theme toggle. Layout owns social overrides that let homepage Open Graph/Twitter use `SITE.socialPreview.title` while the document title remains `berryhill.dev`; it emits `website` page type for the homepage/default surfaces and `article` page type for post detail pages, with post-specific title/image overrides preserved.
 - **Main.astro**: Main content wrapper with header and footer
 - **PostDetails.astro**: Individual post layout with breadcrumbs, datetime, tags, share links, and edit button
 - **AboutLayout.astro**: Layout for the about page

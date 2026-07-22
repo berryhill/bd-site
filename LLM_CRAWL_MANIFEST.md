@@ -152,7 +152,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
   - `<link rel="alternate" type="application/rss+xml">` in site layout
   - `<link rel="alternate" type="application/atom+xml">` in site layout
   - All pages advertise both RSS and Atom feeds for feed readers and LLM crawlers
-- **Open Graph / Twitter preview images**: ✅ Site-level `/og.png` and dynamic post `/posts/<slug>/index.png` use the shared terminal/operator brand template system, with metadata still emitted as `summary_large_image` and absolute image URLs.
+- **Open Graph / Twitter preview images**: ✅ Site-level `/og.png` and dynamic post `/posts/<slug>/index.png` use the shared terminal/operator brand template system, with metadata emitted as `summary_large_image` and absolute image URLs. Issue #127 keeps the homepage card simplified with one berryhill.dev brand mark, a separate site name and social headline, restrained operator/shipped-systems/review-gates support copy, a cache-versioned homepage image URL, complete image/png 1200x630 metadata, matching OG/Twitter alt text, and standards-correct Twitter `name` attributes. Article pages preserve post-specific titles and images, including custom `ogImage` behavior and dynamic post-card fallback.
 - **Canonical URLs**: ✅ Set on all pages; post canonical URLs are normalized through the shared URL helper
 - **Post URL normalization**: ✅ Post canonical, OG image, and JSON-LD URL fields share the same `SITE.website` normalization path
 - **Meta Descriptions**: ✅ Unique per page
@@ -170,7 +170,8 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 8. Issue #101 DuckDuckGo crawl signal (2026-07-08): public post create/update now records DuckDuckGo coverage through Bing/IndexNow evidence or canonical sitemap plus DuckDuckBot access, with no direct DuckDuckGo submission endpoint claimed.
 9. Issue #102 Yahoo crawl-discovery evidence (2026-07-08): non-draft post create/update responses include Yahoo-specific discovery evidence via Bing IndexNow / Yahoo Slurp, sitemap, and robots visibility. This is not a standalone Yahoo-owned submit endpoint and does not guarantee indexing.
 10. Issue #118 social preview brand patterns (2026-07-12): site and post OG image templates now share the berryhill.dev terminal/operator brand system and tests reject the prior off-brand color palette.
-11. Issue #98 follow-up static sitemap reconciliation (2026-07-12): `/sitemap-static.xml` no longer advertises the reopened Bing-reported 404 `/archives/` URL; `/archives/` remains an intentional hidden/404-only surface.
+11. Issue #127 social preview metadata reconciliation (2026-07-22): homepage card behavior is simplified with one berryhill.dev brand mark, separate site name/social headline, versioned homepage image URL, complete image metadata and matching alt text, standards-correct Twitter `name` attributes, and preserved article-specific previews.
+12. Issue #98 follow-up static sitemap reconciliation (2026-07-12): `/sitemap-static.xml` no longer advertises the reopened Bing-reported 404 `/archives/` URL; `/archives/` remains an intentional hidden/404-only surface.
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -250,6 +251,7 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 - ✅ **SEO Title Guardrails** (Issue #99): Non-draft post create/update now rejects overlong rendered title tags and near-duplicate recent public titles; `check:seo-crawl-surface` reports legacy public title-quality advisories while retaining crawl/link URL failures as hard failures.
 - ✅ **Static Sitemap Archives Exclusion** (Issue #98 follow-up): Reconciled the reopened Bing-reported 404 URL by keeping `/archives/` out of `/sitemap-static.xml`; redirect-only and hidden/404-only surfaces such as `/sitemap-index.xml` and `/archives/` are not advertised.
 - ✅ **Social Preview Brand Patterns** (Issue #118): Replaced old generic OG image templates with shared terminal/operator brand templates for site and post previews; added regression coverage for brand tokens, required data, title truncation, and old off-brand colors.
+- ✅ **Social Preview Metadata Reconciliation** (Issue #127): Simplified the homepage social card, kept site name separate from the dedicated social headline, versioned the homepage image URL, completed image/png 1200x630 metadata and matching alt text, corrected Twitter tags to `name` attributes, and preserved article-specific post preview cards.
 
 ### 2026-07-08
 - ✅ **DuckDuckGo Crawl Signal** (Issue #101): Public post create/update now records DuckDuckGo coverage through Bing/IndexNow evidence when IndexNow succeeds, or through canonical sitemap plus DuckDuckBot access when relying on discovery. No direct DuckDuckGo URL submission endpoint is implemented, and `DUCKDUCKGO_CRAWL_SIGNAL_DISABLED=true` opts out of the evaluation.
