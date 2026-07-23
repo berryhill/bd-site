@@ -6,6 +6,7 @@ import {
 } from "astro:env/client";
 import { SITE } from "@/config";
 import { getLayoutSitemapHref } from "@/utils/crawlSignals";
+import { normalizeGa4ArticlePath } from "@/utils/ga4EditorialMapping";
 import "@/styles/global.css";
 
 export interface Props {
@@ -21,6 +22,7 @@ export interface Props {
   canonicalURL?: string | URL;
   pubDatetime?: Date;
   modDatetime?: Date | null;
+  primaryTag?: string;
   scrollSmooth?: boolean;
   jsonLd?: object | object[];
   noindex?: boolean;
@@ -38,12 +40,15 @@ const {
   canonicalURL = new URL(Astro.url.pathname, Astro.url),
   pubDatetime,
   modDatetime,
+  primaryTag,
   scrollSmooth = false,
   jsonLd,
   noindex = false,
 } = Astro.props;
 
-const isHomepage = new URL(canonicalURL, Astro.url).pathname === "/";
+const currentPageURL = new URL(Astro.url.pathname, Astro.url);
+const canonicalPageURL = new URL(canonicalURL, Astro.url);
+const isHomepage = canonicalPageURL.pathname === "/";
 const resolvedSocialTitle =
   socialTitle ?? (isHomepage ? SITE.socialPreview.title : title);
 const resolvedSocialDescription = socialDescription ?? description;
@@ -62,6 +67,22 @@ const resolvedSocialImageAlt =
 const socialImageURL = new URL(resolvedOgImage, Astro.url);
 const jsonLdItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const sitemapHref = getLayoutSitemapHref();
+const gaArticlePath =
+  normalizeGa4ArticlePath(canonicalPageURL.href) ??
+  normalizeGa4ArticlePath(currentPageURL.href);
+const gaPageviewParams = {
+  page_location: currentPageURL.href,
+  page_path: currentPageURL.pathname,
+  page_title: title,
+  page_type: pageType,
+  ...(gaArticlePath
+    ? {
+        post_slug: gaArticlePath.slug,
+        canonical_post_path: gaArticlePath.path,
+        ...(primaryTag ? { primary_tag: primaryTag } : {}),
+      }
+    : {}),
+};
 
 const gaInitScript = `
 window.dataLayer = window.dataLayer || [];
@@ -69,19 +90,20 @@ function gtag() {
   dataLayer.push(arguments);
 }
 gtag("js", new Date());
-gtag("config", ${JSON.stringify(PUBLIC_GA_MEASUREMENT_ID)});
+gtag("config", ${JSON.stringify(PUBLIC_GA_MEASUREMENT_ID)}, { "send_page_view": false });
 `;
 
 const gaPageviewScript = `
-if (typeof gtag !== "undefined") {
-  gtag("event", "page_view");
-}
+window.__bdGa4PageviewParams = ${JSON.stringify(gaPageviewParams)};
 
-document.addEventListener("astro:page-load", () => {
-  if (typeof gtag !== "undefined") {
-    gtag("event", "page_view");
-  }
-});
+if (!window.__bdGa4PageviewListenerInstalled) {
+  window.__bdGa4PageviewListenerInstalled = true;
+  document.addEventListener("astro:page-load", () => {
+    if (typeof gtag !== "undefined") {
+      gtag("event", "page_view", window.__bdGa4PageviewParams || {});
+    }
+  });
+}
 `;
 ---
 

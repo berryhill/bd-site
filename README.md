@@ -51,6 +51,7 @@ This site runs as a server-side rendered (SSR) Astro application:
 - **Storage**: PersistentVolume for blog content (externalized from container image)
 - **Updates**: Zero-downtime rolling deployments with health checks
 - **SSL**: Automatic TLS certificate provisioning via cert-manager
+- **Analytics**: GA4 browser measurement is conditional on `PUBLIC_GA_MEASUREMENT_ID`; the editorial pageview contract is summarized here and owned in [`docs/ga4-editorial-analytics-contract.md`](docs/ga4-editorial-analytics-contract.md)
 
 ## 📁 Project Structure
 
@@ -168,6 +169,9 @@ Optional environment variables:
 # Google Search Console verification
 PUBLIC_GOOGLE_SITE_VERIFICATION=your-verification-code
 
+# Optional Google Analytics 4 browser measurement
+PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
 # Optional server-side Google Search Console crawl signal submission
 GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN=secret-access-token
 GOOGLE_SEARCH_CONSOLE_SITE_URL=https://berryhill.dev/
@@ -181,6 +185,8 @@ PORT=80
 HOST=0.0.0.0
 NODE_ENV=production
 ```
+
+When `PUBLIC_GA_MEASUREMENT_ID` is unset, bd-site does not load GA4. When set, the shared layout configures GA4 with `send_page_view=false` and emits one guarded explicit `page_view` on `astro:page-load`, covering the initial load and Astro client navigation without automatic duplicate config pageviews. Article pageviews include stable editorial parameters for downstream analysis: `page_type`, `post_slug`, `canonical_post_path`, and `primary_tag`, alongside the standard page location/path/title values. See [`docs/ga4-editorial-analytics-contract.md`](docs/ga4-editorial-analytics-contract.md) for the full bd-site/Luca ownership boundary, normalization rules, parameter contract, and joined-model requirements.
 
 ## 📝 Blog Content Management
 
@@ -243,6 +249,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 - Interactive pillar modals
 - Dark/light mode toggle
 - Fuzzy search with Pagefind (`/search`; generated `/pagefind/` assets are not crawler-facing content)
+- Conditional GA4 editorial analytics: `PUBLIC_GA_MEASUREMENT_ID` enables GA4, automatic config pageviews stay disabled with `send_page_view=false`, and the shared layout emits one guarded explicit `page_view` per `astro:page-load` with article editorial parameters. The full analytics contract lives in [`docs/ga4-editorial-analytics-contract.md`](docs/ga4-editorial-analytics-contract.md).
 - RSS feed plus canonical `/sitemap.xml` crawler surface (`/sitemap-index.xml` redirects only for compatibility), with public-post crawl signal submission on API publish/update; Google Search Console submission is best-effort and configuration-dependent, DuckDuckGo coverage is evaluated through Bing/IndexNow plus sitemap/DuckDuckBot discovery, and Yahoo discovery evidence is surfaced through Bing IndexNow / Yahoo Slurp without a Yahoo-specific environment variable
 - Dynamic OG image generation through shared terminal/operator brand templates for site and post social previews. The homepage document title remains `berryhill.dev`, while Open Graph/Twitter use `SITE.socialPreview.title`; the default homepage image URL is versioned through `SITE.socialPreview.imageVersion` and carries image/png, 1200x630, canonical social URL, site name, and matching alt metadata. Post pages preserve article-specific titles and images, including custom `ogImage` overrides and dynamic `/posts/<slug>/index.png` fallback behavior.
 
