@@ -17,7 +17,7 @@ env:
   # package was created outside this workflow and does not grant this repo
   # Actions write access.
   DOCKER_IMAGE: bd-site-app
-  DOCKER_TAG: 0.0.55
+  DOCKER_TAG: 0.0.56
   LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
   DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN}}
 
