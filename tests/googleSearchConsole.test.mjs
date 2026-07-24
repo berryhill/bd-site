@@ -113,8 +113,9 @@ async function run() {
       "utf8"
     );
 
-    assert.match(source, /const crawlSignals = !draft[\s\S]*?submitPublicPostCrawlSignals\(`\$\{SITE\.website\}posts\/\$\{slug\}\/`\)[\s\S]*?: undefined;/);
-    assert.match(source, /const isDraft = draft !== undefined \? draft : frontmatterData\.draft;[\s\S]*?const crawlSignals = !isDraft[\s\S]*?submitPublicPostCrawlSignals\(`\$\{SITE\.website\}posts\/\$\{slug\}\/`\)[\s\S]*?: undefined;/);
+    assert.match(source, /const socialPreviewReadiness = !draft[\s\S]*?verifyPublicPostShareReadiness\(slug\)[\s\S]*?: undefined;/);
+    assert.match(source, /const crawlSignals = socialPreviewReadiness\?\.ready[\s\S]*?submitPublicPostCrawlSignals\(publicPostUrl\(slug\)\)[\s\S]*?: undefined;/);
+    assert.match(source, /const isDraft = draft !== undefined \? draft : frontmatterData\.draft;[\s\S]*?const socialPreviewReadiness = !isDraft[\s\S]*?verifyPublicPostShareReadiness\(slug\)[\s\S]*?: undefined;/);
   });
 
   for (const [name, fn] of tests) {

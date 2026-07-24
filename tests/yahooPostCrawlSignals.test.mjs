@@ -58,8 +58,9 @@ test("Yahoo signal unavailable path is observable and non-throwing", () => {
 });
 
 test("posts API returns crawl signal evidence only in non-draft create/update branches", () => {
-  assert.match(postsApiSource, /const crawlSignals = !draft[\s\S]*?submitPublicPostCrawlSignals\(`\$\{SITE\.website\}posts\/\$\{slug\}\/`\)[\s\S]*?: undefined;/);
-  assert.match(postsApiSource, /const crawlSignals = !isDraft[\s\S]*?submitPublicPostCrawlSignals\(`\$\{SITE\.website\}posts\/\$\{slug\}\/`\)[\s\S]*?: undefined;/);
+  assert.match(postsApiSource, /const socialPreviewReadiness = !draft[\s\S]*?verifyPublicPostShareReadiness\(slug\)[\s\S]*?: undefined;/);
+  assert.match(postsApiSource, /const socialPreviewReadiness = !isDraft[\s\S]*?verifyPublicPostShareReadiness\(slug\)[\s\S]*?: undefined;/);
+  assert.match(postsApiSource, /const crawlSignals = socialPreviewReadiness\?\.ready[\s\S]*?submitPublicPostCrawlSignals\(publicPostUrl\(slug\)\)[\s\S]*?: undefined;/);
   assert.match(postsApiSource, /crawlSignals,/);
 });
 

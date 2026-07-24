@@ -102,6 +102,10 @@ test("renders a successful dynamic post OG image response for the main affected 
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("content-type"), "image/png");
+  assert.equal(
+    response.headers.get("cache-control"),
+    "public, max-age=31536000, immutable"
+  );
   assert.equal(renderedPostId, "judge-ai-by-the-decisions-it-improves");
 
   const bytes = new Uint8Array(await response.arrayBuffer());
@@ -132,6 +136,7 @@ test("returns 404 for unknown, draft, or custom-og slugs", async () => {
     });
 
     assert.equal(response.status, 404, slug);
+    assert.equal(response.headers.get("cache-control"), "no-store", slug);
   }
 });
 
@@ -143,6 +148,7 @@ test("returns 404 when the live collection loader yields no posts", async () => 
   });
 
   assert.equal(response.status, 404);
+  assert.equal(response.headers.get("cache-control"), "no-store");
 });
 
 test("returns 500 when OG rendering fails after a matching post is selected", async () => {
@@ -155,6 +161,7 @@ test("returns 500 when OG rendering fails after a matching post is selected", as
   });
 
   assert.equal(response.status, 500);
+  assert.equal(response.headers.get("cache-control"), "no-store");
   assert.match(await response.text(), /OG image render failed/);
 });
 

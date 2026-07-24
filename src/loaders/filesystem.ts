@@ -136,13 +136,19 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
           }
 
           return {
-            entry: {
-              id: filter,
-              data,
-              body: content,
-              filePath: path.relative(fullPath, filePath),
-            },
+            id: filter,
+            data,
+            body: content,
+            filePath: path.relative(fullPath, filePath),
           };
+        }
+
+        if (
+          filter &&
+          typeof filter === "object" &&
+          typeof filter.id === "string"
+        ) {
+          return this.loadEntry({ filter: filter.id });
         }
 
         // If filter is an object, try to find matching entry
@@ -169,7 +175,7 @@ export function filesystemLoader(options: FilesystemLoaderOptions) {
             };
           }
 
-          return { entry };
+          return entry;
         }
 
         return {

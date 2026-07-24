@@ -10,6 +10,9 @@ export type DynamicPostOgImageRenderer<TPost extends DynamicOgImagePost> = (
   post: TPost
 ) => Promise<ArrayBuffer | ArrayBufferView>;
 
+const DYNAMIC_OG_SUCCESS_CACHE_CONTROL = "public, max-age=31536000, immutable";
+const DYNAMIC_OG_FAILURE_CACHE_CONTROL = "no-store";
+
 export function findDynamicPostOgImagePost<TPost extends DynamicOgImagePost>(
   posts: TPost[] | undefined,
   slug: string | undefined
@@ -25,6 +28,7 @@ function notFoundResponse() {
   return new Response(null, {
     status: 404,
     statusText: "Not found",
+    headers: { "Cache-Control": DYNAMIC_OG_FAILURE_CACHE_CONTROL },
   });
 }
 
@@ -55,13 +59,19 @@ export async function renderDynamicPostOgImageEndpoint<
     const body = toUint8Array(imageBuffer) as unknown as BodyInit;
 
     return new Response(body, {
-      headers: { "Content-Type": "image/png" },
+      headers: {
+        "Cache-Control": DYNAMIC_OG_SUCCESS_CACHE_CONTROL,
+        "Content-Type": "image/png",
+      },
     });
   } catch {
     return new Response("OG image render failed", {
       status: 500,
       statusText: "Internal Server Error",
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
+      headers: {
+        "Cache-Control": DYNAMIC_OG_FAILURE_CACHE_CONTROL,
+        "Content-Type": "text/plain; charset=utf-8",
+      },
     });
   }
 }

@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getLiveCollection } from "astro:content";
+import { getLiveEntry } from "astro:content";
 import { generateOgImageForPost } from "@/utils/generateOgImages";
 import { renderDynamicPostOgImageEndpoint } from "@/utils/dynamicPostOgImageEndpoint";
 import { SITE } from "@/config";
@@ -14,10 +14,19 @@ export const GET: APIRoute = async ({ params }) => {
     });
   }
 
-  const { entries: posts } = await getLiveCollection("liveBlog");
+  const liveEntry = params.slug
+    ? await getLiveEntry("liveBlog", params.slug)
+    : undefined;
+  const post = liveEntry
+    ? "id" in liveEntry
+      ? liveEntry
+      : "entry" in liveEntry
+        ? liveEntry.entry
+        : undefined
+    : undefined;
 
   return renderDynamicPostOgImageEndpoint({
-    posts,
+    posts: post ? [post] : undefined,
     slug: params.slug,
     renderPostOgImage: post =>
       generateOgImageForPost(
