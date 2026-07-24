@@ -8,6 +8,7 @@ import { submitPublicPostCrawlSignals } from "@/utils/publicPostCrawlSignals";
 import { requireApiKey } from "@/utils/apiAuth";
 import { validateBlogVisualAssets } from "@/utils/blogVisualAssets";
 import { auditPostTitleQuality } from "@/utils/postTitleQuality";
+import { waitForSocialPreviewReadiness } from "@/utils/socialPreviewReadiness";
 
 export const prerender = false;
 
@@ -125,6 +126,11 @@ type PostRecord = Record<string, unknown> & {
   pubDatetime?: string | Date;
   modDatetime?: string | Date | null;
 };
+
+const publicPostUrl = (slug: string) => `${SITE.website}posts/${slug}/`;
+
+const verifyPublicPostShareReadiness = async (slug: string) =>
+  waitForSocialPreviewReadiness(publicPostUrl(slug));
 
 export const GET: APIRoute = async context => {
   // Validate API key
@@ -330,9 +336,12 @@ export const POST: APIRoute = async context => {
     const filePath = join(process.cwd(), "src", "data", "blog", filename);
     await writeFile(filePath, fileContent, "utf-8");
 
-    // Submit public crawl signals if not a draft
-    const crawlSignals = !draft
-      ? await submitPublicPostCrawlSignals(`${SITE.website}posts/${slug}/`)
+    // Verify public social-card readiness before submitting crawler signals.
+    const socialPreviewReadiness = !draft
+      ? await verifyPublicPostShareReadiness(slug)
+      : undefined;
+    const crawlSignals = socialPreviewReadiness?.ready
+      ? await submitPublicPostCrawlSignals(publicPostUrl(slug))
       : undefined;
 
     return new Response(
@@ -341,6 +350,8 @@ export const POST: APIRoute = async context => {
         message: "Post created successfully",
         slug,
         filename,
+        shareReady: socialPreviewReadiness?.ready,
+        socialPreviewReadiness,
         crawlSignals,
       }),
       {
@@ -530,9 +541,12 @@ export const PATCH: APIRoute = async context => {
     // Write back to file
     await writeFile(filePath, updatedFile, "utf-8");
 
-    // Submit public crawl signals if not a draft
-    const crawlSignals = !isDraft
-      ? await submitPublicPostCrawlSignals(`${SITE.website}posts/${slug}/`)
+    // Verify public social-card readiness before submitting crawler signals.
+    const socialPreviewReadiness = !isDraft
+      ? await verifyPublicPostShareReadiness(slug)
+      : undefined;
+    const crawlSignals = socialPreviewReadiness?.ready
+      ? await submitPublicPostCrawlSignals(publicPostUrl(slug))
       : undefined;
 
     return new Response(
@@ -545,6 +559,8 @@ export const PATCH: APIRoute = async context => {
             featured !== undefined ? featured : frontmatterData.featured,
           draft: draft !== undefined ? draft : frontmatterData.draft,
         },
+        shareReady: socialPreviewReadiness?.ready,
+        socialPreviewReadiness,
         crawlSignals,
       }),
       {

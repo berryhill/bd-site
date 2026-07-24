@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { writeFile, unlink } from "node:fs/promises";
 import net from "node:net";
+import path from "node:path";
 import {
   extractSocialPreviewMetadata,
   validateSocialPreviewImageReachability,
@@ -83,6 +85,14 @@ function assertPngCard(body) {
 const port = await getFreePort();
 const origin = `http://127.0.0.1:${port}`;
 const output = [];
+const transitionSlug = "fresh-social-card-transition-fixture";
+const transitionFixturePath = path.join(
+  process.cwd(),
+  "src",
+  "data",
+  "blog",
+  `${transitionSlug}.md`
+);
 const server = spawn(
   "pnpm",
   ["exec", "astro", "dev", "--host", "127.0.0.1", "--port", String(port)],
@@ -148,10 +158,61 @@ try {
     );
 
     assert.equal(response.status, 404);
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
     assert.equal(body.length, 0);
+  });
+
+  await test("fresh post published after server startup is immediately Twitterbot card-ready", async () => {
+    await writeFile(
+      transitionFixturePath,
+      `---
+title: Fresh Social Card Transition Fixture
+description: A regression fixture for first-crawl dynamic social card readiness.
+pubDatetime: ${new Date().toISOString()}
+featured: false
+draft: false
+tags:
+  - agentic-dev
+---
+
+This fixture is written after the dev server starts so the test exercises the
+fresh-publication transition path instead of an already-loaded collection entry.
+`,
+      "utf8"
+    );
+
+    const pageUrl = `${origin}/posts/${transitionSlug}/`;
+    const pageResponse = await fetch(pageUrl, {
+      headers: { "User-Agent": "Twitterbot/1.0" },
+    });
+    const html = await pageResponse.text();
+    const metadata = extractSocialPreviewMetadata(html);
+
+    assert.equal(pageResponse.status, 200);
+    assert.equal(metadata.twitterCard, "summary_large_image");
+    assert.equal(
+      metadata.ogImage,
+      `https://berryhill.dev/posts/${transitionSlug}/index.png`
+    );
+    assert.equal(metadata.twitterImage, metadata.ogImage);
+
+    const imagePathname = new URL(metadata.ogImage).pathname;
+    const { response, body } = await fetchImage(origin, imagePathname);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("Content-Type"), "image/png");
+    assert.equal(
+      response.headers.get("Cache-Control"),
+      "public, max-age=31536000, immutable"
+    );
+    assert.equal(body.byteLength > 0, true);
+    assertPngCard(body);
   });
 } finally {
   server.kill("SIGTERM");
+  await unlink(transitionFixturePath).catch(error => {
+    if (error?.code !== "ENOENT") throw error;
+  });
 }
 
 console.log(`PASS ${passed} FAIL ${failed}`);
