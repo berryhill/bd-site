@@ -41,7 +41,10 @@ Previously, only 6 static pages were included. Now public blog posts that pass t
 - **Location**: https://berryhill.dev/robots.txt
 - **Status**: ✅ **FULLY LLM-OPTIMIZED**
 
-### Explicitly Allowed Crawlers (19+ AI/search bots):
+### Explicitly Allowed Crawlers (19+ AI/search bots plus X social preview):
+
+**X / Twitter social previews:**
+- ✅ Twitterbot (social-card retrieval for post pages and advertised PNG preview cards)
 
 **OpenAI:**
 - ✅ GPTBot (model training for GPT-4o/GPT-5)
@@ -92,8 +95,9 @@ Previously, only 6 static pages were included. Now public blog posts that pass t
 - ✅ * (All other crawlers allowed by default)
 
 ### Generated asset/index policy
-- All crawler groups allow `/` and explicitly allow `/llms.txt`.
-- All crawler groups disallow crawl-noisy generated/static asset paths: `/pagefind/`, `/_astro/`, `/assets/`, CSS, JS, source maps, JSON files, images, SVGs, WebP files, and icons.
+- Generic and named AI/search crawler groups allow `/` and explicitly allow `/llms.txt`.
+- Generic and named AI/search crawler groups disallow crawl-noisy generated/static asset paths: `/pagefind/`, `/_astro/`, `/assets/`, CSS, JS, source maps, JSON files, images, SVGs, WebP files, and icons.
+- The dedicated `User-agent: Twitterbot` group appears before the generic crawler groups and allows `/` without generated-image disallows, so X can retrieve post pages and advertised `/posts/<slug>/index.png` cards for social previews.
 - `Sitemap:` points to `https://berryhill.dev/sitemap.xml`.
 
 ## Structured Data
@@ -152,7 +156,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
   - `<link rel="alternate" type="application/rss+xml">` in site layout
   - `<link rel="alternate" type="application/atom+xml">` in site layout
   - All pages advertise both RSS and Atom feeds for feed readers and LLM crawlers
-- **Open Graph / Twitter preview images**: ✅ Site-level `/og.png` and dynamic post `/posts/<slug>/index.png` use the shared terminal/operator brand template system, with metadata emitted as `summary_large_image` and absolute image URLs. Issue #127 keeps the homepage card simplified with one berryhill.dev brand mark, a separate site name and social headline, restrained operator/shipped-systems/review-gates support copy, a cache-versioned homepage image URL, complete image/png 1200x630 metadata, matching OG/Twitter alt text, and standards-correct Twitter `name` attributes. Article pages preserve post-specific titles and images, including custom `ogImage` behavior and dynamic post-card fallback.
+- **Open Graph / Twitter preview images**: ✅ Site-level `/og.png` and dynamic post `/posts/<slug>/index.png` use the shared terminal/operator brand template system, with metadata emitted as `summary_large_image` and absolute image URLs. Issue #127 keeps the homepage card simplified with one berryhill.dev brand mark, a separate site name and social headline, restrained operator/shipped-systems/review-gates support copy, a cache-versioned homepage image URL, complete image/png 1200x630 metadata, matching OG/Twitter alt text, and standards-correct Twitter `name` attributes. Article pages preserve post-specific titles and images, including custom `ogImage` behavior and dynamic post-card fallback. Issue #133 adds a dedicated Twitterbot robots exception and fail-closed readiness evidence so fresh X cards can retrieve both the post page and advertised PNG image even while generic/AI/search crawler groups continue to avoid generated-image noise.
 - **Canonical URLs**: ✅ Set on all pages; post canonical URLs are normalized through the shared URL helper
 - **Post URL normalization**: ✅ Post canonical, OG image, and JSON-LD URL fields share the same `SITE.website` normalization path
 - **Meta Descriptions**: ✅ Unique per page
@@ -160,7 +164,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 ## LLM Optimization Status (Phase 1)
 
 ### ✅ Completed:
-1. robots.txt explicitly allows all major LLM crawlers (18+ bots)
+1. robots.txt explicitly allows all major LLM crawlers (18+ bots) and includes a dedicated Twitterbot allow group for X social-preview retrieval
 2. Sitemap generated and accessible
 3. Structured data baseline (BlogPosting schema on all posts)
 4. llms.txt manifest endpoint at `/llms.txt` (2026-06-21, PR #35)
@@ -172,6 +176,7 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 10. Issue #118 social preview brand patterns (2026-07-12): site and post OG image templates now share the berryhill.dev terminal/operator brand system and tests reject the prior off-brand color palette.
 11. Issue #127 social preview metadata reconciliation (2026-07-22): homepage card behavior is simplified with one berryhill.dev brand mark, separate site name/social headline, versioned homepage image URL, complete image metadata and matching alt text, standards-correct Twitter `name` attributes, and preserved article-specific previews.
 12. Issue #98 follow-up static sitemap reconciliation (2026-07-12): `/sitemap-static.xml` no longer advertises the reopened Bing-reported 404 `/archives/` URL; `/archives/` remains an intentional hidden/404-only surface.
+13. Issue #133 Twitterbot robots access (2026-07-25): robots.txt now emits a dedicated Twitterbot `Allow: /` group before generic crawler groups, and social-preview readiness fails closed with structured robots evidence unless Twitterbot can access both the post URL and advertised image URL.
 
 ### ⚠️ Production Deployment Note (2026-06-21)
 
@@ -247,6 +252,9 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 
 ## Changelog
 
+### 2026-07-25
+- ✅ **Twitterbot Robots Access** (Issue #133): Added a dedicated Twitterbot `Allow: /` group ahead of generic crawler groups so X can retrieve post pages and advertised PNG social-card images. URL-based social-preview readiness now fetches robots.txt, verifies Twitterbot access for both the post URL and advertised image URL, and fails closed with structured robots evidence when robots.txt is unavailable or either path is disallowed.
+
 ### 2026-07-12
 - ✅ **SEO Title Guardrails** (Issue #99): Non-draft post create/update now rejects overlong rendered title tags and near-duplicate recent public titles; `check:seo-crawl-surface` reports legacy public title-quality advisories while retaining crawl/link URL failures as hard failures.
 - ✅ **Static Sitemap Archives Exclusion** (Issue #98 follow-up): Reconciled the reopened Bing-reported 404 URL by keeping `/archives/` out of `/sitemap-static.xml`; redirect-only and hidden/404-only surfaces such as `/sitemap-index.xml` and `/archives/` are not advertised.
@@ -290,4 +298,4 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 - ✅ Created LLM Crawl Manifest documentation
 
 ## Last Updated
-2026-07-12
+2026-07-25

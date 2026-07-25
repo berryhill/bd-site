@@ -212,7 +212,7 @@ pnpm run preview
 pnpm run check:social-preview -- http://localhost:4321/posts/<post-slug>/
 ```
 
-When the input is an HTTP(S) URL, `check:social-preview` validates the rendered metadata and then fetches the advertised Open Graph/Twitter image URL as Twitterbot, follows redirects, and rejects unreachable responses or responses that do not return an image content type.
+When the input is an HTTP(S) URL, `check:social-preview` validates the rendered metadata, fetches `/robots.txt`, evaluates the dedicated Twitterbot policy for both the post URL and advertised Open Graph/Twitter image URL, and then fetches the advertised image as Twitterbot. The URL check fails closed when either path is disallowed by robots.txt, when robots.txt cannot be fetched, or when the image is unreachable or does not return an image content type. The dedicated `User-agent: Twitterbot` `Allow: /` group intentionally overrides the generic generated-image restrictions so X can retrieve fresh social-card pages and PNG cards.
 
 The check also accepts a built HTML file path, for example:
 
@@ -251,7 +251,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 - Fuzzy search with Pagefind (`/search`; generated `/pagefind/` assets are not crawler-facing content)
 - Conditional GA4 editorial analytics: `PUBLIC_GA_MEASUREMENT_ID` enables GA4, automatic config pageviews stay disabled with `send_page_view=false`, and the shared layout emits one guarded explicit `page_view` per `astro:page-load` with article editorial parameters. The full analytics contract lives in [`docs/ga4-editorial-analytics-contract.md`](docs/ga4-editorial-analytics-contract.md).
 - RSS feed plus canonical `/sitemap.xml` crawler surface (`/sitemap-index.xml` redirects only for compatibility), with public-post crawl signal submission on API publish/update; Google Search Console submission is best-effort and configuration-dependent, DuckDuckGo coverage is evaluated through Bing/IndexNow plus sitemap/DuckDuckBot discovery, and Yahoo discovery evidence is surfaced through Bing IndexNow / Yahoo Slurp without a Yahoo-specific environment variable
-- Dynamic OG image generation through shared terminal/operator brand templates for site and post social previews. The homepage document title remains `berryhill.dev`, while Open Graph/Twitter use `SITE.socialPreview.title`; the default homepage image URL is versioned through `SITE.socialPreview.imageVersion` and carries image/png, 1200x630, canonical social URL, site name, and matching alt metadata. Post pages preserve article-specific titles and images, including custom `ogImage` overrides and dynamic `/posts/<slug>/index.png` fallback behavior.
+- Dynamic OG image generation through shared terminal/operator brand templates for site and post social previews. The homepage document title remains `berryhill.dev`, while Open Graph/Twitter use `SITE.socialPreview.title`; the default homepage image URL is versioned through `SITE.socialPreview.imageVersion` and carries image/png, 1200x630, canonical social URL, site name, and matching alt metadata. Post pages preserve article-specific titles and images, including custom `ogImage` overrides and dynamic `/posts/<slug>/index.png` fallback behavior. URL-based social-preview checks fetch robots.txt, verify Twitterbot access to both the post URL and advertised image URL, and rely on the dedicated Twitterbot allow group so X social-card retrieval is not blocked by generic generated-image disallows.
 
 ## 📜 License
 
