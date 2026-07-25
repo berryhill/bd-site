@@ -87,7 +87,29 @@ test("robots.txt applies pagefind/static disallows to named AI crawler groups", 
 
   assert.equal(
     (robots.match(/^User-agent:/gm) ?? []).length,
-    CRAWLER_USER_AGENTS.length
+    CRAWLER_USER_AGENTS.length + 1
+  );
+});
+
+test("robots.txt allows Twitterbot to fetch advertised social-card images", () => {
+  const robots = getRobotsTxt("https://berryhill.dev/");
+  const twitterbotGroup = getRobotsGroup(robots, "Twitterbot");
+  const genericGroup = getRobotsGroup(robots, "*");
+
+  assert.match(twitterbotGroup, /User-agent: Twitterbot/);
+  assert.match(twitterbotGroup, /Allow: \//);
+  assert.doesNotMatch(twitterbotGroup, /Disallow:/);
+  assert.match(genericGroup, /Disallow: \/\*\.png\$/);
+  assert.equal(CRAWLER_USER_AGENTS.includes("Twitterbot"), false);
+});
+
+test("Twitterbot robots allow group appears before generic crawler groups", () => {
+  const robots = getRobotsTxt("https://berryhill.dev/");
+
+  assert.equal(robots.indexOf("User-agent: Twitterbot"), 0);
+  assert.equal(
+    robots.indexOf("User-agent: Twitterbot") < robots.indexOf("User-agent: *"),
+    true
   );
 });
 

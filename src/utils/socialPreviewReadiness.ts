@@ -6,16 +6,32 @@ import {
 } from "./socialPreviewMeta.ts";
 
 const TWITTERBOT_USER_AGENT = "Twitterbot/1.0";
+const TWITTERBOT_ROBOTS_USER_AGENT = "Twitterbot";
 const DEFAULT_ATTEMPTS = 5;
 const DEFAULT_INTERVAL_MS = 500;
 const EXPECTED_PNG_WIDTH = 1200;
 const EXPECTED_PNG_HEIGHT = 630;
 
 export interface SocialPreviewReadinessIssue {
-  stage: "html" | "metadata" | "image";
+  stage: "html" | "metadata" | "image" | "robots";
   field?: string;
   url: string;
   reason: string;
+}
+
+export interface SocialPreviewRobotsDirective {
+  field: "postUrl" | "ogImage";
+  url: string;
+  path: string;
+  allowed: boolean;
+  group: string;
+  directive: string;
+}
+
+export interface SocialPreviewRobotsEvidence {
+  robotsUrl: string;
+  userAgent: string;
+  checkedPaths: SocialPreviewRobotsDirective[];
 }
 
 export interface SocialPreviewReadinessResult {
@@ -26,6 +42,7 @@ export interface SocialPreviewReadinessResult {
   imageUrl?: string;
   imageBytes?: number;
   imageDimensions?: { width: number; height: number };
+  robots?: SocialPreviewRobotsEvidence[];
   issues: SocialPreviewReadinessIssue[];
 }
 
@@ -88,6 +105,202 @@ function readPngDimensions(bytes: Uint8Array) {
     width: view.getUint32(16),
     height: view.getUint32(20),
   };
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function parseRobotsGroups(robotsTxt: string) {
+  const groups: Array<{
+    agents: string[];
+    rules: Array<{ directive: string; path: string; line: string }>;
+  }> = [];
+  let currentAgents: string[] = [];
+  let currentRules: Array<{ directive: string; path: string; line: string }> =
+    [];
+
+  const flushGroup = () => {
+    if (currentAgents.length === 0) return;
+    groups.push({ agents: currentAgents, rules: currentRules });
+    currentAgents = [];
+    currentRules = [];
+  };
+
+  for (const rawLine of robotsTxt.split(/\r?\n/)) {
+    const line = rawLine.replace(/#.*/, "").trim();
+    if (!line) continue;
+    const separatorIndex = line.indexOf(":");
+    if (separatorIndex === -1) continue;
+
+    const key = line.slice(0, separatorIndex).trim().toLowerCase();
+    const value = line.slice(separatorIndex + 1).trim();
+
+    if (key === "user-agent") {
+      if (currentRules.length > 0) flushGroup();
+      currentAgents.push(value);
+      continue;
+    }
+
+    if (key === "allow" || key === "disallow") {
+      if (currentAgents.length === 0) continue;
+      currentRules.push({ directive: key, path: value, line });
+    }
+  }
+
+  flushGroup();
+  return groups;
+}
+
+function robotsPatternMatches(rulePath: string, targetPath: string) {
+  if (!rulePath) return false;
+  const anchored = rulePath.endsWith("$");
+  const body = anchored ? rulePath.slice(0, -1) : rulePath;
+  const pattern = escapeRegExp(body).replace(/\\\*/g, ".*");
+  const regex = new RegExp(`^${pattern}${anchored ? "$" : ""}`);
+  return regex.test(targetPath);
+}
+
+function getRobotsDecision(
+  robotsTxt: string,
+  userAgent: string,
+  targetUrl: string
+) {
+  const groups = parseRobotsGroups(robotsTxt);
+  const targetAgent = userAgent.toLowerCase();
+  const exactGroup = groups.find(group =>
+    group.agents.some(agent => agent.toLowerCase() === targetAgent)
+  );
+  const wildcardGroup = groups.find(group =>
+    group.agents.some(agent => agent === "*")
+  );
+  const group = exactGroup ?? wildcardGroup;
+  const url = new URL(targetUrl);
+  const path = `${url.pathname}${url.search}`;
+
+  if (!group) {
+    return {
+      path,
+      allowed: true,
+      group: "none",
+      directive: "no matching robots group",
+    };
+  }
+
+  const matchingRules = group.rules
+    .filter(rule => robotsPatternMatches(rule.path, path))
+    .sort((left, right) => {
+      const lengthDiff = right.path.length - left.path.length;
+      if (lengthDiff !== 0) return lengthDiff;
+      if (left.directive === right.directive) return 0;
+      return left.directive === "allow" ? -1 : 1;
+    });
+  const winningRule = matchingRules[0];
+
+  if (!winningRule) {
+    return {
+      path,
+      allowed: true,
+      group: group.agents.join(", "),
+      directive: "no matching directive",
+    };
+  }
+
+  return {
+    path,
+    allowed: winningRule.directive === "allow",
+    group: group.agents.join(", "),
+    directive: winningRule.line,
+  };
+}
+
+async function validateTwitterbotRobotsPolicy(
+  postUrl: string,
+  imageUrl: string,
+  fetcher: typeof fetch
+): Promise<{
+  robots: SocialPreviewRobotsEvidence[];
+  issues: SocialPreviewReadinessIssue[];
+}> {
+  const targets = [
+    { field: "postUrl" as const, url: postUrl },
+    { field: "ogImage" as const, url: imageUrl },
+  ];
+  const robotsByOrigin = new Map<string, typeof targets>();
+
+  for (const target of targets) {
+    const origin = new URL(target.url).origin;
+    robotsByOrigin.set(origin, [...(robotsByOrigin.get(origin) ?? []), target]);
+  }
+
+  const robots: SocialPreviewRobotsEvidence[] = [];
+  const issues: SocialPreviewReadinessIssue[] = [];
+
+  for (const [origin, originTargets] of robotsByOrigin) {
+    const robotsUrl = new URL("/robots.txt", origin).href;
+
+    try {
+      const response = await fetcher(robotsUrl, {
+        headers: { "User-Agent": TWITTERBOT_USER_AGENT },
+        redirect: "follow",
+      });
+      const robotsTxt = await response.text();
+
+      if (!response.ok) {
+        issues.push({
+          stage: "robots",
+          url: robotsUrl,
+          reason:
+            `robots.txt returned ${response.status} ${response.statusText}`.trim(),
+        });
+        robots.push({
+          robotsUrl,
+          userAgent: TWITTERBOT_ROBOTS_USER_AGENT,
+          checkedPaths: [],
+        });
+        continue;
+      }
+
+      const checkedPaths = originTargets.map(target => {
+        const decision = getRobotsDecision(
+          robotsTxt,
+          TWITTERBOT_ROBOTS_USER_AGENT,
+          target.url
+        );
+        return { field: target.field, url: target.url, ...decision };
+      });
+
+      for (const checkedPath of checkedPaths) {
+        if (!checkedPath.allowed) {
+          issues.push({
+            stage: "robots",
+            field: checkedPath.field,
+            url: checkedPath.url,
+            reason: `robots.txt disallows ${TWITTERBOT_ROBOTS_USER_AGENT} from ${checkedPath.path} via ${checkedPath.directive} in User-agent: ${checkedPath.group}`,
+          });
+        }
+      }
+
+      robots.push({
+        robotsUrl,
+        userAgent: TWITTERBOT_ROBOTS_USER_AGENT,
+        checkedPaths,
+      });
+    } catch (error) {
+      issues.push({
+        stage: "robots",
+        url: robotsUrl,
+        reason: `robots.txt fetch failed: ${error instanceof Error ? error.message : String(error)}`,
+      });
+      robots.push({
+        robotsUrl,
+        userAgent: TWITTERBOT_ROBOTS_USER_AGENT,
+        checkedPaths: [],
+      });
+    }
+  }
+
+  return { robots, issues };
 }
 
 async function validateAdvertisedImage(
@@ -263,7 +476,16 @@ async function checkSocialPreviewReadinessOnce(
       metadata.ogImage,
       fetcher
     );
-    const allIssues = [...issues, ...imageResult.issues];
+    const robotsResult = await validateTwitterbotRobotsPolicy(
+      postUrl,
+      metadata.ogImage,
+      fetcher
+    );
+    const allIssues = [
+      ...issues,
+      ...imageResult.issues,
+      ...robotsResult.issues,
+    ];
 
     return {
       ready: allIssues.length === 0,
@@ -272,6 +494,7 @@ async function checkSocialPreviewReadinessOnce(
       imageUrl: metadata.ogImage,
       imageBytes: imageResult.imageBytes,
       imageDimensions: imageResult.imageDimensions,
+      robots: robotsResult.robots,
       issues: allIssues,
     };
   } catch (error) {
@@ -312,6 +535,7 @@ export async function waitForSocialPreviewReadiness(
     imageUrl: lastResult?.imageUrl,
     imageBytes: lastResult?.imageBytes,
     imageDimensions: lastResult?.imageDimensions,
+    robots: lastResult?.robots,
     issues: lastResult?.issues ?? [
       {
         stage: "html",
