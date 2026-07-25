@@ -59,10 +59,15 @@ const getCrawlerGroup = (userAgent: string) =>
     ...CRAWL_ASSET_DISALLOW_PATHS.map(path => `Disallow: ${path}`),
   ].join("\n");
 
+const getTwitterbotGroup = () =>
+  ["User-agent: Twitterbot", "Allow: /"].join("\n");
+
 export const getRobotsTxt = (site: string = DEFAULT_SITE) => {
   const sitemapUrl = getCanonicalSitemapUrl(site);
 
-  return `${CRAWLER_USER_AGENTS.map(getCrawlerGroup).join("\n\n")}
+  return `${getTwitterbotGroup()}
+
+${CRAWLER_USER_AGENTS.map(getCrawlerGroup).join("\n\n")}
 
 Sitemap: ${sitemapUrl}
 

@@ -69,6 +69,28 @@ function validHtml(postUrl, imageUrl) {
 </html>`;
 }
 
+const robotsAllowTwitterbot = `User-agent: Twitterbot
+Allow: /
+
+User-agent: *
+Allow: /
+Disallow: /pagefind/
+Disallow: /_astro/
+Disallow: /*.png$
+`;
+
+const robotsDenyTwitterbotImage = `User-agent: *
+Allow: /
+Disallow: /*.png$
+`;
+
+const robotsDenyTwitterbotPost = `User-agent: Twitterbot
+Disallow: /posts/
+
+User-agent: *
+Allow: /
+`;
+
 test("accepts a ready fresh post with matching metadata and 1200x630 PNG", async () => {
   const postUrl = "https://berryhill.dev/posts/fresh-card-readiness/";
   const imageUrl = "https://berryhill.dev/posts/fresh-card-readiness/index.png";
@@ -84,6 +106,12 @@ test("accepts a ready fresh post with matching metadata and 1200x630 PNG", async
           headers: { "Content-Type": "text/html" },
         });
       }
+      if (String(url) === "https://berryhill.dev/robots.txt") {
+        return new Response(robotsAllowTwitterbot, {
+          status: 200,
+          headers: { "Content-Type": "text/plain" },
+        });
+      }
       return new Response(makePngHeader(), {
         status: 200,
         headers: { "Content-Type": "image/png" },
@@ -97,7 +125,34 @@ test("accepts a ready fresh post with matching metadata and 1200x630 PNG", async
   assert.equal(result.imageBytes, 33);
   assert.deepEqual(result.imageDimensions, { width: 1200, height: 630 });
   assert.deepEqual(result.issues, []);
+  assert.equal(result.robots[0].robotsUrl, "https://berryhill.dev/robots.txt");
+  assert.deepEqual(
+    result.robots[0].checkedPaths.map(entry => ({
+      field: entry.field,
+      path: entry.path,
+      allowed: entry.allowed,
+      group: entry.group,
+      directive: entry.directive,
+    })),
+    [
+      {
+        field: "postUrl",
+        path: "/posts/fresh-card-readiness/",
+        allowed: true,
+        group: "Twitterbot",
+        directive: "Allow: /",
+      },
+      {
+        field: "ogImage",
+        path: "/posts/fresh-card-readiness/index.png",
+        allowed: true,
+        group: "Twitterbot",
+        directive: "Allow: /",
+      },
+    ]
+  );
   assert.deepEqual(requested.map(entry => entry.userAgent), [
+    "Twitterbot/1.0",
     "Twitterbot/1.0",
     "Twitterbot/1.0",
   ]);
@@ -114,6 +169,9 @@ test("polls through a transient fresh-publication miss before reporting ready", 
     fetcher: async url => {
       if (String(url) === postUrl) {
         return new Response(validHtml(postUrl, imageUrl), { status: 200 });
+      }
+      if (String(url) === "https://berryhill.dev/robots.txt") {
+        return new Response(robotsAllowTwitterbot, { status: 200 });
       }
       imageRequests += 1;
       if (imageRequests === 1) {
@@ -163,15 +221,117 @@ test("rejects non-PNG, empty, and wrong-size image responses with evidence", asy
   ]) {
     const result = await waitForSocialPreviewReadiness(postUrl, {
       attempts: 1,
-      fetcher: async url =>
-        String(url) === postUrl
-          ? new Response(validHtml(postUrl, imageUrl), { status: 200 })
-          : imageResponse,
+      fetcher: async url => {
+        if (String(url) === postUrl) {
+          return new Response(validHtml(postUrl, imageUrl), { status: 200 });
+        }
+        if (String(url) === "https://berryhill.dev/robots.txt") {
+          return new Response(robotsAllowTwitterbot, { status: 200 });
+        }
+        return imageResponse;
+      },
     });
 
     assert.equal(result.ready, false, name);
     assert.match(result.issues.map(issue => issue.reason).join("\n"), pattern, name);
   }
+});
+
+test("fails closed when robots.txt denies Twitterbot access to the advertised image", async () => {
+  const postUrl = "https://berryhill.dev/posts/blocked-card/";
+  const imageUrl = "https://berryhill.dev/posts/blocked-card/index.png";
+
+  const result = await waitForSocialPreviewReadiness(postUrl, {
+    attempts: 1,
+    fetcher: async url => {
+      if (String(url) === postUrl) {
+        return new Response(validHtml(postUrl, imageUrl), { status: 200 });
+      }
+      if (String(url) === imageUrl) {
+        return new Response(makePngHeader(), {
+          status: 200,
+          headers: { "Content-Type": "image/png" },
+        });
+      }
+      return new Response(robotsDenyTwitterbotImage, { status: 200 });
+    },
+  });
+
+  assert.equal(result.ready, false);
+  assert.equal(result.imageBytes, 33);
+  assert.deepEqual(result.imageDimensions, { width: 1200, height: 630 });
+  assert.equal(result.issues.some(issue => issue.stage === "robots"), true);
+  assert.match(
+    result.issues.map(issue => issue.reason).join("\n"),
+    /robots\.txt disallows Twitterbot from \/posts\/blocked-card\/index\.png via disallow: \/\*\.png\$/i
+  );
+  assert.deepEqual(
+    result.robots[0].checkedPaths.map(entry => [entry.field, entry.allowed, entry.group]),
+    [
+      ["postUrl", true, "*"],
+      ["ogImage", false, "*"],
+    ]
+  );
+});
+
+test("fails closed when robots.txt denies Twitterbot access to the post URL", async () => {
+  const postUrl = "https://berryhill.dev/posts/blocked-post/";
+  const imageUrl = "https://berryhill.dev/posts/blocked-post/index.png";
+
+  const result = await waitForSocialPreviewReadiness(postUrl, {
+    attempts: 1,
+    fetcher: async url => {
+      if (String(url) === postUrl) {
+        return new Response(validHtml(postUrl, imageUrl), { status: 200 });
+      }
+      if (String(url) === imageUrl) {
+        return new Response(makePngHeader(), {
+          status: 200,
+          headers: { "Content-Type": "image/png" },
+        });
+      }
+      return new Response(robotsDenyTwitterbotPost, { status: 200 });
+    },
+  });
+
+  assert.equal(result.ready, false);
+  assert.equal(result.issues.some(issue => issue.stage === "robots"), true);
+  assert.match(
+    result.issues.map(issue => issue.reason).join("\n"),
+    /robots\.txt disallows Twitterbot from \/posts\/blocked-post\//i
+  );
+});
+
+test("fails closed when robots.txt cannot be fetched", async () => {
+  const postUrl = "https://berryhill.dev/posts/robots-error/";
+  const imageUrl = "https://berryhill.dev/posts/robots-error/index.png";
+
+  const result = await waitForSocialPreviewReadiness(postUrl, {
+    attempts: 1,
+    fetcher: async url => {
+      if (String(url) === postUrl) {
+        return new Response(validHtml(postUrl, imageUrl), { status: 200 });
+      }
+      if (String(url) === imageUrl) {
+        return new Response(makePngHeader(), {
+          status: 200,
+          headers: { "Content-Type": "image/png" },
+        });
+      }
+      return new Response("missing", { status: 503, statusText: "Unavailable" });
+    },
+  });
+
+  assert.equal(result.ready, false);
+  assert.deepEqual(result.robots[0], {
+    robotsUrl: "https://berryhill.dev/robots.txt",
+    userAgent: "Twitterbot",
+    checkedPaths: [],
+  });
+  assert.match(
+    result.issues.map(issue => issue.reason).join("\n"),
+    /robots\.txt returned 503 Unavailable/
+  );
 });
 
 test("returns structured timeout evidence when HTML metadata never becomes valid", async () => {
