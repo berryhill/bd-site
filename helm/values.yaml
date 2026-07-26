@@ -5,6 +5,8 @@ image:
   tag: 0.0.56
   pullPolicy: IfNotPresent
 
+deploymentRevision: ""
+
 service:
   name: bd-site
   type: ClusterIP
