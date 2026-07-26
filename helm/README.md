@@ -36,7 +36,7 @@ In Doppler dashboard:
 
 ## Deploy to Kubernetes
 
-### Method 1: Using Helm Values File (Recommended for CI/CD)
+### Method 1: Using Helm Values File
 
 Create `helm/values.prod.yaml`:
 
@@ -47,18 +47,32 @@ dopplerToken: "dp.st.prod.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 Deploy:
 
 ```bash
+REVISION="$(git rev-parse HEAD)"
+
 helm upgrade --install bd-site ./helm \
   -f helm/values.yaml \
   -f helm/values.prod.yaml \
+  --set image.tag="${REVISION}" \
+  --set deploymentRevision="${REVISION}" \
   --namespace default
+
+kubectl rollout status deployment/bd-site --timeout=180s
 ```
+
+For manual deployments, use the same immutable revision value for both `image.tag` and `deploymentRevision`. This mirrors the GitHub Actions main-branch contract, where the image tag is the exact `GITHUB_SHA` and the chart receives that same revision for the pod-template annotation.
 
 ### Method 2: Using Helm CLI Argument
 
 ```bash
+REVISION="$(git rev-parse HEAD)"
+
 helm upgrade --install bd-site ./helm \
   --set dopplerToken="dp.st.prod.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+  --set image.tag="${REVISION}" \
+  --set deploymentRevision="${REVISION}" \
   --namespace default
+
+kubectl rollout status deployment/bd-site --timeout=180s
 ```
 
 ## How It Works
@@ -66,7 +80,10 @@ helm upgrade --install bd-site ./helm \
 1. **Docker Image**: Includes Doppler CLI installed in Alpine Linux
 2. **Entrypoint**: `doppler run --` wraps the Node.js server
 3. **Environment Variables**: Doppler fetches secrets and injects them as environment variables
-4. **Runtime**: Application reads environment variables normally (no code changes needed)
+4. **Revision-tagged rollout**: Main-branch CI builds `ghcr.io/berryhill/bd-site-app:${GITHUB_SHA}` and passes the same value as both `image.tag` and `deploymentRevision`; manual deploys should do the same with the immutable revision being deployed
+5. **Pod-template annotation**: The chart writes `berryhill.dev/deployment-revision` to the Deployment pod template, forcing Kubernetes to create replacement pods when the deployed revision changes
+6. **Rollout gate**: `kubectl rollout status deployment/bd-site --timeout=180s` must complete before live checks are treated as verification
+7. **Runtime**: Application reads environment variables normally (no code changes needed)
 
 ## Environment Variables Required
 
@@ -131,6 +148,29 @@ doppler secrets
 ```bash
 kubectl logs -f <pod-name>
 ```
+
+### Verify a revision-tagged rollout:
+
+```bash
+REVISION="<immutable-git-revision>"
+
+# Deployment uses the expected image tag
+kubectl get deployment bd-site -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+
+# Pod template carries the rollout-forcing revision annotation
+kubectl get deployment bd-site -o jsonpath='{.spec.template.metadata.annotations.berryhill\.dev/deployment-revision}{"\n"}'
+
+# Rollout completed and replacement pod exists for the revision
+kubectl rollout status deployment/bd-site --timeout=180s
+kubectl get pods -l app=bd-site -o wide
+
+# Live crawl/social-preview checks after rollout completion
+curl -fsS https://berryhill.dev/robots.txt | grep -A2 '^User-agent: Twitterbot$'
+curl -fsSI https://berryhill.dev/posts/<post-slug>/index.png
+pnpm run check:social-preview -- https://berryhill.dev/posts/<post-slug>/
+```
+
+The live X card is not verified by deployment success alone. Confirm the dedicated Twitterbot robots group, the post metadata, the advertised image URL status and image content type, and social-preview readiness against the deployed URL before calling it live. Do not print or commit Doppler tokens while troubleshooting.
 
 ## Resources
 

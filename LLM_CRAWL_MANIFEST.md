@@ -176,26 +176,37 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
 10. Issue #118 social preview brand patterns (2026-07-12): site and post OG image templates now share the berryhill.dev terminal/operator brand system and tests reject the prior off-brand color palette.
 11. Issue #127 social preview metadata reconciliation (2026-07-22): homepage card behavior is simplified with one berryhill.dev brand mark, separate site name/social headline, versioned homepage image URL, complete image metadata and matching alt text, standards-correct Twitter `name` attributes, and preserved article-specific previews.
 12. Issue #98 follow-up static sitemap reconciliation (2026-07-12): `/sitemap-static.xml` no longer advertises the reopened Bing-reported 404 `/archives/` URL; `/archives/` remains an intentional hidden/404-only surface.
-13. Issue #133 Twitterbot robots access (2026-07-25): robots.txt now emits a dedicated Twitterbot `Allow: /` group before generic crawler groups, and social-preview readiness fails closed with structured robots evidence unless Twitterbot can access both the post URL and advertised image URL.
+13. Issue #133 Twitterbot robots access (2026-07-25): repository implementation now emits a dedicated Twitterbot `Allow: /` group before generic crawler groups, social-preview readiness fails closed with structured robots evidence unless Twitterbot can access both the post URL and advertised image URL, and the deployment path uses revision-tagged rollouts so a merged fix can replace the running pod when deployed.
 
-### ⚠️ Production Deployment Note (2026-06-21)
+### ⚠️ Production Deployment Note (2026-07-25)
 
-The `src/pages/llms.txt.ts` implementation merged in PR #35 is correct and builds successfully. However, because the running pod's image tag is pinned to `0.0.42` in `helm/values.yaml` and the Helm chart was not re-deployed after the merge, `/llms.txt` may return 404 until the next deployment picks up the post-#35 build.
+Repository implementation and production deployment are separate evidence. The Issue #133 code and deployment contract are present in the repository, but the live X card must not be called fixed until the GitHub Actions deployment has completed and the live site has been verified after the replacement pod is serving traffic.
 
-To deploy SSR route changes (like `/llms.txt`):
+Main-branch deployments now use revision-tagged rollout behavior instead of a fixed `DOCKER_TAG` or manual static tag bump:
 
-1. The `helm/values.yaml` image tag must be bumped to match the Docker build tag
-   (`DOCKER_TAG` in `.github/workflows/deploy.yaml`) and the Helm upgrade re-run.
-2. Alternatively, switch to `:latest` tag with `image.pullPolicy: Always`.
+1. GitHub Actions builds `ghcr.io/berryhill/bd-site-app:${GITHUB_SHA}`.
+2. Helm receives both `--set image.tag="${GITHUB_SHA}"` and `--set deploymentRevision="${GITHUB_SHA}"`.
+3. The chart writes `berryhill.dev/deployment-revision: "${GITHUB_SHA}"` on the pod template, forcing Kubernetes to create replacement pods for each deployed revision.
+4. `kubectl rollout status deployment/bd-site --timeout=180s` must complete before live URL checks are treated as deployment evidence.
 
 **Verification after deployment:**
 ```bash
-curl -si https://berryhill.dev/llms.txt | head -5
-# Expected: HTTP/2 200 + Content-Type: text/plain
+REVISION="<deployed-github-sha>"
+
+kubectl get deployment bd-site -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl get deployment bd-site -o jsonpath='{.spec.template.metadata.annotations.berryhill\.dev/deployment-revision}{"\n"}'
+kubectl rollout status deployment/bd-site --timeout=180s
+kubectl get pods -l app=bd-site -o wide
+
+curl -fsS https://berryhill.dev/robots.txt | grep -A2 '^User-agent: Twitterbot$'
+curl -fsSI https://berryhill.dev/posts/<post-slug>/index.png
+pnpm run check:social-preview -- https://berryhill.dev/posts/<post-slug>/
 ```
 
+Post-rollout X-card verification must include the dedicated Twitterbot robots group, the post metadata, the advertised PNG status and image content type, and social-preview readiness. Rollout success alone is not proof that X has refreshed or that the card is live.
+
 ### 🔄 In Progress:
-1. Verify `/llms.txt` is live in production after deployment
+1. Verify repository changes are live in production only after a revision-tagged rollout completes and live URL readback passes
 2. Configure/verify Google Search Console credentials and property in production
 3. Submit sitemap directly in Bing Webmaster Tools; IndexNow URL submission and Yahoo discovery evidence via Bing IndexNow / Yahoo Slurp are implemented, but direct webmaster sitemap submission remains pending
 
@@ -243,6 +254,23 @@ Checks performed:
 
 URL readback should confirm that `/sitemap-static.xml` and `/sitemap-posts.xml` emit absolute `<loc>` values using `SITE.website`, that `/archives/` is absent from `/sitemap-static.xml`, that sitemap/feed/llms checks validate the shared public corpus rather than XML shape alone, and that post detail pages emit canonical, Open Graph, and JSON-LD URLs through the shared URL helper.
 
+Deployment verification for crawler/social-preview fixes should be performed only after the revision-tagged rollout has completed:
+
+```bash
+REVISION="<deployed-github-sha>"
+
+kubectl get deployment bd-site -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl get deployment bd-site -o jsonpath='{.spec.template.metadata.annotations.berryhill\.dev/deployment-revision}{"\n"}'
+kubectl rollout status deployment/bd-site --timeout=180s
+kubectl get pods -l app=bd-site -o wide
+
+curl -fsS https://berryhill.dev/robots.txt | grep -A2 '^User-agent: Twitterbot$'
+curl -fsSI https://berryhill.dev/posts/<post-slug>/index.png
+pnpm run check:social-preview -- https://berryhill.dev/posts/<post-slug>/
+```
+
+Before calling an X card live, verify that the deployment image and `berryhill.dev/deployment-revision` annotation match the intended revision, a replacement pod is serving after rollout completion, live robots.txt contains the dedicated Twitterbot group, the post page advertises the expected Open Graph/Twitter image metadata, the advertised PNG returns a successful image response, and `check:social-preview` passes against the live post URL.
+
 Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` index assets are intentionally disallowed in robots.txt as crawl noise. `pnpm run build` currently maps to `astro build`, and CI does not generate Pagefind index assets unless package scripts or CI are explicitly changed. Verify Pagefind index presence only in environments that actually generate `public/pagefind/`.
 
 ## Notes
@@ -254,6 +282,7 @@ Pagefind note: `/search` remains a real crawlable page. Generated `/pagefind/` i
 
 ### 2026-07-25
 - ✅ **Twitterbot Robots Access** (Issue #133): Added a dedicated Twitterbot `Allow: /` group ahead of generic crawler groups so X can retrieve post pages and advertised PNG social-card images. URL-based social-preview readiness now fetches robots.txt, verifies Twitterbot access for both the post URL and advertised image URL, and fails closed with structured robots evidence when robots.txt is unavailable or either path is disallowed.
+- ✅ **Revision-tagged Deployment Rollout** (Issue #133 follow-up): Main-branch CI now builds the image with the exact `GITHUB_SHA`, passes that value as both `image.tag` and `deploymentRevision`, writes `berryhill.dev/deployment-revision` onto the pod template through Helm, and waits for rollout status before live verification. This documents repository behavior only; production still requires post-rollout live readback before claiming the X card is live.
 
 ### 2026-07-12
 - ✅ **SEO Title Guardrails** (Issue #99): Non-draft post create/update now rejects overlong rendered title tags and near-duplicate recent public titles; `check:seo-crawl-surface` reports legacy public title-quality advisories while retaining crawl/link URL failures as hard failures.

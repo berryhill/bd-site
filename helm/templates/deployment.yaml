@@ -14,6 +14,8 @@ spec:
       app: {{ .Values.service.name }}
   template:
     metadata:
+      annotations:
+        berryhill.dev/deployment-revision: {{ .Values.deploymentRevision | default .Values.image.tag | quote }}
       labels:
         app: {{ .Values.service.name }}
     spec:

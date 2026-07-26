@@ -17,15 +17,14 @@ env:
   # package was created outside this workflow and does not grant this repo
   # Actions write access.
   DOCKER_IMAGE: bd-site-app
-  DOCKER_TAG: 0.0.56
   LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
   DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN}}
 
 jobs:
   build-push:
     runs-on: ubuntu-latest
-    # outputs:
-    #   sha: ${{ steps.sha.outputs.SHA }}
+    outputs:
+      image-tag: ${{ steps.image.outputs.image_tag }}
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -39,12 +38,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set immutable image tag
+        id: image
+        run: |
+          IMAGE_TAG="${GITHUB_SHA}"
+          if [ -z "${IMAGE_TAG}" ]; then
+            echo "GITHUB_SHA is required for main deployments" >&2
+            exit 1
+          fi
+          echo "image_tag=${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "Building ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG}"
+
       - name: Build and push Docker image
         run: |
+          IMAGE_TAG="${{ steps.image.outputs.image_tag }}"
           docker build \
             --build-arg DOT_ENV="${{ secrets.DOT_ENV }}" \
-            -t ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} .
-          docker push ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+            -t ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG} .
+          docker push ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG}
 
   deploy:
     needs: build-push
@@ -65,7 +76,17 @@ jobs:
 
       - name: Deploy using Helm
         run: |
-          helm upgrade --install bd-site ./helm -f ./helm/values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}"
+          IMAGE_TAG="${{ needs.build-push.outputs.image-tag }}"
+          if [ -z "${IMAGE_TAG}" ]; then
+            echo "build-push image-tag output is required for deployment" >&2
+            exit 1
+          fi
+          if [ "${IMAGE_TAG}" != "${GITHUB_SHA}" ]; then
+            echo "Image tag ${IMAGE_TAG} does not match GitHub revision ${GITHUB_SHA}" >&2
+            exit 1
+          fi
+          echo "Deploying ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG} with revision ${GITHUB_SHA}"
+          helm upgrade --install bd-site ./helm -f ./helm/values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}" --set image.tag="${IMAGE_TAG}" --set deploymentRevision="${GITHUB_SHA}"
           kubectl rollout status deployment/bd-site --timeout=180s
           kubectl get pods -l app=bd-site -o wide
           curl -fsS https://berryhill.dev/posts/ >/dev/null || true
