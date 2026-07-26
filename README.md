@@ -49,7 +49,7 @@ This site runs as a server-side rendered (SSR) Astro application:
 - **Runtime**: Node.js on port 80
 - **Deployment**: Kubernetes with Helm charts
 - **Storage**: PersistentVolume for blog content (externalized from container image)
-- **Updates**: Zero-downtime rolling deployments with health checks
+- **Updates**: Zero-downtime rolling deployments with health checks; main-branch CI tags the image with the exact `GITHUB_SHA`, passes that same value as `deploymentRevision`, uses the pod-template annotation to force replacement pods, and waits for rollout completion before live verification
 - **SSL**: Automatic TLS certificate provisioning via cert-manager
 - **Analytics**: GA4 browser measurement is conditional on `PUBLIC_GA_MEASUREMENT_ID`; the editorial pageview contract is summarized here and owned in [`docs/ga4-editorial-analytics-contract.md`](docs/ga4-editorial-analytics-contract.md)
 
@@ -126,16 +126,18 @@ Access at http://localhost:8080
 
 ## ☸️ Kubernetes Deployment
 
-Deploy to Kubernetes using Helm:
+Deploy to Kubernetes using Helm. The default `helm/values.yaml` values are local/manual defaults; main-branch GitHub Actions deployments override them with the immutable Git revision:
 
 ```bash
-# Install/upgrade the release
-helm upgrade --install bd-site ./helm
+# Manual equivalent of the CI deployment contract
+REVISION="$(git rev-parse HEAD)"
+helm upgrade --install bd-site ./helm \
+  -f ./helm/values.yaml \
+  --set image.tag="${REVISION}" \
+  --set deploymentRevision="${REVISION}"
 
-# With custom values
-helm upgrade --install bd-site ./helm -f ./helm/values.yaml
-
-# Check deployment status
+# Check deployment status before live verification
+kubectl rollout status deployment/bd-site --timeout=180s
 kubectl get pods -l app=bd-site
 kubectl logs -l app=bd-site -f
 ```
@@ -147,9 +149,13 @@ Key values in `helm/values.yaml`:
 ```yaml
 replicaCount: 1
 image:
-  repository: ghcr.io/berryhill/bd-site
-  tag: 0.0.3
+  repository: ghcr.io/berryhill/bd-site-app
+  tag: 0.0.56
+  pullPolicy: IfNotPresent
+deploymentRevision: ""
 service:
+  name: bd-site
+  type: ClusterIP
   port: 80
   targetPort: 80
 ingress:
@@ -158,8 +164,12 @@ volumes:
   postsContent:
     enabled: true
     pvcName: bd-site-posts-pvc
-    size: 1Gi
+    size: 25Gi
+    storageClassName: ""
+    accessMode: ReadWriteOnce
 ```
+
+In CI, do not treat the static `image.tag` above as the deployment mechanism. The GitHub Actions workflow builds and pushes `ghcr.io/berryhill/bd-site-app:${GITHUB_SHA}`, then runs Helm with both `--set image.tag="${GITHUB_SHA}"` and `--set deploymentRevision="${GITHUB_SHA}"`. The chart writes `berryhill.dev/deployment-revision` onto the pod template, so a new commit changes the Deployment spec and forces Kubernetes to create replacement pods even when other values are unchanged.
 
 ## 🔐 Environment Variables
 
@@ -234,9 +244,11 @@ To update blog content in production:
 
 GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 
-1. Build Docker image
-2. Push to GitHub Container Registry (GHCR)
-3. Deploy to Kubernetes via Helm
+1. Resolve an immutable deployment tag from `GITHUB_SHA` and fail if it is missing.
+2. Build and push `ghcr.io/berryhill/bd-site-app:${GITHUB_SHA}` to GitHub Container Registry (GHCR).
+3. Deploy to Kubernetes via Helm with `image.tag=${GITHUB_SHA}` and `deploymentRevision=${GITHUB_SHA}`.
+4. Let the chart place `berryhill.dev/deployment-revision: "${GITHUB_SHA}"` on the pod template so Kubernetes performs a rollout for the new revision.
+5. Wait for `kubectl rollout status deployment/bd-site --timeout=180s` to complete before any live URL verification is treated as meaningful.
 
 ## 🎨 Features
 
