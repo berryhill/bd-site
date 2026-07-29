@@ -13,7 +13,7 @@
   - `/sitemap-static.xml` - Real canonical static content pages only: `/`, `/about/`, `/posts/`, and `/tags/`. Redirect-only endpoints and hidden/404-only surfaces such as `/sitemap-index.xml` and `/archives/` are excluded.
   - `/sitemap-posts.xml` - Public blog posts only, excluding drafts, underscore/private paths, invalid or missing publish dates, and posts scheduled outside the configured margin.
   - `/sitemap-index.xml` - Backward-compatibility redirect only; not an advertised sitemap surface.
-- **URL normalization**: Static page `<loc>` values in `/sitemap-static.xml` and post `<loc>` values in `/sitemap-posts.xml` are normalized through the shared URL helper using `SITE.website`.
+- **URL normalization**: Static page `<loc>` values in `/sitemap-static.xml` and post `<loc>` values in `/sitemap-posts.xml` are normalized through the shared URL helper using `SITE.website`. HTML pages use one trailing-slash canonical shape; alternate slash variants permanently redirect instead of returning a second indexable `200`. API and file-like routes such as robots, sitemap XML, feeds, assets, and generated images retain their native behavior.
 - **Update Frequency**: Real-time (generated on-demand)
 - **Submission Status**:
   - Google Search Console: Sitemap resubmission is implemented for public post create/update when `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN` is configured; operational Search Console property/token provisioning remains environment-dependent unless separately verified.
@@ -157,7 +157,8 @@ All structured data uses [Schema.org](https://schema.org) JSON-LD. The global `B
   - `<link rel="alternate" type="application/atom+xml">` in site layout
   - All pages advertise both RSS and Atom feeds for feed readers and LLM crawlers
 - **Open Graph / Twitter preview images**: ✅ Site-level `/og.png` and dynamic post `/posts/<slug>/index.png` use the shared terminal/operator brand template system, with metadata emitted as `summary_large_image` and absolute image URLs. Issue #127 keeps the homepage card simplified with one berryhill.dev brand mark, a separate site name and social headline, restrained operator/shipped-systems/review-gates support copy, a cache-versioned homepage image URL, complete image/png 1200x630 metadata, matching OG/Twitter alt text, and standards-correct Twitter `name` attributes. Article pages preserve post-specific titles and images, including custom `ogImage` behavior and dynamic post-card fallback. Issue #133 adds a dedicated Twitterbot robots exception and fail-closed readiness evidence so fresh X cards can retrieve both the post page and advertised PNG image even while generic/AI/search crawler groups continue to avoid generated-image noise.
-- **Canonical URLs**: ✅ Set on all pages; post canonical URLs are normalized through the shared URL helper
+- **Canonical URLs**: ✅ Set on all pages through the shared canonical HTML helper; sitemap HTML URLs are self-canonical and alternate slash variants permanently redirect to them
+- **Live canonical validation**: `pnpm run check:seo-crawl-surface -- --base-url https://berryhill.dev/` checks each sitemap HTML URL for `200`, indexability, canonical/OG parity, and redirect-only alternate variants. This validates repository-controlled crawl signals; it does not guarantee Google's indexing selection.
 - **Post URL normalization**: ✅ Post canonical, OG image, and JSON-LD URL fields share the same `SITE.website` normalization path
 - **Meta Descriptions**: ✅ Unique per page
 

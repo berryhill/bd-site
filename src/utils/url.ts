@@ -1,4 +1,6 @@
 const DEFAULT_WEBSITE = "https://berryhill.dev/";
+const FILE_EXTENSION_PATH_RE = /\/[^/]+\.[^/]+$/;
+const CANONICAL_HTML_REDIRECT_METHODS = new Set(["GET", "HEAD"]);
 
 function isBlank(
   value: string | null | undefined
@@ -6,8 +8,8 @@ function isBlank(
   return value === null || value === undefined || value.trim() === "";
 }
 
-function toSiteBaseUrl(website: string): URL {
-  if (isBlank(website)) {
+function toSiteBaseUrl(website: string | URL): URL {
+  if (typeof website === "string" && isBlank(website)) {
     throw new TypeError("SITE.website must be a non-empty absolute URL");
   }
 
@@ -20,6 +22,95 @@ function toSiteBaseUrl(website: string): URL {
 
 function ensureTrailingSlash(pathname: string) {
   return pathname.endsWith("/") ? pathname : `${pathname}/`;
+}
+
+function isApiPath(pathname: string) {
+  return pathname === "/api" || pathname.startsWith("/api/");
+}
+
+export function isFileLikePathname(pathname: string): boolean {
+  return FILE_EXTENSION_PATH_RE.test(pathname);
+}
+
+export function shouldEnforceTrailingSlash(pathname: string): boolean {
+  return (
+    pathname !== "/" &&
+    !pathname.endsWith("/") &&
+    !isApiPath(pathname) &&
+    !isFileLikePathname(pathname)
+  );
+}
+
+export function getAlternateHtmlPathname(pathname: string): string | null {
+  if (pathname === "/" || isApiPath(pathname) || isFileLikePathname(pathname)) {
+    return null;
+  }
+
+  return pathname.endsWith("/")
+    ? pathname.replace(/\/+$/, "")
+    : ensureTrailingSlash(pathname);
+}
+
+export function normalizeCanonicalHtmlUrl(
+  pathOrUrl: string | URL,
+  base: string | URL = DEFAULT_WEBSITE
+): URL {
+  const url = new URL(pathOrUrl, toSiteBaseUrl(base));
+
+  if (shouldEnforceTrailingSlash(url.pathname)) {
+    url.pathname = ensureTrailingSlash(url.pathname);
+  }
+
+  return url;
+}
+
+export function acceptsHtmlResponse(
+  acceptHeader: string | null | undefined
+): boolean {
+  if (isBlank(acceptHeader)) return true;
+
+  return acceptHeader.split(",").some(value => {
+    const [mimeType = "", ...params] = value.split(";");
+    const q = params
+      .map(param => param.trim().match(/^q=(\d*(?:\.\d+)?)$/i)?.[1])
+      .find(Boolean);
+
+    if (q !== undefined && Number(q) <= 0) {
+      return false;
+    }
+
+    const normalizedMimeType = mimeType.trim().toLowerCase();
+    return (
+      normalizedMimeType === "text/html" ||
+      normalizedMimeType === "application/xhtml+xml" ||
+      normalizedMimeType === "text/*" ||
+      normalizedMimeType === "*/*"
+    );
+  });
+}
+
+export function getCanonicalHtmlRedirectLocation(
+  method: string,
+  requestUrl: string | URL,
+  acceptHeader?: string | null,
+  base: string | URL = DEFAULT_WEBSITE
+): string | null {
+  if (!CANONICAL_HTML_REDIRECT_METHODS.has(method.toUpperCase())) {
+    return null;
+  }
+
+  if (!acceptsHtmlResponse(acceptHeader)) {
+    return null;
+  }
+
+  const url = new URL(requestUrl, toSiteBaseUrl(base));
+  const canonicalUrl = normalizeCanonicalHtmlUrl(url, base);
+
+  if (canonicalUrl.pathname === url.pathname) {
+    return null;
+  }
+
+  return `${canonicalUrl.pathname}${canonicalUrl.search}${canonicalUrl.hash}`;
 }
 
 export function normalizeSiteWebsite(website = DEFAULT_WEBSITE): string {

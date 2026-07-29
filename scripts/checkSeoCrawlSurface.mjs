@@ -7,7 +7,12 @@ import matter from "gray-matter";
 import { SITE } from "../src/config.ts";
 import { getRobotsTxt } from "../src/utils/crawlSignals.ts";
 import { buildStaticSitemapXml } from "../src/utils/staticSitemap.ts";
-import { normalizeSiteWebsite, toAbsoluteSiteUrl } from "../src/utils/url.ts";
+import {
+  getAlternateHtmlPathname,
+  normalizeCanonicalHtmlUrl,
+  normalizeSiteWebsite,
+  toAbsoluteSiteUrl,
+} from "../src/utils/url.ts";
 import { auditPostTitleQuality } from "../src/utils/postTitleQuality.ts";
 
 const DEFAULT_BASE_URL = normalizeSiteWebsite(SITE.website);
@@ -279,6 +284,27 @@ async function fetchText(url) {
   return { text, finalUrl: response.url, contentType: response.headers.get("content-type") ?? "" };
 }
 
+async function fetchWithoutRedirect(url) {
+  const response = await fetch(url, {
+    redirect: "manual",
+    headers: { "User-Agent": "berryhill-dev-seo-crawl-surface-check/1.0" },
+  });
+  return {
+    status: response.status,
+    location: response.headers.get("location"),
+    contentType: response.headers.get("content-type") ?? "",
+  };
+}
+
+function isIndexableHtml(html) {
+  return !/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html);
+}
+
+function resolveRedirectLocation(location, fromUrl) {
+  if (!location) return null;
+  return new URL(location, fromUrl).href;
+}
+
 async function auditLiveCrawlSurface(baseUrl) {
   const issues = [];
   const base = normalizeSiteWebsite(baseUrl);
@@ -310,17 +336,43 @@ async function auditLiveCrawlSurface(baseUrl) {
       const { text } = await fetchText(loc);
       const childLocs = extractXmlLocs(text);
       issues.push(...auditUrlInvariants(childLocs, { expectedOrigin, label: `${loc} loc` }));
-      for (const childLoc of childLocs.filter(url => /\/posts\//.test(new URL(url).pathname))) {
-        const { text: html } = await fetchText(childLoc);
+      for (const childLoc of childLocs) {
+        const childUrl = new URL(childLoc);
+        const expected = normalizeCanonicalHtmlUrl(childUrl.pathname, DEFAULT_BASE_URL).href;
+        const { text: html, finalUrl, contentType } = await fetchText(childLoc);
         const canonical = extractAttr(html, /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i);
         const ogUrl = extractAttr(html, /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i);
-        const expected = new URL(new URL(childLoc).pathname, DEFAULT_BASE_URL).href;
-        if (canonical !== expected || ogUrl !== expected) {
-          addIssue(issues, "Live canonical and OG URL disagree with sitemap loc", {
+
+        if (finalUrl !== expected || canonical !== expected || ogUrl !== expected) {
+          addIssue(issues, "Live sitemap HTML URL is not self-canonical", {
             loc: childLoc,
             expected,
+            finalUrl,
+            contentType,
             canonical,
             ogUrl,
+          });
+        }
+
+        if (!isIndexableHtml(html)) {
+          addIssue(issues, "Live sitemap HTML URL is not indexable", { loc: childLoc });
+        }
+
+        const alternatePathname = getAlternateHtmlPathname(childUrl.pathname);
+        if (!alternatePathname) continue;
+
+        const alternateUrl = new URL(alternatePathname, childLoc).href;
+        const alternateResponse = await fetchWithoutRedirect(alternateUrl);
+        const redirectedTo = resolveRedirectLocation(alternateResponse.location, alternateUrl);
+        if (![301, 308].includes(alternateResponse.status) || redirectedTo !== expected) {
+          addIssue(issues, "Live alternate HTML URL does not redirect to canonical sitemap URL", {
+            loc: childLoc,
+            alternateUrl,
+            expected,
+            status: alternateResponse.status,
+            location: alternateResponse.location,
+            redirectedTo,
+            contentType: alternateResponse.contentType,
           });
         }
       }
