@@ -104,11 +104,14 @@ pnpm run format
 # Crawl/search visibility validation
 pnpm run check:search-visibility
 pnpm run check:seo-crawl-surface
+pnpm run check:seo-crawl-surface -- --base-url https://berryhill.dev/
 ```
 
 `pnpm run check:search-visibility` checks robots.txt, canonical `/sitemap.xml`, rss.xml, llms.txt, and representative JSON-LD.
 
 `pnpm run check:seo-crawl-surface` validates local source and built crawl surfaces, including public post links, sitemap/canonical/feed URL shape, search noindex behavior, and legacy title-quality advisories.
+
+The URL-based crawl audit verifies every HTML URL advertised by the live sitemap: the canonical URL must remain `200`, indexable, and self-canonical, while its non-canonical slash variant must return a permanent redirect. HTML routes use trailing slashes; file-like routes, feeds, sitemap XML, API routes, assets, and generated images keep their native URL behavior. A passing repository audit confirms the site's crawl contract, not Google's eventual indexing decision.
 
 ## 🐳 Docker
 

@@ -83,6 +83,8 @@ pnpm run format:check # Check formatting without writing
   - Homepage `/og.png` uses `SITE.socialPreview` for headline, image alt, and cache version ownership; it should stay simplified around one berryhill.dev mark and restrained operator/shipped-systems/review-gates support copy.
   - Preserve post-specific previews: article pages use post-specific title/description/image metadata, custom `ogImage` values win, and eligible public posts without custom images use dynamic `/posts/<slug>/index.png` cards instead of the homepage card.
 - **URL Normalization**: [src/utils/url.ts](src/utils/url.ts) - Normalizes `SITE.website`, site-relative paths, post URLs, and post asset URLs to absolute URLs for post metadata and custom sitemap routes
+  - Canonical HTML routes use trailing slashes. `src/middleware.ts` permanently redirects non-canonical GET/HEAD HTML requests, while API and file-like paths (feeds, sitemap XML, assets, and generated images) are excluded.
+  - `normalizeCanonicalHtmlUrl`, redirect selection, and alternate-path helpers in `src/utils/url.ts` are the shared contract for middleware, layout metadata, and live crawl validation.
 - **Crawl Signals**: [src/utils/crawlSignals.ts](src/utils/crawlSignals.ts) - Shared source for canonical sitemap path, robots.txt crawler groups, generated asset disallow policy, the dedicated Twitterbot allow group, and Layout sitemap href. Preserve the Twitterbot `Allow: /` exception ahead of generic generated-image disallows so X can retrieve post pages and advertised PNG cards.
 - **Social Preview Readiness**: [src/utils/socialPreviewReadiness.ts](src/utils/socialPreviewReadiness.ts) - URL readiness gate for rendered social metadata, advertised PNG validity, and Twitterbot robots access to both the post URL and advertised image URL. Readiness responses include structured robots evidence; preserve that evidence when changing the gate.
 - **DuckDuckGo Crawl Signal**: [src/utils/duckDuckGoCrawlSignal.ts](src/utils/duckDuckGoCrawlSignal.ts) - Records DuckDuckGo coverage evidence through Bing/IndexNow success or canonical sitemap plus DuckDuckBot access; it is not a direct DuckDuckGo submission API
@@ -129,6 +131,7 @@ Search is powered by Pagefind, which indexes the built site and provides client-
 - **RSS Feed**: Generated at `/rss.xml` using `@astrojs/rss`
 - **Sitemap**: Custom SSR sitemap routes generate canonical crawler-facing `/sitemap.xml`, `/sitemap-static.xml` for helper-approved static pages only, and `/sitemap-posts.xml` for posts; `/sitemap-static.xml` excludes hidden/404-only surfaces such as `/archives/`, and `/sitemap-index.xml` redirects only for backward compatibility and should not be newly advertised
 - **Robots.txt**: Dynamically generated at `/robots.txt.ts` from shared crawlSignals rules, including explicit crawler groups, generated asset/index disallows, and the dedicated Twitterbot allow group that intentionally exempts X social-card retrieval from generic PNG disallows
+- **Canonical HTML redirects**: Middleware enforces one indexable trailing-slash URL per HTML page. Do not apply this policy to `/api`, extension-bearing routes, feeds, sitemap/robots files, assets, or generated images. The live `check:seo-crawl-surface` mode verifies sitemap `200`/indexability/self-canonical parity and permanent redirects from alternate slash variants.
 
 ## Important Notes
 
