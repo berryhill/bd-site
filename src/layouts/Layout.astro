@@ -7,6 +7,7 @@ import {
 import { SITE } from "@/config";
 import { getLayoutSitemapHref } from "@/utils/crawlSignals";
 import { normalizeGa4ArticlePath } from "@/utils/ga4EditorialMapping";
+import { normalizeCanonicalHtmlUrl } from "@/utils/url";
 import "@/styles/global.css";
 
 export interface Props {
@@ -47,7 +48,8 @@ const {
 } = Astro.props;
 
 const currentPageURL = new URL(Astro.url.pathname, Astro.url);
-const canonicalPageURL = new URL(canonicalURL, Astro.url);
+const canonicalPageURL = normalizeCanonicalHtmlUrl(canonicalURL, Astro.url);
+const canonicalURLHref = canonicalPageURL.href;
 const isHomepage = canonicalPageURL.pathname === "/";
 const resolvedSocialTitle =
   socialTitle ?? (isHomepage ? SITE.socialPreview.title : title);
@@ -118,7 +120,7 @@ if (!window.__bdGa4PageviewListenerInstalled) {
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
-    <link rel="canonical" href={canonicalURL} />
+    <link rel="canonical" href={canonicalURLHref} />
     <meta name="generator" content={Astro.generator} />
 
     <!-- General Meta Tags -->
@@ -134,7 +136,7 @@ if (!window.__bdGa4PageviewListenerInstalled) {
     <meta property="og:site_name" content={SITE.title} />
     <meta property="og:title" content={resolvedSocialTitle} />
     <meta property="og:description" content={resolvedSocialDescription} />
-    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:url" content={canonicalURLHref} />
     <meta property="og:image" content={socialImageURL} />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
@@ -161,7 +163,7 @@ if (!window.__bdGa4PageviewListenerInstalled) {
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:url" content={canonicalURLHref} />
     <meta name="twitter:title" content={resolvedSocialTitle} />
     <meta name="twitter:description" content={resolvedSocialDescription} />
     <meta name="twitter:image" content={socialImageURL} />

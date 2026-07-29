@@ -1,7 +1,12 @@
 /* eslint-disable no-console */
 import assert from "node:assert/strict";
 import {
+  acceptsHtmlResponse,
+  getAlternateHtmlPathname,
+  getCanonicalHtmlRedirectLocation,
+  normalizeCanonicalHtmlUrl,
   normalizeSiteWebsite,
+  shouldEnforceTrailingSlash,
   toAbsoluteSiteUrl,
   toPostAssetUrl,
   toPostUrl,
@@ -68,6 +73,101 @@ test("preserves already-absolute OG and canonical URLs", () => {
   assert.equal(
     toPostUrl("https://example.com/canonical-post", "https://berryhill.dev/"),
     "https://example.com/canonical-post/"
+  );
+});
+
+test("canonical HTML URLs enforce trailing slashes for route-like paths", () => {
+  assert.equal(
+    normalizeCanonicalHtmlUrl("/about", "https://berryhill.dev/").href,
+    "https://berryhill.dev/about/"
+  );
+  assert.equal(
+    normalizeCanonicalHtmlUrl("https://berryhill.dev/posts/example?utm=1#top").href,
+    "https://berryhill.dev/posts/example/?utm=1#top"
+  );
+  assert.equal(
+    normalizeCanonicalHtmlUrl("/", "https://berryhill.dev/").href,
+    "https://berryhill.dev/"
+  );
+});
+
+test("trailing slash enforcement excludes APIs, XML feeds, assets, and generated images", () => {
+  assert.equal(shouldEnforceTrailingSlash("/api/posts"), false);
+  assert.equal(shouldEnforceTrailingSlash("/robots.txt"), false);
+  assert.equal(shouldEnforceTrailingSlash("/sitemap.xml"), false);
+  assert.equal(shouldEnforceTrailingSlash("/rss.xml"), false);
+  assert.equal(shouldEnforceTrailingSlash("/assets/blog/example/diagram.svg"), false);
+  assert.equal(shouldEnforceTrailingSlash("/posts/example/index.png"), false);
+  assert.equal(shouldEnforceTrailingSlash("/about"), true);
+});
+
+test("HTML alternate path detection ignores non-HTML crawl surfaces", () => {
+  assert.equal(getAlternateHtmlPathname("/about/"), "/about");
+  assert.equal(getAlternateHtmlPathname("/about"), "/about/");
+  assert.equal(getAlternateHtmlPathname("/"), null);
+  assert.equal(getAlternateHtmlPathname("/api/posts"), null);
+  assert.equal(getAlternateHtmlPathname("/rss.xml"), null);
+  assert.equal(getAlternateHtmlPathname("/posts/example/index.png"), null);
+});
+
+test("canonical HTML redirect helper redirects GET and HEAD route-like paths", () => {
+  assert.equal(
+    getCanonicalHtmlRedirectLocation(
+      "GET",
+      "https://berryhill.dev/posts/example?utm_source=test",
+      "text/html"
+    ),
+    "/posts/example/?utm_source=test"
+  );
+  assert.equal(
+    getCanonicalHtmlRedirectLocation(
+      "HEAD",
+      "https://berryhill.dev/about#team",
+      "text/html,application/xhtml+xml"
+    ),
+    "/about/#team"
+  );
+});
+
+test("canonical HTML redirect helper passes through non-GET and non-HTML requests", () => {
+  assert.equal(
+    getCanonicalHtmlRedirectLocation("POST", "https://berryhill.dev/about", "text/html"),
+    null
+  );
+  assert.equal(
+    getCanonicalHtmlRedirectLocation("PUT", "https://berryhill.dev/about", "*/*"),
+    null
+  );
+  assert.equal(
+    getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/about", "application/json"),
+    null
+  );
+  assert.equal(acceptsHtmlResponse("application/json, image/png"), false);
+  assert.equal(acceptsHtmlResponse("text/html;q=0, application/json"), false);
+  assert.equal(acceptsHtmlResponse("text/*;q=0.8, application/json"), true);
+  assert.equal(acceptsHtmlResponse(null), true);
+});
+
+test("canonical HTML redirect helper excludes canonical, API, and file-like paths", () => {
+  assert.equal(
+    getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/about/", "text/html"),
+    null
+  );
+  assert.equal(
+    getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/api/posts", "text/html"),
+    null
+  );
+  assert.equal(
+    getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/rss.xml", "text/html"),
+    null
+  );
+  assert.equal(
+    getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/assets/blog/post/figure.svg", "*/*"),
+    null
+  );
+  assert.equal(
+    getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/posts/example/index.png", "*/*"),
+    null
   );
 });
 
