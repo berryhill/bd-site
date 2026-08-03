@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="610" viewBox="0 0 390 610" role="img" aria-labelledby="correction-authority-title correction-authority-desc" data-diagram-form="comparison">
+  <title id="correction-authority-title">Correction is not authority</title>
+  <desc id="correction-authority-desc">A comparison shows that self-critique changes an answer but cannot authorize it. A separate governed path routes a proposed correction through a relevant check, evidence receipt, and adjudication before promotion becomes possible.</desc>
+  <defs>
+    <marker id="correction-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#800020"/></marker>
+  </defs>
+  <rect width="390" height="610" fill="#fffbeb"/>
+  <text x="20" y="34" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="700" fill="#1c1917">Correction is not authority</text>
+  <text x="20" y="62" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#57534e">Two paths. Only one earns promotion.</text>
+
+  <g id="self-critique-path" data-path-state="blocked">
+    <rect x="20" y="90" width="350" height="190" rx="6" fill="#fffbeb" stroke="#78716c" stroke-width="1.5"/>
+    <text x="36" y="120" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#57534e">SELF-CRITIQUE PATH</text>
+    <rect x="36" y="140" width="132" height="54" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="102" y="173" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">Prior answer</text>
+    <line x1="168" y1="167" x2="218" y2="167" stroke="#800020" stroke-width="1.5" marker-end="url(#correction-arrow)"/>
+    <rect x="226" y="140" width="128" height="54" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="290" y="163" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">Revised</text>
+    <text x="290" y="183" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">answer</text>
+    <line x1="36" y1="220" x2="354" y2="220" stroke="#78716c" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <text x="195" y="250" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#800020">BLOCKED: changed text is not proof</text>
+  </g>
+
+  <g id="governed-correction-path" data-path-state="eligible">
+    <rect x="20" y="304" width="350" height="254" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="36" y="334" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#800020">GOVERNED CORRECTION PATH</text>
+    <rect x="36" y="354" width="318" height="48" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+    <text x="195" y="383" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">Proposed correction: untrusted state</text>
+    <line x1="195" y1="402" x2="195" y2="426" stroke="#800020" stroke-width="1.5" marker-end="url(#correction-arrow)"/>
+    <rect x="36" y="434" width="92" height="54" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+    <text x="82" y="456" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">Relevant</text>
+    <text x="82" y="476" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">check</text>
+    <line x1="128" y1="461" x2="146" y2="461" stroke="#800020" stroke-width="1.5" marker-end="url(#correction-arrow)"/>
+    <rect x="154" y="434" width="82" height="54" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+    <text x="195" y="456" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">Evidence</text>
+    <text x="195" y="476" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">receipt</text>
+    <line x1="236" y1="461" x2="254" y2="461" stroke="#800020" stroke-width="1.5" marker-end="url(#correction-arrow)"/>
+    <rect x="262" y="434" width="92" height="54" rx="6" fill="#800020"/>
+    <text x="308" y="456" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#fffbeb">Adjudicate</text>
+    <text x="308" y="476" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#fffbeb">evidence</text>
+    <text x="195" y="528" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#800020">ELIGIBLE: promotion may be considered</text>
+  </g>
+  <text x="195" y="590" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#57534e">Fluency proposes. Evidence authorizes.</text>
+</svg>

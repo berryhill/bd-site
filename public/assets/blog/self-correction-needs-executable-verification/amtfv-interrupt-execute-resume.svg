@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="720" viewBox="0 0 390 720" role="img" aria-labelledby="amtfv-flow-title amtfv-flow-desc" data-diagram-form="return-loop">
+  <title id="amtfv-flow-title">AMTFV interrupt-execute-resume flow</title>
+  <desc id="amtfv-flow-desc">A vertical flow shows reasoning interrupted for verification, computational intent passed from a verification agent to a toolbox agent, execution in a bounded mathematical backend, and a result receipt returning for adjudication. A loop distinguishes revising the answer from revising the verification workflow.</desc>
+  <defs>
+    <marker id="amtfv-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#800020"/></marker>
+  </defs>
+  <rect width="390" height="720" fill="#fffbeb"/>
+  <text x="20" y="34" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="700" fill="#1c1917">Interrupt → execute → resume</text>
+  <text x="20" y="62" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#57534e">AMTFV’s bounded mathematical flow</text>
+
+  <g id="interrupt-execute-resume-rail">
+    <rect x="44" y="88" width="302" height="58" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="195" y="113" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#1c1917">Reasoning pauses</text>
+    <text x="195" y="134" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#57534e">A disputed mathematical claim appears</text>
+    <line x1="195" y1="146" x2="195" y2="166" stroke="#800020" stroke-width="1.5" marker-end="url(#amtfv-arrow)"/>
+
+    <rect x="44" y="174" width="302" height="74" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+    <text x="195" y="199" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#800020">Verification agent</text>
+    <text x="195" y="222" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#1c1917">Defines computational intent:</text>
+    <text x="195" y="242" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#57534e">context, object, return operation</text>
+    <line x1="195" y1="248" x2="195" y2="268" stroke="#800020" stroke-width="1.5" marker-end="url(#amtfv-arrow)"/>
+
+    <rect x="44" y="276" width="302" height="66" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+    <text x="195" y="301" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#800020">Toolbox agent</text>
+    <text x="195" y="326" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#1c1917">Translates intent into an executable call</text>
+    <line x1="195" y1="342" x2="195" y2="362" stroke="#800020" stroke-width="1.5" marker-end="url(#amtfv-arrow)"/>
+
+    <rect x="44" y="370" width="302" height="82" rx="6" fill="#800020"/>
+    <text x="195" y="398" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#fffbeb">Bounded mathematical backend</text>
+    <text x="195" y="423" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#fffbeb">SymPy • itertools • Fraction</text>
+    <text x="195" y="445" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#fef3c7">Executes the requested check</text>
+    <line x1="195" y1="452" x2="195" y2="472" stroke="#800020" stroke-width="1.5" marker-end="url(#amtfv-arrow)"/>
+
+    <rect x="44" y="480" width="302" height="62" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="195" y="506" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#1c1917">Result receipt returns</text>
+    <text x="195" y="530" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#57534e">Execution is inspectable, not self-justifying</text>
+    <line x1="195" y1="542" x2="195" y2="562" stroke="#800020" stroke-width="1.5" marker-end="url(#amtfv-arrow)"/>
+  </g>
+
+  <g id="adjudication-return-loop">
+    <rect x="44" y="570" width="302" height="70" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+    <text x="195" y="596" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#800020">Adjudication</text>
+    <text x="195" y="621" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#1c1917">Revise answer or revise verification flow</text>
+    <path d="M346 605H368V211H354" fill="none" stroke="#800020" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#amtfv-arrow)"/>
+    <text x="365" y="420" text-anchor="middle" transform="rotate(-90 365 420)" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#800020">bad check → revise the workflow</text>
+  </g>
+
+  <rect x="20" y="666" width="350" height="34" rx="6" fill="#fef3c7" stroke="#fde68a" stroke-width="1.5"/>
+  <text x="195" y="689" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#57534e">Production extension: outside the paper’s evidence</text>
+</svg>
