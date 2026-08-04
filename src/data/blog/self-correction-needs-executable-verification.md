@@ -4,7 +4,7 @@ description: "A practical verification promotion gate for deciding when an AI ag
 author: "Matt Berryhill"
 pubDatetime: 2026-08-03T22:41:39Z
 featured: false
-draft: true
+draft: false
 tags:
   - AI agents
   - agent verification
