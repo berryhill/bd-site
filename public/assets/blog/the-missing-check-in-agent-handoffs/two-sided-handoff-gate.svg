@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 860" role="img" aria-labelledby="title desc">
+  <title id="title">The two-sided handoff gate</title>
+  <desc id="desc">Predecessor exit evidence and declared successor entry conditions meet at an inherited-state check. Compatible state proceeds to successor admission. Repairable state enters a bounded repair and revalidation loop. Unauthorized or unsuccessful repairs are rejected or escalated.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#800020"/>
+    </marker>
+  </defs>
+  <rect width="720" height="860" fill="#fffbeb"/>
+  <g font-family="Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+    <text x="32" y="54" fill="#800020" font-size="22" font-weight="700" letter-spacing="1.2">THE BOUNDARY OWNS COMPATIBILITY</text>
+    <text x="32" y="92" fill="#1c1917" font-size="31" font-weight="700">Completion is not admission</text>
+
+    <rect x="32" y="132" width="300" height="126" rx="6" fill="#800020"/>
+    <text x="56" y="174" fill="#fffbeb" font-size="25" font-weight="700">Predecessor exits</text>
+    <text x="56" y="210" fill="#fffbeb" font-size="23">Artifact identity</text>
+    <text x="56" y="240" fill="#fffbeb" font-size="23">Tests · decision record</text>
+
+    <rect x="388" y="132" width="300" height="126" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="412" y="174" fill="#1c1917" font-size="25" font-weight="700">Successor requires</text>
+    <text x="412" y="210" fill="#57534e" font-size="23">Versioned entry conditions</text>
+    <text x="412" y="240" fill="#57534e" font-size="23">Declared before evaluation</text>
+
+    <path d="M182 258V323H326" fill="none" stroke="#800020" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M538 258V323H394" fill="none" stroke="#800020" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+    <rect x="132" y="324" width="456" height="124" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="3"/>
+    <text x="360" y="370" text-anchor="middle" fill="#1c1917" font-size="27" font-weight="700">Inherited-state check</text>
+    <text x="360" y="407" text-anchor="middle" fill="#57534e" font-size="23">Does the real output satisfy every</text>
+    <text x="360" y="437" text-anchor="middle" fill="#57534e" font-size="23">declared entry condition?</text>
+
+    <path d="M360 448V500H155V535" fill="none" stroke="#800020" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M360 448V500H565V535" fill="none" stroke="#800020" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <text x="189" y="492" fill="#800020" font-size="21" font-weight="700">COMPATIBLE</text>
+    <text x="474" y="492" fill="#800020" font-size="21" font-weight="700">REPAIRABLE</text>
+
+    <rect x="32" y="536" width="300" height="104" rx="6" fill="#800020"/>
+    <text x="182" y="578" text-anchor="middle" fill="#fffbeb" font-size="26" font-weight="700">Successor admitted</text>
+    <text x="182" y="614" text-anchor="middle" fill="#fffbeb" font-size="22">Linked to passing evidence</text>
+
+    <rect x="388" y="536" width="300" height="104" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="538" y="578" text-anchor="middle" fill="#1c1917" font-size="26" font-weight="700">Bounded repair</text>
+    <text x="538" y="614" text-anchor="middle" fill="#57534e" font-size="22">Only if policy allows it</text>
+
+    <path d="M538 640V684" fill="none" stroke="#800020" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <rect x="388" y="686" width="300" height="96" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="1.5"/>
+    <text x="538" y="725" text-anchor="middle" fill="#1c1917" font-size="25" font-weight="700">Repair receipt</text>
+    <text x="538" y="758" text-anchor="middle" fill="#57534e" font-size="22">Revalidate or reject</text>
+
+    <path d="M388 734H348V386H132" fill="none" stroke="#800020" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+    <text x="44" y="823" fill="#78716c" font-size="21">Unauthorized or failed repair → reject / escalate</text>
+  </g>
+</svg>

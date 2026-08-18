@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 690" role="img" aria-labelledby="title desc">
+  <title id="title">Worker success versus handoff success</title>
+  <desc id="desc">A side-by-side comparison shows a builder that produced valid code and passing tests while the boundary still rejects the handoff because the reviewer requires a missing decision record.</desc>
+  <rect width="720" height="690" fill="#fffbeb"/>
+  <g font-family="Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+    <text x="32" y="54" fill="#800020" font-size="22" font-weight="700" letter-spacing="1.2">ONE RUN · TWO OUTCOMES</text>
+    <text x="32" y="94" fill="#1c1917" font-size="31" font-weight="700">The worker passed. The boundary did not.</text>
+
+    <rect x="32" y="138" width="306" height="452" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="56" y="182" fill="#800020" font-size="22" font-weight="700">WORKER CONTRACT</text>
+    <text x="56" y="222" fill="#1c1917" font-size="28" font-weight="700">Builder: success</text>
+    <line x1="56" y1="246" x2="314" y2="246" stroke="#fde68a" stroke-width="2"/>
+    <rect x="56" y="278" width="36" height="36" rx="6" fill="#800020"/>
+    <text x="74" y="304" text-anchor="middle" fill="#fffbeb" font-size="24" font-weight="700">✓</text>
+    <text x="108" y="305" fill="#1c1917" font-size="24">Patch applies</text>
+    <rect x="56" y="340" width="36" height="36" rx="6" fill="#800020"/>
+    <text x="74" y="366" text-anchor="middle" fill="#fffbeb" font-size="24" font-weight="700">✓</text>
+    <text x="108" y="367" fill="#1c1917" font-size="24">Tests pass</text>
+    <rect x="56" y="402" width="36" height="36" rx="6" fill="#800020"/>
+    <text x="74" y="428" text-anchor="middle" fill="#fffbeb" font-size="24" font-weight="700">✓</text>
+    <text x="108" y="429" fill="#1c1917" font-size="24">Task scope met</text>
+    <rect x="56" y="484" width="258" height="74" rx="6" fill="#800020"/>
+    <text x="185" y="530" text-anchor="middle" fill="#fffbeb" font-size="25" font-weight="700">worker_success = true</text>
+
+    <rect x="382" y="138" width="306" height="452" rx="6" fill="#fffbeb" stroke="#1c1917" stroke-width="1.5"/>
+    <text x="406" y="182" fill="#800020" font-size="22" font-weight="700">BOUNDARY CONTRACT</text>
+    <text x="406" y="222" fill="#1c1917" font-size="28" font-weight="700">Handoff: rejected</text>
+    <line x1="406" y1="246" x2="664" y2="246" stroke="#fde68a" stroke-width="2"/>
+    <rect x="406" y="278" width="36" height="36" rx="6" fill="#800020"/>
+    <text x="424" y="304" text-anchor="middle" fill="#fffbeb" font-size="24" font-weight="700">✓</text>
+    <text x="458" y="305" fill="#1c1917" font-size="24">Expected base</text>
+    <rect x="406" y="340" width="36" height="36" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="2"/>
+    <text x="424" y="366" text-anchor="middle" fill="#800020" font-size="25" font-weight="700">×</text>
+    <text x="458" y="367" fill="#1c1917" font-size="24">Decision record</text>
+    <rect x="406" y="402" width="36" height="36" rx="6" fill="#800020"/>
+    <text x="424" y="428" text-anchor="middle" fill="#fffbeb" font-size="24" font-weight="700">✓</text>
+    <text x="458" y="429" fill="#1c1917" font-size="24">Reproducible test</text>
+    <rect x="406" y="484" width="258" height="74" rx="6" fill="#fffbeb" stroke="#800020" stroke-width="3"/>
+    <text x="535" y="530" text-anchor="middle" fill="#800020" font-size="25" font-weight="700">admission = denied</text>
+
+    <text x="32" y="632" fill="#57534e" font-size="23">Do not erase valid implementation work.</text>
+    <text x="32" y="666" fill="#1c1917" font-size="24" font-weight="700">Name the failed boundary and request the missing artifact.</text>
+  </g>
+</svg>
