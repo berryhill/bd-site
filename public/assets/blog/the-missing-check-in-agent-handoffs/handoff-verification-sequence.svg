@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1010" role="img" aria-labelledby="title desc">
+  <title id="title">Seven-step handoff verification sequence</title>
+  <desc id="desc">Seven numbered steps move from declaring successor entry conditions through collecting completion evidence, checking inherited state, applying only authorized repair, revalidating, admitting the successor, and recording worker, handoff, and repair outcomes separately.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#800020"/>
+    </marker>
+  </defs>
+  <rect width="720" height="1010" fill="#fffbeb"/>
+  <g font-family="Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+    <text x="32" y="54" fill="#800020" font-size="22" font-weight="700" letter-spacing="1.2">START WITH ONE REAL TRANSITION</text>
+    <text x="32" y="94" fill="#1c1917" font-size="31" font-weight="700">A handoff verification sequence</text>
+
+    <line x1="64" y1="158" x2="64" y2="876" stroke="#800020" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="40" y="132" width="48" height="48" rx="6" fill="#800020"/>
+    <text x="64" y="165" text-anchor="middle" fill="#fffbeb" font-size="25" font-weight="700">1</text>
+    <text x="116" y="157" fill="#1c1917" font-size="25" font-weight="700">Declare successor entry conditions</text>
+    <text x="116" y="190" fill="#57534e" font-size="23">Version them before the predecessor runs.</text>
+
+    <rect x="40" y="244" width="48" height="48" rx="6" fill="#800020"/>
+    <text x="64" y="277" text-anchor="middle" fill="#fffbeb" font-size="25" font-weight="700">2</text>
+    <text x="116" y="269" fill="#1c1917" font-size="25" font-weight="700">Collect exact exit evidence</text>
+    <text x="116" y="302" fill="#57534e" font-size="23">Reference artifacts, tests, and decisions.</text>
+
+    <rect x="40" y="356" width="48" height="48" rx="6" fill="#800020"/>
+    <text x="64" y="389" text-anchor="middle" fill="#fffbeb" font-size="25" font-weight="700">3</text>
+    <text x="116" y="381" fill="#1c1917" font-size="25" font-weight="700">Check inherited state</text>
+    <text x="116" y="414" fill="#57534e" font-size="23">Compare real output with every requirement.</text>
+
+    <rect x="40" y="468" width="48" height="48" rx="6" fill="#800020"/>
+    <text x="64" y="501" text-anchor="middle" fill="#fffbeb" font-size="25" font-weight="700">4</text>
+    <text x="116" y="493" fill="#1c1917" font-size="25" font-weight="700">Apply only authorized repair</text>
+    <text x="116" y="526" fill="#57534e" font-size="23">Normalize known defects; never invent intent.</text>
+
+    <rect x="40" y="580" width="48" height="48" rx="6" fill="#800020"/>
+    <text x="64" y="613" text-anchor="middle" fill="#fffbeb" font-size="25" font-weight="700">5</text>
+    <text x="116" y="605" fill="#1c1917" font-size="25" font-weight="700">Issue a receipt and revalidate</text>
+    <text x="116" y="638" fill="#57534e" font-size="23">A mutation never inherits a passing result.</text>
+
+    <rect x="40" y="692" width="48" height="48" rx="6" fill="#800020"/>
+    <text x="64" y="725" text-anchor="middle" fill="#fffbeb" font-size="25" font-weight="700">6</text>
+    <text x="116" y="717" fill="#1c1917" font-size="25" font-weight="700">Admit from passing evidence</text>
+    <text x="116" y="750" fill="#57534e" font-size="23">Queue state is not admission evidence.</text>
+
+    <rect x="40" y="804" width="48" height="48" rx="6" fill="#800020"/>
+    <text x="64" y="837" text-anchor="middle" fill="#fffbeb" font-size="25" font-weight="700">7</text>
+    <text x="116" y="829" fill="#1c1917" font-size="25" font-weight="700">Measure three outcomes separately</text>
+    <text x="116" y="862" fill="#57534e" font-size="23">Worker success · handoff success · repair success</text>
+
+    <rect x="32" y="914" width="656" height="64" rx="6" fill="#fef3c7" stroke="#800020" stroke-width="1.5"/>
+    <text x="360" y="954" text-anchor="middle" fill="#1c1917" font-size="24" font-weight="700">A passing worker does not waive a failed boundary.</text>
+  </g>
+</svg>
