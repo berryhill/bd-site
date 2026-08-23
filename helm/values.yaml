@@ -1,11 +1,16 @@
 replicaCount: 1
 
 image:
-  # bd-site-app is public. Do not attach stale registry credentials to pods;
-  # Kubernetes must use GHCR's anonymous pull path.
   repository: ghcr.io/berryhill/bd-site-app
   tag: 0.0.56
+  digest: ""
   pullPolicy: IfNotPresent
+
+serviceAccount:
+  name: bd-site
+
+imagePullSecret:
+  name: ghcr-pull
 
 deploymentRevision: ""
 

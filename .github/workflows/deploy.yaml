@@ -9,30 +9,34 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: bd-site-production
+  cancel-in-progress: false
+
 env:
   NAME: bd-site
   DOCKER_REGISTRY: ghcr.io
   DOCKER_ORG: berryhill
-  # Publish through this repository's GITHUB_TOKEN. The legacy `bd-site`
-  # package was created outside this workflow and does not grant this repo
-  # Actions write access.
   DOCKER_IMAGE: bd-site-app
-  LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
-  DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN}}
+  GHCR_PULL_SECRET: ghcr-pull
+  GHCR_PREFLIGHT_SECRET: ghcr-pull-preflight
+  PREFLIGHT_NAME: bd-site-image-preflight
+  KUBE_NAMESPACE: default
 
 jobs:
   build-push:
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.image.outputs.image_tag }}
+      image-digest: ${{ steps.build.outputs.digest }}
     if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -47,71 +51,217 @@ jobs:
             exit 1
           fi
           echo "image_tag=${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
-          echo "Building ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG}"
 
       - name: Build and push Docker image
-        run: |
-          IMAGE_TAG="${{ steps.image.outputs.image_tag }}"
-          docker build \
-            --build-arg DOT_ENV="${{ secrets.DOT_ENV }}" \
-            -t ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG} .
-          docker push ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG}
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${{ steps.image.outputs.image_tag }}
+          build-args: |
+            DOT_ENV=${{ secrets.DOT_ENV }}
 
   deploy:
     needs: build-push
     runs-on: ubuntu-latest
-    # environment: dev
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Kubeconfig
+        env:
+          LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.LINODE_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          printf '%s' "${LINODE_KUBECONFIG}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.9.4
 
-      - name: Deploy using Helm
+      - name: Create temporary GHCR pull credential
+        env:
+          DOCKER_CONFIG_PATH: ${{ runner.temp }}/ghcr-dockerconfig.json
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
-          # Emergency production rollback: this exact image was the last verified
-          # healthy deployment and is already cached on the PVC-owning node.
-          IMAGE_TAG="8eef9160283f0a4630013c9e1896c4f1a3d60a88"
-          echo "Rolling back to ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG} from revision ${GITHUB_SHA}"
-          helm upgrade --install bd-site ./helm -f ./helm/values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}" --set image.tag="${IMAGE_TAG}" --set deploymentRevision="${GITHUB_SHA}"
+          if [ -z "${GHCR_USERNAME}" ] || [ -z "${GHCR_TOKEN}" ]; then
+            echo "GHCR_USERNAME and GHCR_TOKEN are required for cluster image pulls" >&2
+            exit 1
+          fi
+          umask 077
+          node <<'NODE'
+          const fs = require("node:fs");
+          const auth = Buffer.from(`${process.env.GHCR_USERNAME}:${process.env.GHCR_TOKEN}`).toString("base64");
+          const config = { auths: { [process.env.DOCKER_REGISTRY]: { auth } } };
+          fs.writeFileSync(process.env.DOCKER_CONFIG_PATH, JSON.stringify(config), { mode: 0o600 });
+          NODE
+          chmod 600 "${DOCKER_CONFIG_PATH}"
+          kubectl create secret generic "${GHCR_PREFLIGHT_SECRET}" -n "${KUBE_NAMESPACE}" \
+            --type=kubernetes.io/dockerconfigjson \
+            --from-file=.dockerconfigjson="${DOCKER_CONFIG_PATH}" \
+            --dry-run=client -o yaml | kubectl apply -n "${KUBE_NAMESPACE}" -f -
+
+      - name: Pre-pull exact image on every cluster node
+        env:
+          IMAGE_TAG: ${{ needs.build-push.outputs.image-tag }}
+          IMAGE_DIGEST: ${{ needs.build-push.outputs.image-digest }}
+        run: |
+          if [ -z "${IMAGE_TAG}" ] || [ "${IMAGE_TAG}" != "${GITHUB_SHA}" ]; then
+            echo "Build image tag is missing or does not match GitHub revision" >&2
+            exit 1
+          fi
+          case "${IMAGE_DIGEST}" in
+            sha256:????????????????????????????????????????????????????????????????) ;;
+            *) echo "Build output is not a valid sha256 digest" >&2; exit 1 ;;
+          esac
+          FULL_IMAGE="${DOCKER_REGISTRY}/${DOCKER_ORG}/${DOCKER_IMAGE}@${IMAGE_DIGEST}"
+
+          kubectl delete daemonset "${PREFLIGHT_NAME}" -n "${KUBE_NAMESPACE}" --ignore-not-found --wait=true
+          cat <<EOF | kubectl apply -n "${KUBE_NAMESPACE}" -f -
+          apiVersion: apps/v1
+          kind: DaemonSet
+          metadata:
+            name: ${PREFLIGHT_NAME}
+            namespace: ${KUBE_NAMESPACE}
+            labels:
+              app: ${PREFLIGHT_NAME}
+          spec:
+            selector:
+              matchLabels:
+                app: ${PREFLIGHT_NAME}
+            template:
+              metadata:
+                labels:
+                  app: ${PREFLIGHT_NAME}
+              spec:
+                imagePullSecrets:
+                  - name: ${GHCR_PREFLIGHT_SECRET}
+                tolerations:
+                  - operator: Exists
+                terminationGracePeriodSeconds: 0
+                containers:
+                  - name: image-preflight
+                    image: ${FULL_IMAGE}
+                    imagePullPolicy: Always
+                    command: ["/bin/sh", "-c", "sleep 600"]
+          EOF
+
           set +e
-          kubectl rollout status deployment/bd-site --timeout=180s
-          ROLLOUT_STATUS=$?
+          kubectl rollout status daemonset/"${PREFLIGHT_NAME}" -n "${KUBE_NAMESPACE}" --timeout=180s
+          PREFLIGHT_STATUS=$?
           set -e
-
-          if [ "${ROLLOUT_STATUS}" -ne 0 ]; then
-            echo "Deployment rollout failed with status ${ROLLOUT_STATUS}; collecting bounded diagnostics" >&2
-            NAMESPACE="$(kubectl get deployment bd-site -o jsonpath='{.metadata.namespace}' 2>/dev/null || true)"
-            NAMESPACE="${NAMESPACE:-default}"
-
-            kubectl get pods -n "${NAMESPACE}" -l app=bd-site -o wide || true
-            kubectl get pods -n "${NAMESPACE}" -l app=bd-site -o name 2>/dev/null |
-              while IFS= read -r POD_NAME; do
-                [ -n "${POD_NAME}" ] || continue
-                kubectl describe -n "${NAMESPACE}" "${POD_NAME}" || true
-                kubectl logs -n "${NAMESPACE}" "${POD_NAME}" --all-containers=true --tail=120 || true
-                kubectl logs -n "${NAMESPACE}" "${POD_NAME}" --all-containers=true --previous --tail=120 || true
-              done
-            kubectl get events -n "${NAMESPACE}" --field-selector involvedObject.kind=Pod --sort-by=.metadata.creationTimestamp |
-              tail -n 80 || true
-            exit "${ROLLOUT_STATUS}"
+          if [ "${PREFLIGHT_STATUS}" -ne 0 ]; then
+            echo "Cluster nodes could not pull the immutable image; production remains unchanged" >&2
+            kubectl get pods -n "${KUBE_NAMESPACE}" -l "app=${PREFLIGHT_NAME}" -o wide || true
+            kubectl describe pods -n "${KUBE_NAMESPACE}" -l "app=${PREFLIGHT_NAME}" || true
+            kubectl get events -n "${KUBE_NAMESPACE}" --field-selector involvedObject.kind=Pod --sort-by=.lastTimestamp | tail -n 80 || true
+            exit "${PREFLIGHT_STATUS}"
           fi
 
-          kubectl get pods -l app=bd-site -o wide
-          curl -fsS https://berryhill.dev/posts/ >/dev/null || true
-          kubectl logs deployment/bd-site --tail=120
+          NODE_COUNT="$(kubectl get nodes --no-headers | wc -l | tr -d ' ')"
+          DESIRED="$(kubectl get daemonset "${PREFLIGHT_NAME}" -n "${KUBE_NAMESPACE}" -o jsonpath='{.status.desiredNumberScheduled}')"
+          READY="$(kubectl get daemonset "${PREFLIGHT_NAME}" -n "${KUBE_NAMESPACE}" -o jsonpath='{.status.numberReady}')"
+          if [ -z "${NODE_COUNT}" ] || [ "${NODE_COUNT}" -lt 1 ] || [ "${DESIRED}" != "${NODE_COUNT}" ] || [ "${READY}" != "${NODE_COUNT}" ]; then
+            echo "Image preflight did not cover every node: nodes=${NODE_COUNT:-0} desired=${DESIRED:-0} ready=${READY:-0}" >&2
+            exit 1
+          fi
+
+      - name: Promote validated GHCR pull credential
+        env:
+          DOCKER_CONFIG_PATH: ${{ runner.temp }}/ghcr-dockerconfig.json
+        run: |
+          kubectl create secret generic "${GHCR_PULL_SECRET}" -n "${KUBE_NAMESPACE}" \
+            --type=kubernetes.io/dockerconfigjson \
+            --from-file=.dockerconfigjson="${DOCKER_CONFIG_PATH}" \
+            --dry-run=client -o yaml | kubectl apply -n "${KUBE_NAMESPACE}" -f -
+
+      - name: Deploy exact built image using Helm
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          IMAGE_TAG: ${{ needs.build-push.outputs.image-tag }}
+          IMAGE_DIGEST: ${{ needs.build-push.outputs.image-digest }}
+        run: |
+          if [ -z "${IMAGE_TAG}" ] || [ "${IMAGE_TAG}" != "${GITHUB_SHA}" ]; then
+            echo "Build image tag is missing or does not match GitHub revision" >&2
+            exit 1
+          fi
+          case "${IMAGE_DIGEST}" in
+            sha256:????????????????????????????????????????????????????????????????) ;;
+            *) echo "Build output is not a valid sha256 digest" >&2; exit 1 ;;
+          esac
+          FULL_IMAGE="${DOCKER_REGISTRY}/${DOCKER_ORG}/${DOCKER_IMAGE}@${IMAGE_DIGEST}"
+          PREVIOUS_REVISION="$( (helm history bd-site -n "${KUBE_NAMESPACE}" -o json 2>/dev/null || printf '[]') | jq -r 'map(select(.status == "deployed")) | last | .revision // empty' )"
+
+          set +e
+          helm upgrade --install bd-site ./helm -n "${KUBE_NAMESPACE}" -f ./helm/values.yaml \
+            --set dopplerToken="${DOPPLER_TOKEN}" \
+            --set image.tag="${IMAGE_TAG}" \
+            --set image.digest="${IMAGE_DIGEST}" \
+            --set deploymentRevision="${GITHUB_SHA}" \
+            --atomic \
+            --wait \
+            --timeout 3m
+          HELM_STATUS=$?
+          set -e
+          if [ "${HELM_STATUS}" -ne 0 ]; then
+            echo "Atomic Helm rollout failed; collecting bounded diagnostics" >&2
+            kubectl get pods -n "${KUBE_NAMESPACE}" -l app=bd-site -o wide || true
+            kubectl get pods -n "${KUBE_NAMESPACE}" -l app=bd-site -o name 2>/dev/null |
+              while IFS= read -r POD_NAME; do
+                [ -n "${POD_NAME}" ] || continue
+                kubectl describe -n "${KUBE_NAMESPACE}" "${POD_NAME}" || true
+                kubectl logs -n "${KUBE_NAMESPACE}" "${POD_NAME}" --all-containers=true --tail=120 || true
+                kubectl logs -n "${KUBE_NAMESPACE}" "${POD_NAME}" --all-containers=true --previous --tail=120 || true
+              done
+            kubectl get events -n "${KUBE_NAMESPACE}" --field-selector involvedObject.kind=Pod --sort-by=.metadata.creationTimestamp | tail -n 80 || true
+            exit "${HELM_STATUS}"
+          fi
+
+          POST_DEPLOY_STATUS=0
+          kubectl rollout status deployment/bd-site -n "${KUBE_NAMESPACE}" --timeout=180s || POST_DEPLOY_STATUS=$?
+          DEPLOYED_IMAGE="$(kubectl get deployment bd-site -n "${KUBE_NAMESPACE}" -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null || true)"
+          if [ "${DEPLOYED_IMAGE}" != "${FULL_IMAGE}" ]; then
+            echo "Deployed workload does not reference the exact build digest" >&2
+            POST_DEPLOY_STATUS=1
+          fi
+
+          if [ "${POST_DEPLOY_STATUS}" -eq 0 ]; then
+            for path in "/" "/posts/" "/rss.xml" "/sitemap.xml" "/sitemap-posts.xml"; do
+              echo "Verifying https://berryhill.dev${path}"
+              curl -fsS --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 30 "https://berryhill.dev${path}" >/dev/null || POST_DEPLOY_STATUS=$?
+              [ "${POST_DEPLOY_STATUS}" -eq 0 ] || break
+            done
+          fi
+          if [ "${POST_DEPLOY_STATUS}" -ne 0 ]; then
+            if [ -z "${PREVIOUS_REVISION}" ]; then
+              echo "Post-deploy verification failed and no previous Helm revision exists" >&2
+              exit "${POST_DEPLOY_STATUS}"
+            fi
+            echo "Post-deploy verification failed; rolling back to the previous Helm revision" >&2
+            helm rollback bd-site "${PREVIOUS_REVISION}" -n "${KUBE_NAMESPACE}" --wait --timeout 3m
+            kubectl rollout status deployment/bd-site -n "${KUBE_NAMESPACE}" --timeout=180s
+            kubectl get deployment bd-site -n "${KUBE_NAMESPACE}" -o wide
+            exit "${POST_DEPLOY_STATUS}"
+          fi
+
+      - name: Cleanup preflight resources
+        if: always()
+        env:
+          DOCKER_CONFIG_PATH: ${{ runner.temp }}/ghcr-dockerconfig.json
+        run: |
+          kubectl delete daemonset "${PREFLIGHT_NAME}" -n "${KUBE_NAMESPACE}" --ignore-not-found --wait=false >/dev/null 2>&1 || true
+          kubectl delete secret "${GHCR_PREFLIGHT_SECRET}" -n "${KUBE_NAMESPACE}" --ignore-not-found --wait=false >/dev/null 2>&1 || true
+          rm -f "${DOCKER_CONFIG_PATH}"
 
       - name: Deployment diagnostics
         if: always()
         run: |
-          kubectl get deployment bd-site -o wide || true
-          kubectl get pods -l app=bd-site -o wide || true
-          kubectl get events --field-selector involvedObject.kind=Pod --sort-by=.lastTimestamp | tail -n 60 || true
-          kubectl logs deployment/bd-site --tail=120 || true
+          kubectl get deployment bd-site -n "${KUBE_NAMESPACE}" -o wide || true
+          kubectl get pods -n "${KUBE_NAMESPACE}" -l app=bd-site -o wide || true
+          kubectl get events -n "${KUBE_NAMESPACE}" --field-selector involvedObject.kind=Pod --sort-by=.lastTimestamp | tail -n 60 || true
+          kubectl logs deployment/bd-site -n "${KUBE_NAMESPACE}" --tail=120 || true
