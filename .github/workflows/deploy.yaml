@@ -76,16 +76,10 @@ jobs:
 
       - name: Deploy using Helm
         run: |
-          IMAGE_TAG="${{ needs.build-push.outputs.image-tag }}"
-          if [ -z "${IMAGE_TAG}" ]; then
-            echo "build-push image-tag output is required for deployment" >&2
-            exit 1
-          fi
-          if [ "${IMAGE_TAG}" != "${GITHUB_SHA}" ]; then
-            echo "Image tag ${IMAGE_TAG} does not match GitHub revision ${GITHUB_SHA}" >&2
-            exit 1
-          fi
-          echo "Deploying ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG} with revision ${GITHUB_SHA}"
+          # Emergency production rollback: this exact image was the last verified
+          # healthy deployment and is already cached on the PVC-owning node.
+          IMAGE_TAG="8eef9160283f0a4630013c9e1896c4f1a3d60a88"
+          echo "Rolling back to ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG} from revision ${GITHUB_SHA}"
           helm upgrade --install bd-site ./helm -f ./helm/values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}" --set image.tag="${IMAGE_TAG}" --set deploymentRevision="${GITHUB_SHA}"
           set +e
           kubectl rollout status deployment/bd-site --timeout=180s
