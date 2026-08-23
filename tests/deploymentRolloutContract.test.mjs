@@ -57,6 +57,15 @@ test("Helm defaults preserve local chart behavior when workflow overrides are ab
   assert.match(deploymentTemplate, /default \.Values\.image\.tag/);
 });
 
+test("single-replica ReadWriteOnce deployments replace pods without overlapping volume mounts", () => {
+  assert.match(values, /replicaCount:\s*1/);
+  assert.match(values, /accessMode:\s*ReadWriteOnce/);
+  assert.match(deploymentTemplate, /strategy:[\s\S]*type:\s*Recreate/);
+  assert.doesNotMatch(deploymentTemplate, /type:\s*RollingUpdate/);
+  assert.doesNotMatch(deploymentTemplate, /rollingUpdate:/);
+  assert.doesNotMatch(deploymentTemplate, /podAffinity:/);
+});
+
 test("deployment workflow fails closed on missing or mismatched revision inputs", () => {
   assert.match(workflow, /if \[ -z "\$\{IMAGE_TAG\}" \]; then[\s\S]*GITHUB_SHA is required for main deployments[\s\S]*exit 1/);
   assert.match(workflow, /if \[ -z "\$\{IMAGE_TAG\}" \]; then[\s\S]*build-push image-tag output is required for deployment[\s\S]*exit 1/);

@@ -49,7 +49,7 @@ This site runs as a server-side rendered (SSR) Astro application:
 - **Runtime**: Node.js on port 80
 - **Deployment**: Kubernetes with Helm charts
 - **Storage**: PersistentVolume for blog content (externalized from container image)
-- **Updates**: Zero-downtime rolling deployments with health checks; main-branch CI tags the image with the exact `GITHUB_SHA`, passes that same value as `deploymentRevision`, uses the pod-template annotation to force replacement pods, and waits for rollout completion before live verification
+- **Updates**: Health-checked `Recreate` deployments serialize access to the single-node `ReadWriteOnce` posts volume; main-branch CI tags the image with the exact `GITHUB_SHA`, passes that same value as `deploymentRevision`, uses the pod-template annotation to force a replacement pod, and waits for rollout completion before live verification
 - **SSL**: Automatic TLS certificate provisioning via cert-manager
 - **Analytics**: GA4 browser measurement is conditional on `PUBLIC_GA_MEASUREMENT_ID`; the editorial pageview contract is summarized here and owned in [`docs/ga4-editorial-analytics-contract.md`](docs/ga4-editorial-analytics-contract.md)
 
@@ -59,7 +59,7 @@ This site runs as a server-side rendered (SSR) Astro application:
 /
 ├── helm/                    # Kubernetes Helm charts
 │   ├── templates/
-│   │   ├── deployment.yaml  # K8s deployment with rolling updates
+│   │   ├── deployment.yaml  # K8s deployment with RWO-safe replacement
 │   │   ├── service.yaml     # ClusterIP service
 │   │   ├── ingress.yaml     # NGINX ingress with TLS
 │   │   ├── pvc.yaml         # PersistentVolumeClaim for blog content
@@ -256,7 +256,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yaml`):
 ## 🎨 Features
 
 - Server-side rendering for optimal SEO
-- Zero-downtime rolling deployments
+- RWO-safe, health-checked replacement deployments
 - Automatic TLS certificate management
 - Persistent blog content storage
 - Durable repo-backed blog visuals under `/assets/blog/<post-slug>/`
