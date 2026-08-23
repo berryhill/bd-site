@@ -6,6 +6,7 @@ import path from "node:path";
 import {
   auditInternalPostLinks,
   auditLocalCrawlSurface,
+  auditPageOneArchiveAliasesStatic,
   auditPublishedPostTitleQuality,
   extractXmlLocs,
   isMalformedCrawlUrl,
@@ -187,6 +188,31 @@ test("local audit reports legacy title quality as advisory without failing issue
       assert.equal(result.issues.length, 0);
       assert.equal(result.titleQualityAdvisories.length, advisories.length);
       assert.equal(result.checked.titleQualityAdvisories, advisories.length);
+    }
+  );
+});
+
+test("page-one archive alias contract lists both aliases with /posts/ canonical target", () => {
+  const contract = auditPageOneArchiveAliasesStatic();
+  assert.deepEqual(contract.map(entry => entry.alias), ["/posts/page/1", "/posts/page/1/"]);
+  for (const entry of contract) {
+    assert.equal(entry.expectedCanonical, "https://berryhill.dev/posts/");
+    assert.equal(entry.expectedStatus, 301);
+    assert.equal(entry.expectedRedirectTarget, "https://berryhill.dev/posts/");
+  }
+});
+
+test("local audit confirms the static sitemap does not advertise page-one archive aliases", async () => {
+  await withTempContent(
+    {
+      "published.md": markdown({ title: "Published" }),
+    },
+    async contentDir => {
+      const result = await auditLocalCrawlSurface({ contentDir, distDir: path.join(contentDir, "missing-dist") });
+      const aliasIssues = result.issues.filter(issue =>
+        issue.message === "Static sitemap advertises a page-one archive alias"
+      );
+      assert.equal(aliasIssues.length, 0, "real static sitemap should not advertise either page-one alias");
     }
   );
 });
