@@ -18,10 +18,6 @@ spec:
       labels:
         app: {{ .Values.service.name }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       terminationGracePeriodSeconds: 30
       containers:
         - name: {{ .Values.service.name }}

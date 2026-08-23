@@ -74,25 +74,6 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v3
 
-      - name: Refresh Kubernetes GHCR pull secret
-        env:
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          GHCR_USERNAME: ${{ github.repository_owner }}
-        run: |
-          if [ -z "${GHCR_TOKEN}" ]; then
-            echo "GHCR_TOKEN is required for Kubernetes image pulls" >&2
-            exit 1
-          fi
-          DOCKER_CONFIG="${RUNNER_TEMP}/bd-site-ghcr-auth"
-          mkdir -p "${DOCKER_CONFIG}"
-          trap 'shred -u "${DOCKER_CONFIG}/config.json" 2>/dev/null || true' EXIT
-          printf '%s' "${GHCR_TOKEN}" | docker --config "${DOCKER_CONFIG}" login ghcr.io --username "${GHCR_USERNAME}" --password-stdin
-          docker --config "${DOCKER_CONFIG}" pull "${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${{ needs.build-push.outputs.image-tag }}"
-          kubectl create secret generic ghcr-login-secret \
-            --type=kubernetes.io/dockerconfigjson \
-            --from-file=.dockerconfigjson="${DOCKER_CONFIG}/config.json" \
-            --dry-run=client -o yaml | kubectl apply -f -
-
       - name: Deploy using Helm
         run: |
           IMAGE_TAG="${{ needs.build-push.outputs.image-tag }}"
