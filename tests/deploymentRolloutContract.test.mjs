@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 let passed = 0;
 let failed = 0;
@@ -24,14 +26,94 @@ function readRepoFile(path) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }
 
+function renderChart(setValues = []) {
+  const args = ["template", "bd-site", "./helm", "-f", "./helm/values.yaml"];
+  for (const value of setValues) {
+    args.push("--set", value);
+  }
+  return execFileSync("helm", args, {
+    cwd: fileURLToPath(new URL("../", import.meta.url)),
+    encoding: "utf8",
+  });
+}
+
+function renderedDocument(renderedChart, kind) {
+  return renderedChart
+    .split(/^---\s*$/m)
+    .find(document => new RegExp(`^kind: ${kind}$`, "m").test(document));
+}
+
 const workflow = readRepoFile(".github/workflows/deploy.yaml");
+const ciWorkflow = readRepoFile(".github/workflows/ci.yml");
 const values = readRepoFile("helm/values.yaml");
+const pvcTemplate = readRepoFile("helm/templates/pvc.yaml");
 const deploymentTemplate = readRepoFile("helm/templates/deployment.yaml");
 const serviceAccountPath = new URL("../helm/templates/serviceaccount.yaml", import.meta.url);
 const serviceAccountTemplate = existsSync(serviceAccountPath) ? readFileSync(serviceAccountPath, "utf8") : "";
 
 test("production deployments are serialized without cancelling an in-flight release", () => {
   assert.match(workflow, /concurrency:\s+group:\s*bd-site-production\s+cancel-in-progress:\s*false/);
+});
+
+test("pull request CI runs the repository tests before linting and building", () => {
+  const helmSetupIndex = ciWorkflow.indexOf("uses: azure/setup-helm@v4");
+  const testIndex = ciWorkflow.indexOf("run: pnpm test");
+  const lintIndex = ciWorkflow.indexOf("run: pnpm run lint");
+  const buildIndex = ciWorkflow.indexOf("run: pnpm run build");
+
+  assert.ok(helmSetupIndex >= 0, "PR CI must install Helm for chart render tests");
+  assert.ok(testIndex > helmSetupIndex, "PR CI must install Helm before running tests");
+  assert.ok(testIndex >= 0, "PR CI must run pnpm test");
+  assert.ok(lintIndex > testIndex, "PR CI must run tests before linting");
+  assert.ok(buildIndex > testIndex, "PR CI must run tests before building");
+});
+
+test("filesystem defaults render the retained PVC and mount it at the live posts path", () => {
+  assert.match(values, /contentStorage:[\s\S]*filesystem:[\s\S]*pvc:[\s\S]*create:\s*true/);
+  assert.match(values, /pvc:[\s\S]*mount:\s*true/);
+  assert.match(values, /existingClaim:\s*bd-site-posts-pvc/);
+  assert.match(values, /preserveOnDelete:\s*true/);
+  assert.match(pvcTemplate, /helm\.sh\/resource-policy/);
+
+  const rendered = renderChart();
+  const pvc = renderedDocument(rendered, "PersistentVolumeClaim");
+  const deployment = renderedDocument(rendered, "Deployment");
+
+  assert.ok(pvc, "default render must create the posts PVC");
+  assert.ok(deployment, "default render must include the deployment");
+  assert.match(pvc, /name: bd-site-posts-pvc/);
+  assert.match(pvc, /helm\.sh\/resource-policy: keep/);
+  assert.match(deployment, /name: posts-content[\s\S]*mountPath: \/app\/src\/data\/blog/);
+  assert.match(deployment, /persistentVolumeClaim:[\s\S]*claimName: bd-site-posts-pvc/);
+  assert.doesNotMatch(deployment, /emptyDir:/);
+});
+
+test("preserved-but-unmounted mode retains the PVC without any content volume", () => {
+  const rendered = renderChart(["contentStorage.filesystem.pvc.mount=false"]);
+  const pvc = renderedDocument(rendered, "PersistentVolumeClaim");
+  const deployment = renderedDocument(rendered, "Deployment");
+
+  assert.ok(pvc, "preserved mode must continue rendering the posts PVC");
+  assert.ok(deployment, "preserved mode must include the deployment");
+  assert.match(pvc, /name: bd-site-posts-pvc/);
+  assert.match(pvc, /helm\.sh\/resource-policy: keep/);
+  assert.doesNotMatch(deployment, /posts-content/);
+  assert.doesNotMatch(deployment, /\/app\/src\/data\/blog/);
+  assert.doesNotMatch(deployment, /emptyDir:/);
+});
+
+test("an externally managed existing claim can be mounted without rendering a PVC", () => {
+  const rendered = renderChart([
+    "contentStorage.filesystem.pvc.create=false",
+    "contentStorage.filesystem.pvc.existingClaim=operator-managed-posts",
+  ]);
+  const pvc = renderedDocument(rendered, "PersistentVolumeClaim");
+  const deployment = renderedDocument(rendered, "Deployment");
+
+  assert.equal(pvc, undefined);
+  assert.ok(deployment, "external-claim mode must include the deployment");
+  assert.match(deployment, /persistentVolumeClaim:[\s\S]*claimName: operator-managed-posts/);
+  assert.match(deployment, /mountPath: \/app\/src\/data\/blog/);
 });
 
 test("main deployment builds and pushes a SHA tag while exporting its immutable digest", () => {

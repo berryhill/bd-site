@@ -1,15 +1,20 @@
-{{- if .Values.volumes.postsContent.enabled }}
+{{- $pvc := .Values.contentStorage.filesystem.pvc -}}
+{{- if $pvc.create }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.volumes.postsContent.pvcName }}
+  name: {{ $pvc.existingClaim }}
+  {{- if $pvc.preserveOnDelete }}
+  annotations:
+    helm.sh/resource-policy: keep
+  {{- end }}
 spec:
   accessModes:
-    - {{ .Values.volumes.postsContent.accessMode | default "ReadWriteMany" }}
+    - {{ $pvc.accessMode | default "ReadWriteOnce" }}
   resources:
     requests:
-      storage: {{ .Values.volumes.postsContent.size }}
-  {{- if .Values.volumes.postsContent.storageClassName }}
-  storageClassName: {{ .Values.volumes.postsContent.storageClassName }}
+      storage: {{ $pvc.size }}
+  {{- if $pvc.storageClassName }}
+  storageClassName: {{ $pvc.storageClassName }}
   {{- end }}
 {{- end }}
