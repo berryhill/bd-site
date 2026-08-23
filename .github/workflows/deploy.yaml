@@ -87,7 +87,29 @@ jobs:
           fi
           echo "Deploying ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${IMAGE_TAG} with revision ${GITHUB_SHA}"
           helm upgrade --install bd-site ./helm -f ./helm/values.yaml --install --set dopplerToken="${{ env.DOPPLER_TOKEN }}" --set image.tag="${IMAGE_TAG}" --set deploymentRevision="${GITHUB_SHA}"
+          set +e
           kubectl rollout status deployment/bd-site --timeout=180s
+          ROLLOUT_STATUS=$?
+          set -e
+
+          if [ "${ROLLOUT_STATUS}" -ne 0 ]; then
+            echo "Deployment rollout failed with status ${ROLLOUT_STATUS}; collecting bounded diagnostics" >&2
+            NAMESPACE="$(kubectl get deployment bd-site -o jsonpath='{.metadata.namespace}' 2>/dev/null || true)"
+            NAMESPACE="${NAMESPACE:-default}"
+
+            kubectl get pods -n "${NAMESPACE}" -l app=bd-site -o wide || true
+            kubectl get pods -n "${NAMESPACE}" -l app=bd-site -o name 2>/dev/null |
+              while IFS= read -r POD_NAME; do
+                [ -n "${POD_NAME}" ] || continue
+                kubectl describe -n "${NAMESPACE}" "${POD_NAME}" || true
+                kubectl logs -n "${NAMESPACE}" "${POD_NAME}" --all-containers=true --tail=120 || true
+                kubectl logs -n "${NAMESPACE}" "${POD_NAME}" --all-containers=true --previous --tail=120 || true
+              done
+            kubectl get events -n "${NAMESPACE}" --field-selector involvedObject.kind=Pod --sort-by=.metadata.creationTimestamp |
+              tail -n 80 || true
+            exit "${ROLLOUT_STATUS}"
+          fi
+
           kubectl get pods -l app=bd-site -o wide
           curl -fsS https://berryhill.dev/posts/ >/dev/null || true
           kubectl logs deployment/bd-site --tail=120
