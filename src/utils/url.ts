@@ -1,6 +1,8 @@
 const DEFAULT_WEBSITE = "https://berryhill.dev/";
 const FILE_EXTENSION_PATH_RE = /\/[^/]+\.[^/]+$/;
 const CANONICAL_HTML_REDIRECT_METHODS = new Set(["GET", "HEAD"]);
+const PAGE_ONE_ARCHIVE_PATH_RE = /^\/posts\/page\/1\/?$/;
+const PAGE_ONE_ARCHIVE_TARGET = "/posts/";
 
 function isBlank(
   value: string | null | undefined
@@ -111,6 +113,29 @@ export function getCanonicalHtmlRedirectLocation(
   }
 
   return `${canonicalUrl.pathname}${canonicalUrl.search}${canonicalUrl.hash}`;
+}
+
+export function getPageOneArchiveRedirectLocation(
+  method: string,
+  requestUrl: string | URL,
+  acceptHeader?: string | null,
+  base: string | URL = DEFAULT_WEBSITE
+): string | null {
+  if (!CANONICAL_HTML_REDIRECT_METHODS.has(method.toUpperCase())) {
+    return null;
+  }
+
+  if (!acceptsHtmlResponse(acceptHeader)) {
+    return null;
+  }
+
+  const url = new URL(requestUrl, toSiteBaseUrl(base));
+
+  if (!PAGE_ONE_ARCHIVE_PATH_RE.test(url.pathname)) {
+    return null;
+  }
+
+  return `${PAGE_ONE_ARCHIVE_TARGET}${url.search}${url.hash}`;
 }
 
 export function normalizeSiteWebsite(website = DEFAULT_WEBSITE): string {

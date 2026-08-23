@@ -9,9 +9,14 @@ import { SITE } from "@/config";
 import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 
 const { page: pageParam } = Astro.params;
-const currentPage = parseInt(pageParam);
-if (isNaN(currentPage) || !pageParam.match(/^\d+$/)) {
+if (!pageParam.match(/^[1-9]\d*$/)) {
   return new Response(null, { status: 404 });
+}
+const currentPage = Number(pageParam);
+
+if (pageParam === "1") {
+  const target = `/posts/${Astro.url.search}${Astro.url.hash}`;
+  return Astro.redirect(target, 301);
 }
 
 const { entries: allPosts } = await getLiveCollection("liveBlog");

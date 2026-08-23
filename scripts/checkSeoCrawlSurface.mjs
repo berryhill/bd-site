@@ -233,6 +233,17 @@ export async function auditLocalCrawlSurface({ contentDir = "src/data/blog", dis
     )
   );
 
+  const pageOneAliases = ["/posts/page/1", "/posts/page/1/"];
+  for (const alias of pageOneAliases) {
+    const absoluteAlias = toAbsoluteSiteUrl(alias, DEFAULT_BASE_URL, { trailingSlash: true });
+    if (sitemapLocs.some(loc => loc === absoluteAlias || loc.replace(/\/$/, "") === absoluteAlias.replace(/\/$/, ""))) {
+      addIssue(issues, "Static sitemap advertises a page-one archive alias", {
+        alias,
+        absoluteAlias,
+      });
+    }
+  }
+
   const robots = getRobotsTxt(DEFAULT_BASE_URL);
   const sitemapDirective = robots.match(/^Sitemap:\s*(\S+)/m)?.[1];
   if (sitemapDirective !== new URL("sitemap.xml", DEFAULT_BASE_URL).href) {
@@ -274,6 +285,25 @@ export async function auditLocalCrawlSurface({ contentDir = "src/data/blog", dis
   };
 }
 
+export function auditPageOneArchiveAliasesStatic({
+  expectedCanonical = new URL("/posts/", DEFAULT_BASE_URL).href,
+} = {}) {
+  return [
+    {
+      alias: "/posts/page/1",
+      expectedCanonical,
+      expectedStatus: 301,
+      expectedRedirectTarget: expectedCanonical,
+    },
+    {
+      alias: "/posts/page/1/",
+      expectedCanonical,
+      expectedStatus: 301,
+      expectedRedirectTarget: expectedCanonical,
+    },
+  ];
+}
+
 async function fetchText(url) {
   const response = await fetch(url, {
     redirect: "follow",
@@ -284,8 +314,9 @@ async function fetchText(url) {
   return { text, finalUrl: response.url, contentType: response.headers.get("content-type") ?? "" };
 }
 
-async function fetchWithoutRedirect(url) {
+async function fetchWithoutRedirect(url, { method = "GET" } = {}) {
   const response = await fetch(url, {
+    method,
     redirect: "manual",
     headers: { "User-Agent": "berryhill-dev-seo-crawl-surface-check/1.0" },
   });
@@ -303,6 +334,70 @@ function isIndexableHtml(html) {
 function resolveRedirectLocation(location, fromUrl) {
   if (!location) return null;
   return new URL(location, fromUrl).href;
+}
+
+const PAGE_ONE_ALIASES = ["/posts/page/1", "/posts/page/1/"];
+
+async function auditPageOneArchiveAliases(base, issues) {
+  const methods = ["GET", "HEAD"];
+  const expectedCanonical = new URL("/posts/", base).href;
+
+  for (const alias of PAGE_ONE_ALIASES) {
+    for (const method of methods) {
+      const aliasUrl = new URL(alias, base).href;
+      const response = await fetchWithoutRedirect(aliasUrl, { method });
+      const redirectedTo = resolveRedirectLocation(response.location, aliasUrl);
+
+      if (response.status !== 301 || redirectedTo !== expectedCanonical) {
+        addIssue(issues, "Live page-one archive alias does not 301 directly to /posts/", {
+          alias,
+          method,
+          status: response.status,
+          location: response.location,
+          redirectedTo,
+          expected: expectedCanonical,
+          contentType: response.contentType,
+        });
+      }
+    }
+  }
+
+  const canonicalResponse = await fetchWithoutRedirect(expectedCanonical);
+  if (canonicalResponse.status !== 200) {
+    addIssue(issues, "Live /posts/ did not return 200", {
+      url: expectedCanonical,
+      status: canonicalResponse.status,
+      contentType: canonicalResponse.contentType,
+    });
+  }
+
+  try {
+    const { text: canonicalHtml, finalUrl: canonicalFinalUrl } = await fetchText(expectedCanonical);
+    if (canonicalFinalUrl !== expectedCanonical) {
+      addIssue(issues, "Live /posts/ did not resolve as self-canonical", {
+        url: expectedCanonical,
+        finalUrl: canonicalFinalUrl,
+      });
+    }
+    const canonical = extractAttr(canonicalHtml, /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i);
+    const ogUrl = extractAttr(canonicalHtml, /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i);
+    if (canonical !== expectedCanonical || ogUrl !== expectedCanonical) {
+      addIssue(issues, "Live /posts/ canonical or og:url disagrees with self", {
+        url: expectedCanonical,
+        canonical,
+        ogUrl,
+        expected: expectedCanonical,
+      });
+    }
+    if (!isIndexableHtml(canonicalHtml)) {
+      addIssue(issues, "Live /posts/ is not indexable", { url: expectedCanonical });
+    }
+  } catch (error) {
+    addIssue(issues, "Live /posts/ canonical fetch failed", {
+      url: expectedCanonical,
+      error: error.message,
+    });
+  }
 }
 
 async function auditLiveCrawlSurface(baseUrl) {
@@ -385,6 +480,8 @@ async function auditLiveCrawlSurface(baseUrl) {
   if (!/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(searchHtml)) {
     addIssue(issues, "Live search page is missing robots noindex meta", { route: "/search/" });
   }
+
+  await auditPageOneArchiveAliases(base, issues);
 
   for (const [surfacePath, { text }] of fetched) {
     if (!["/rss.xml", "/atom.xml"].includes(surfacePath)) continue;

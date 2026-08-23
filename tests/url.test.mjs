@@ -4,6 +4,7 @@ import {
   acceptsHtmlResponse,
   getAlternateHtmlPathname,
   getCanonicalHtmlRedirectLocation,
+  getPageOneArchiveRedirectLocation,
   normalizeCanonicalHtmlUrl,
   normalizeSiteWebsite,
   shouldEnforceTrailingSlash,
@@ -169,6 +170,127 @@ test("canonical HTML redirect helper excludes canonical, API, and file-like path
     getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/posts/example/index.png", "*/*"),
     null
   );
+});
+
+test("page-one archive redirect sends both GET and HEAD for /posts/page/1 and /posts/page/1/ directly to /posts/", () => {
+  assert.equal(
+    getPageOneArchiveRedirectLocation(
+      "GET",
+      "https://berryhill.dev/posts/page/1",
+      "text/html"
+    ),
+    "/posts/"
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation(
+      "HEAD",
+      "https://berryhill.dev/posts/page/1",
+      "text/html"
+    ),
+    "/posts/"
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation(
+      "GET",
+      "https://berryhill.dev/posts/page/1/",
+      "text/html"
+    ),
+    "/posts/"
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation(
+      "HEAD",
+      "https://berryhill.dev/posts/page/1/",
+      "text/html"
+    ),
+    "/posts/"
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation(
+      "GET",
+      "https://berryhill.dev/posts/page/1?utm_source=test#top",
+      "text/html"
+    ),
+    "/posts/?utm_source=test#top"
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation(
+      "GET",
+      "https://berryhill.dev/posts/page/1/",
+      "*/*"
+    ),
+    "/posts/"
+  );
+});
+
+test("page-one archive redirect is a single hop: target is /posts/ not /posts/page/1 or /posts/page/1/", () => {
+  const noSlash = getPageOneArchiveRedirectLocation(
+    "GET",
+    "https://berryhill.dev/posts/page/1",
+    "text/html"
+  );
+  const slashed = getPageOneArchiveRedirectLocation(
+    "GET",
+    "https://berryhill.dev/posts/page/1/",
+    "text/html"
+  );
+
+  assert.notEqual(noSlash, "/posts/page/1/");
+  assert.notEqual(slashed, "/posts/page/1/");
+  assert.notEqual(noSlash, "/posts/page/1");
+  assert.notEqual(slashed, "/posts/page/1");
+  assert.equal(noSlash, slashed);
+  assert.equal(noSlash, "/posts/");
+});
+
+test("page-one archive redirect passes through non-GET/HEAD requests and non-HTML accepts", () => {
+  assert.equal(
+    getPageOneArchiveRedirectLocation("POST", "https://berryhill.dev/posts/page/1", "text/html"),
+    null
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation("PUT", "https://berryhill.dev/posts/page/1/", "text/html"),
+    null
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation("DELETE", "https://berryhill.dev/posts/page/1", "*/*"),
+    null
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation("GET", "https://berryhill.dev/posts/page/1", "application/json"),
+    null
+  );
+  assert.equal(
+    getPageOneArchiveRedirectLocation("GET", "https://berryhill.dev/posts/page/1/", "text/html;q=0"),
+    null
+  );
+});
+
+test("page-one archive redirect ignores non-page-one archive paths and other routes", () => {
+  for (const path of [
+    "https://berryhill.dev/posts/",
+    "https://berryhill.dev/posts/page/2",
+    "https://berryhill.dev/posts/page/2/",
+    "https://berryhill.dev/posts/page/3/",
+    "https://berryhill.dev/posts/page/16/",
+    "https://berryhill.dev/posts/page/0",
+    "https://berryhill.dev/posts/page/0/",
+    "https://berryhill.dev/posts/page/-1",
+    "https://berryhill.dev/posts/page/-1/",
+    "https://berryhill.dev/posts/page/01",
+    "https://berryhill.dev/posts/page/01/",
+    "https://berryhill.dev/posts/page/abc",
+    "https://berryhill.dev/posts/example/",
+    "https://berryhill.dev/about/",
+    "https://berryhill.dev/",
+    "https://berryhill.dev/posts/page/1/index.html",
+  ]) {
+    assert.equal(
+      getPageOneArchiveRedirectLocation("GET", path, "text/html"),
+      null,
+      path
+    );
+  }
 });
 
 test("throws for invalid URL inputs", () => {
