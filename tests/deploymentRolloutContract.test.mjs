@@ -72,6 +72,30 @@ test("deployment workflow fails closed on missing or mismatched revision inputs"
   assert.match(workflow, /if \[ "\$\{IMAGE_TAG\}" != "\$\{GITHUB_SHA\}" \]; then[\s\S]*does not match GitHub revision[\s\S]*exit 1/);
 });
 
+test("rollout failures emit bounded pod diagnostics and preserve the rollout exit status", () => {
+  assert.match(
+    workflow,
+    /set \+e\s+kubectl rollout status deployment\/bd-site --timeout=180s\s+ROLLOUT_STATUS=\$\?\s+set -e/
+  );
+  assert.match(workflow, /if \[ "\$\{ROLLOUT_STATUS\}" -ne 0 \]; then/);
+  assert.match(workflow, /kubectl get pods -n "\$\{NAMESPACE\}" -l app=bd-site -o wide \|\| true/);
+  assert.match(workflow, /kubectl describe -n "\$\{NAMESPACE\}" "\$\{POD_NAME\}" \|\| true/);
+  assert.match(
+    workflow,
+    /kubectl logs -n "\$\{NAMESPACE\}" "\$\{POD_NAME\}" --all-containers=true --tail=120 \|\| true/
+  );
+  assert.match(
+    workflow,
+    /kubectl logs -n "\$\{NAMESPACE\}" "\$\{POD_NAME\}" --all-containers=true --previous --tail=120 \|\| true/
+  );
+  assert.match(
+    workflow,
+    /kubectl get events -n "\$\{NAMESPACE\}" --field-selector involvedObject\.kind=Pod --sort-by=\.metadata\.creationTimestamp \|\s+tail -n 80 \|\| true/
+  );
+  assert.match(workflow, /exit "\$\{ROLLOUT_STATUS\}"/);
+  assert.doesNotMatch(workflow, /kubectl logs[^\n]*--follow/);
+});
+
 console.log(`PASS ${passed} FAIL ${failed}`);
 
 if (failed > 0) {
