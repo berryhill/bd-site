@@ -5,6 +5,9 @@ image:
   tag: 0.0.56
   pullPolicy: IfNotPresent
 
+imagePullSecrets:
+  - name: ghcr-login-secret
+
 deploymentRevision: ""
 
 service:
