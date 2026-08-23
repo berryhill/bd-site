@@ -163,16 +163,41 @@ service:
   targetPort: 80
 ingress:
   host: berryhill.dev
-volumes:
-  postsContent:
-    enabled: true
-    pvcName: bd-site-posts-pvc
-    size: 25Gi
-    storageClassName: ""
-    accessMode: ReadWriteOnce
+contentStorage:
+  filesystem:
+    pvc:
+      create: true
+      mount: true
+      existingClaim: bd-site-posts-pvc
+      preserveOnDelete: true
+      size: 25Gi
+      storageClassName: ""
+      accessMode: ReadWriteOnce
 ```
 
 In CI, do not treat the static `image.tag` above as the deployment mechanism. The GitHub Actions workflow builds and pushes `ghcr.io/berryhill/bd-site-app:${GITHUB_SHA}`, then runs Helm with both `--set image.tag="${GITHUB_SHA}"` and `--set deploymentRevision="${GITHUB_SHA}"`. The chart writes `berryhill.dev/deployment-revision` onto the pod template, so a new commit changes the Deployment spec and forces Kubernetes to create replacement pods even when other values are unchanged.
+
+### Filesystem rollback claim
+
+The default filesystem mode creates and mounts the existing production claim name, `bd-site-posts-pvc`. `preserveOnDelete: true` adds Helm's `helm.sh/resource-policy: keep` annotation so uninstalling the release or later rendering the chart without the PVC does not delete the claim. This is the rollback source for a future object-storage cutover; do not migrate or delete its content as part of a deployment-mode change.
+
+PVC creation and pod mounting are independent:
+
+- Default filesystem mode: `create: true`, `mount: true`.
+- Preserved-but-unmounted preparation: keep `create: true` and set `mount: false`. The claim remains rendered and retained, while the Deployment contains neither a posts `volumeMount` nor a posts `volume`; no `emptyDir` replacement is created.
+- Operator-managed claim: set `create: false`, keep `mount: true`, and set `existingClaim` to the claim name. Helm does not create the PVC but the pod mounts that existing claim.
+
+The Helm keep annotation protects the claim from Helm deletion, but it does not change the backing PersistentVolume's reclaim policy. Before any storage migration, verify that the claim is bound and record the backing PV policy without reading cluster credentials or secret data:
+
+```bash
+NAMESPACE=default
+CLAIM=bd-site-posts-pvc
+PV_NAME="$(kubectl get pvc "${CLAIM}" -n "${NAMESPACE}" -o jsonpath='{.spec.volumeName}')"
+test -n "${PV_NAME}"
+kubectl get pv "${PV_NAME}" -o jsonpath='{.metadata.name}{"\t"}{.spec.persistentVolumeReclaimPolicy}{"\n"}'
+```
+
+The migration prerequisite is an explicit `Retain` policy for the backing PV. If readback reports another policy, stop before cutover and have the cluster operator change and re-verify it; this repository change does not mutate production storage.
 
 ## 🔐 Environment Variables
 

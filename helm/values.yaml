@@ -29,10 +29,15 @@ ingress:
 
 dopplerToken: ""
 
-volumes:
-  postsContent:
-    enabled: true
-    pvcName: bd-site-posts-pvc
-    size: 25Gi
-    storageClassName: ""  # Use default storage class
-    accessMode: ReadWriteOnce  # Linode Block Storage only supports ReadWriteOnce
+contentStorage:
+  filesystem:
+    pvc:
+      # Creation and mounting are independent so object-mode preparation can
+      # retain the rollback claim without attaching it to the application pod.
+      create: true
+      mount: true
+      existingClaim: bd-site-posts-pvc
+      preserveOnDelete: true
+      size: 25Gi
+      storageClassName: ""  # Use default storage class
+      accessMode: ReadWriteOnce  # Linode Block Storage only supports ReadWriteOnce

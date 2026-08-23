@@ -29,9 +29,11 @@ spec:
           env:
             - name: DOPPLER_TOKEN
               value: {{ .Values.dopplerToken }}
+          {{- if .Values.contentStorage.filesystem.pvc.mount }}
           volumeMounts:
             - name: posts-content
               mountPath: /app/src/data/blog
+          {{- end }}
           readinessProbe:
             httpGet:
               path: /
@@ -50,11 +52,9 @@ spec:
             timeoutSeconds: 3
             successThreshold: 1
             failureThreshold: 3
+      {{- if .Values.contentStorage.filesystem.pvc.mount }}
       volumes:
         - name: posts-content
-          {{- if .Values.volumes.postsContent.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.volumes.postsContent.pvcName }}
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
+            claimName: {{ .Values.contentStorage.filesystem.pvc.existingClaim }}
+      {{- end }}

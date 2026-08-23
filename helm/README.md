@@ -61,6 +61,34 @@ kubectl rollout status deployment/bd-site --timeout=180s
 
 For manual deployments, use the same immutable revision value for both `image.tag` and `deploymentRevision`. This mirrors the GitHub Actions main-branch contract, where the image tag is the exact `GITHUB_SHA` and the chart receives that same revision for the pod-template annotation.
 
+### Preserve the rollback PVC independently of mounting
+
+The chart defaults to the current filesystem-backed production behavior:
+
+```yaml
+contentStorage:
+  filesystem:
+    pvc:
+      create: true
+      mount: true
+      existingClaim: bd-site-posts-pvc
+      preserveOnDelete: true
+```
+
+`create` controls whether Helm renders the PVC. `mount` independently controls whether the Deployment renders `/app/src/data/blog` as a `volumeMount` and matching PVC volume. With `create: true` and `mount: false`, Helm preserves the claim as a rollback source but the application pod has no posts-content volume. The chart never substitutes `emptyDir` when mounting is disabled. Set `create: false` only when `existingClaim` is managed outside this release.
+
+`preserveOnDelete: true` applies `helm.sh/resource-policy: keep` to a chart-created PVC. That protects the claim from Helm deletion; the backing PV remains governed by its Kubernetes reclaim policy. Before any object-storage migration, use credential-safe metadata readback and require `Retain`:
+
+```bash
+NAMESPACE=default
+CLAIM=bd-site-posts-pvc
+PV_NAME="$(kubectl get pvc "${CLAIM}" -n "${NAMESPACE}" -o jsonpath='{.spec.volumeName}')"
+test -n "${PV_NAME}"
+kubectl get pv "${PV_NAME}" -o jsonpath='{.metadata.name}{"\t"}{.spec.persistentVolumeReclaimPolicy}{"\n"}'
+```
+
+If the policy is not `Retain`, stop before migration and route the policy change to the cluster operator. Do not print kubeconfig, Doppler values, or Kubernetes Secret content as verification.
+
 ### Method 2: Using Helm CLI Argument
 
 ```bash
