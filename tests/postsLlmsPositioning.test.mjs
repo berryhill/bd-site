@@ -48,7 +48,7 @@ test("posts archive keeps pagination, filtering, and live post routing intact", 
 test("llms.txt route is source-backed and uses the approved safe description", () => {
   assert.equal(SITE.desc, expectedLlmsDescription);
   assert.match(llmsRouteSource, /export const GET/);
-  assert.match(llmsRouteSource, /getLiveCollection\("liveBlog"\)/);
+  assert.match(llmsRouteSource, /getLiveBlogPosts\(\)/);
   assert.match(llmsRouteSource, /Representative posts/);
   assert.match(llmsRouteSource, /SITE\.desc/);
 });

@@ -1,12 +1,12 @@
 import rss from "@astrojs/rss";
-import { getLiveCollection } from "astro:content";
+import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { SITE } from "@/config";
 import { toAbsoluteSiteUrl, toPostUrl } from "@/utils/url";
 
 export async function GET() {
-  const { entries: posts } = await getLiveCollection("liveBlog");
+  const posts = await getLiveBlogPosts();
   const sortedPosts = getSortedPosts(posts || []);
 
   // Render full content for each post

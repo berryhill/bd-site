@@ -175,6 +175,13 @@ contentStorage:
       accessMode: ReadWriteOnce
 ```
 
+The filesystem store defaults to `src/data/blog`. Operators may set
+`CONTENT_STORAGE_FILESYSTEM_PATH` to an alternate mounted directory; the only
+admitted `CONTENT_STORAGE_MODE` in this phase remains `filesystem`. If that
+directory is unavailable, blog-backed public routes return `503` with
+`Cache-Control: no-store` rather than publishing an empty collection, feed, or
+sitemap.
+
 In CI, do not treat the static `image.tag` above as the deployment mechanism. The GitHub Actions workflow builds and pushes `ghcr.io/berryhill/bd-site-app:${GITHUB_SHA}`, then runs Helm with both `--set image.tag="${GITHUB_SHA}"` and `--set deploymentRevision="${GITHUB_SHA}"`. The chart writes `berryhill.dev/deployment-revision` onto the pod template, so a new commit changes the Deployment spec and forces Kubernetes to create replacement pods even when other values are unchanged.
 
 ### Filesystem rollback claim

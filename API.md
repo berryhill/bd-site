@@ -114,7 +114,9 @@ x-api-key: YOUR_API_KEY
       "canonicalURL": "https://berryhill.dev/posts/my-first-post/",
       "hideEditPost": false,
       "timezone": "Asia/Bangkok",
-      "content": "# Hello World\n\nThis is the post content..."
+      "content": "# Hello World\n\nThis is the post content...",
+      "revision": "SHA256_REVISION",
+      "updatedAt": "2025-01-15T10:00:00.000Z"
     }
   ]
 }
@@ -132,6 +134,7 @@ POST /api/posts
 ```
 x-api-key: YOUR_API_KEY
 Content-Type: application/json
+Idempotency-Key: create-my-new-post-20250115
 ```
 
 **Request Body:**
@@ -140,6 +143,7 @@ Content-Type: application/json
   "title": "My New Post",
   "description": "A description of my post",
   "content": "# Hello World\n\nThis is the post content...",
+  "operationId": "create-my-new-post-20250115",
   "author": "Berryhill",
   "pubDatetime": "2025-01-15T10:00:00.000Z",
   "modDatetime": null,
@@ -158,6 +162,7 @@ Content-Type: application/json
 - `title` (required): Post title
 - `description` (required): Post description
 - `content` (required): Post content in Markdown
+- `operationId` (required): Stable retry identifier. Supply it in the JSON body or as `Idempotency-Key`; reusing it for different inputs returns a conflict.
 - `author` (optional): Post author (schema defaults to site author when omitted)
 - `pubDatetime` (optional): Publication datetime; defaults to the creation time when omitted
 - `modDatetime` (optional): Modified datetime; can be `null`
@@ -308,12 +313,16 @@ PATCH /api/posts
 ```
 x-api-key: YOUR_API_KEY
 Content-Type: application/json
+Idempotency-Key: update-my-post-20250116
+If-Match: CURRENT_REVISION_FROM_GET
 ```
 
 **Request Body:**
 ```json
 {
   "slug": "my-post-slug",
+  "expectedRevision": "CURRENT_REVISION_FROM_GET",
+  "operationId": "update-my-post-20250116",
   "title": "Updated Title",
   "description": "Updated description",
   "author": "Berryhill",
@@ -333,11 +342,13 @@ Content-Type: application/json
 
 **Fields:**
 - `slug` (required): The slug of the post to update
+- `expectedRevision` (required): Revision returned by GET or the preceding mutation. It may instead be supplied as `If-Match`.
+- `operationId` (required): Stable retry identifier. It may instead be supplied as `Idempotency-Key`.
 - `title` (optional): Update post title
 - `description` (optional): Update post description
 - `author` (optional): Update post author
 - `pubDatetime` (optional): Update publication datetime
-- `modDatetime` (optional): Update modified datetime; if omitted, the API sets it to the current update time
+- `modDatetime` (optional): Update modified datetime. On the first accepted mutation, omission sets it to the current update time. An exact retry with the same `operationId` and original `expectedRevision` reuses the committed generated value and replays the original success.
 - `featured` (optional): Update featured status
 - `draft` (optional): Update draft status
 - `tags` (optional): Update tags array
@@ -347,6 +358,28 @@ Content-Type: application/json
 - `hideEditPost` (optional): Update whether the edit link is hidden
 - `timezone` (optional): Update IANA timezone override
 - `content` (optional): Update post content in Markdown
+
+**Executable retry example:**
+
+```bash
+: "${API_KEY:?set API_KEY without printing it}"
+BASE_URL="${BASE_URL:-http://localhost:4321}"
+SLUG="my-post-slug"
+REVISION="$(curl --fail --silent --show-error \
+  "${BASE_URL}/api/posts?slug=${SLUG}" \
+  -H "x-api-key: ${API_KEY}" | jq -er '.post.revision')"
+OPERATION_ID="update-${SLUG}-20250116"
+
+curl --fail --silent --show-error -X PATCH "${BASE_URL}/api/posts" \
+  -H "x-api-key: ${API_KEY}" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: ${OPERATION_ID}" \
+  -H "If-Match: ${REVISION}" \
+  --data "{\"slug\":\"${SLUG}\",\"description\":\"Updated once\"}"
+
+# Safe transport retry: repeat the identical PATCH command with the original
+# If-Match revision and Idempotency-Key. It returns the first success.
+```
 
 **Title quality behavior:** PATCH validates the resulting title/frontmatter before the file is rewritten when the resulting post is non-draft. The rendered title is the post title plus the site suffix (` | berryhill.dev`), with a default maximum length of 65 characters. Near-duplicate comparison is against recent public posts and excludes the current slug. Draft results bypass this gate.
 
@@ -362,6 +395,7 @@ Content-Type: application/json
   "success": true,
   "message": "Post updated successfully",
   "slug": "my-post-slug",
+  "revision": "SHA256_REVISION",
   "updated": {
     "featured": true,
     "draft": false
@@ -474,16 +508,20 @@ Content-Type: application/json
 Delete a blog post by slug.
 
 ```
-DELETE /api/posts?slug=my-post-slug
+DELETE /api/posts?slug=my-post-slug&expectedRevision=CURRENT_REVISION&operationId=delete-my-post-20250116
 ```
 
 **Headers:**
 ```
 x-api-key: YOUR_API_KEY
+Idempotency-Key: delete-my-post-20250116
+If-Match: CURRENT_REVISION
 ```
 
 **Query Parameters:**
 - `slug` (required): The slug of the post to delete
+- `expectedRevision` (required): Revision returned by GET or the preceding mutation. It may instead be supplied as `If-Match`.
+- `operationId` (required): Stable retry identifier. It may instead be supplied as `Idempotency-Key`.
 
 **Response (200 OK):**
 ```json
@@ -592,3 +630,5 @@ or:
   "details": "Error details..."
 }
 ```
+
+Mutation requests without an operation ID or required revision return `428 Precondition Required`. A stale revision returns `412 Precondition Failed`; an operation ID reused with different inputs returns `409 Conflict`. Storage unavailability returns a controlled `503 Service Unavailable`; it is never represented as a successful empty post inventory.

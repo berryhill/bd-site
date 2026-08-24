@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 
-import { getLiveCollection } from "astro:content";
+import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import Layout from "@/layouts/Layout.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { getPath } from "@/utils/getPath";
@@ -18,7 +18,7 @@ import {
   getHomepageFleetCountLabel,
 } from "@/utils/homepageFleet";
 
-const { entries: posts } = await getLiveCollection("liveBlog");
+const posts = await getLiveBlogPosts();
 const sortedPosts = getSortedPosts(posts || []);
 const { featuredPosts, recentPosts } = selectHomepagePosts(sortedPosts);
 const wordCount = getPostWordCount;

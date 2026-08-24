@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 
-import { getLiveCollection } from "astro:content";
+import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
 import Tag from "@/components/Tag.astro";
@@ -11,7 +11,7 @@ import getUniqueTags from "@/utils/getUniqueTags";
 import { SITE } from "@/config";
 import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 
-const { entries: posts } = await getLiveCollection("liveBlog");
+const posts = await getLiveBlogPosts();
 
 const tags = getUniqueTags(posts || []);
 const tagsDescription =

@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 
-import { getLiveCollection } from "astro:content";
+import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import Layout from "@/layouts/Layout.astro";
 import TerminalPostsArchive from "@/components/TerminalPostsArchive.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
@@ -19,7 +19,7 @@ if (pageParam === "1") {
   return Astro.redirect(target, 301);
 }
 
-const { entries: allPosts } = await getLiveCollection("liveBlog");
+const allPosts = await getLiveBlogPosts();
 const posts = (allPosts || []).filter(({ data }) => !data.draft);
 const sortedPosts = getSortedPosts(posts);
 const totalPages = Math.max(

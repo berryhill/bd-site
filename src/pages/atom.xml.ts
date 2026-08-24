@@ -1,4 +1,4 @@
-import { getLiveCollection } from "astro:content";
+import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
@@ -7,7 +7,7 @@ import { normalizeSiteWebsite, toPostUrl } from "@/utils/url";
 export const prerender = false;
 
 export async function GET() {
-  const { entries: posts } = await getLiveCollection("liveBlog");
+  const posts = await getLiveBlogPosts();
   const sortedPosts = getSortedPosts(posts || []);
 
   const website = normalizeSiteWebsite(SITE.website);
