@@ -176,11 +176,36 @@ contentStorage:
 ```
 
 The filesystem store defaults to `src/data/blog`. Operators may set
-`CONTENT_STORAGE_FILESYSTEM_PATH` to an alternate mounted directory; the only
-admitted `CONTENT_STORAGE_MODE` in this phase remains `filesystem`. If that
-directory is unavailable, blog-backed public routes return `503` with
+`CONTENT_STORAGE_FILESYSTEM_PATH` to an alternate mounted directory. The store
+factory admits `CONTENT_STORAGE_MODE=filesystem` (the default and production
+authority) and `CONTENT_STORAGE_MODE=object` (an available, non-authoritative
+S3-compatible capability). This change does not cut production over, backfill
+posts, mirror writes, or remove the PVC rollback source. If the selected store
+is unavailable, blog-backed public routes return `503` with
 `Cache-Control: no-store` rather than publishing an empty collection, feed, or
 sitemap.
+
+Object mode uses provider-neutral settings:
+
+| Setting                                 | Default                                          | Purpose                                        |
+| --------------------------------------- | ------------------------------------------------ | ---------------------------------------------- |
+| `CONTENT_OBJECT_ENDPOINT`               | AWS SDK default                                  | Optional S3-compatible endpoint                |
+| `CONTENT_OBJECT_REGION`                 | `us-east-1`                                      | Signing and bucket region                      |
+| `CONTENT_OBJECT_BUCKET`                 | none; required                                   | Object bucket name                             |
+| `CONTENT_OBJECT_PREFIX`                 | `blog`                                           | Key prefix, normalized without edge slashes    |
+| `CONTENT_OBJECT_FORCE_PATH_STYLE`       | `true` with a custom endpoint, otherwise `false` | Path-style bucket addressing                   |
+| `CONTENT_OBJECT_REQUEST_TIMEOUT_MS`     | `10000`                                          | Connection and request timeout                 |
+| `CONTENT_OBJECT_MAX_ATTEMPTS`           | `3`                                              | AWS SDK request attempts                       |
+| `CONTENT_OBJECT_CATALOG_CAS_RETRIES`    | `128`                                            | Bounded catalog compare-and-swap retries       |
+| `CONTENT_OBJECT_CACHE_TTL_MS`           | `1000`                                           | Catalog/pointer cache lifetime                 |
+| `CONTENT_OBJECT_CACHE_MAX_ENTRIES`      | `16`                                             | Maximum cached immutable catalogs              |
+| `CONTENT_OBJECT_TOMBSTONE_RETENTION_MS` | `2592000000` (30 days)                           | Earliest object garbage-collection eligibility |
+| `CONTENT_OBJECT_MAX_SOURCE_BYTES`       | `2097152` (2 MiB)                                | Maximum raw Markdown source size               |
+
+Credentials are not application settings and must not be placed in
+`CONTENT_OBJECT_*` variables. The S3 client resolves them only through the AWS
+SDK/runtime credential chain. Authenticated health diagnostics expose only
+non-secret endpoint/configuration readiness metadata.
 
 In CI, do not treat the static `image.tag` above as the deployment mechanism. The GitHub Actions workflow builds and pushes `ghcr.io/berryhill/bd-site-app:${GITHUB_SHA}`, then runs Helm with both `--set image.tag="${GITHUB_SHA}"` and `--set deploymentRevision="${GITHUB_SHA}"`. The chart writes `berryhill.dev/deployment-revision` onto the pod template, so a new commit changes the Deployment spec and forces Kubernetes to create replacement pods even when other values are unchanged.
 
