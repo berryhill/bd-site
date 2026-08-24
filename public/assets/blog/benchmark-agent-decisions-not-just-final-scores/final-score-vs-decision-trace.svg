@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="600" viewBox="0 0 390 600" role="img" aria-labelledby="title desc" style="font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <title id="title">Final Score vs Decision Trace</title>
+  <desc id="desc">Two evaluation views show the same strong terminal result. The final-score view hides invalid actions and wasted budget, while the decision-trace view exposes evidence, decisions, consequences, and a hidden failure.</desc>
+  <rect width="390" height="600" fill="#081018"/>
+  <text x="20" y="32" fill="#76f5a4" font-size="14" font-weight="700" letter-spacing="0.7">TWO VIEWS OF THE SAME RUN</text>
+  <text x="20" y="64" fill="#e8f1f2" font-size="20" font-weight="700">Endpoint cannot explain the path</text>
+  <rect x="20" y="90" width="350" height="166" rx="6" fill="#101b24" stroke="#22333c" stroke-width="1.5"/>
+  <text x="38" y="120" fill="#e8f1f2" font-size="17" font-weight="700">Final score</text>
+  <rect x="38" y="140" width="314" height="54" rx="6" fill="#1b2a33" stroke="#76f5a4" stroke-width="1.5"/>
+  <text x="54" y="162" fill="#7f9297" font-size="14">TERMINAL RESULT</text>
+  <text x="54" y="184" fill="#76f5a4" font-size="20" font-weight="700">Strong</text>
+  <text x="38" y="225" fill="#7f9297" font-size="16">One number. Not how it happened.</text>
+  <path d="M195 256V282" stroke="#76f5a4" stroke-width="2"/>
+  <path d="M190 276L195 284L200 276" fill="none" stroke="#76f5a4" stroke-width="2"/>
+  <rect x="20" y="286" width="350" height="270" rx="6" fill="#101b24" stroke="#76f5a4" stroke-width="1.5"/>
+  <text x="38" y="318" fill="#e8f1f2" font-size="17" font-weight="700">Decision trace</text>
+  <line x1="55" y1="353" x2="55" y2="492" stroke="#76f5a4" stroke-width="2"/>
+  <circle cx="55" cy="356" r="8" fill="#76f5a4"/><text x="78" y="362" fill="#e8f1f2" font-size="16" font-weight="600">Evidence</text><text x="166" y="362" fill="#7f9297" font-size="14">logs + prior run</text>
+  <circle cx="55" cy="401" r="8" fill="#76f5a4"/><text x="78" y="407" fill="#e8f1f2" font-size="16" font-weight="600">Decision</text><text x="166" y="407" fill="#7f9297" font-size="14">change three controls</text>
+  <circle cx="55" cy="446" r="8" fill="#f6b76b"/><text x="78" y="452" fill="#e8f1f2" font-size="16" font-weight="600">Consequence</text><text x="190" y="452" fill="#7f9297" font-size="14">metric rises</text>
+  <circle cx="55" cy="491" r="8" fill="#f6b76b"/><text x="78" y="497" fill="#e8f1f2" font-size="16" font-weight="600">Hidden failure</text><text x="200" y="497" fill="#f6b76b" font-size="14">cause unclear</text>
+  <rect x="38" y="518" width="314" height="24" rx="6" fill="#1b2a33"/>
+  <text x="195" y="535" text-anchor="middle" fill="#e8f1f2" font-size="14" font-weight="600">Same result. Different confidence.</text>
+  <text x="20" y="582" fill="#7f9297" font-size="14">The trace shows whether the strong result was earned.</text>
+</svg>

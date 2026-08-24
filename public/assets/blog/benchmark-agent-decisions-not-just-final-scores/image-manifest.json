@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "post_slug": "benchmark-agent-decisions-not-just-final-scores",
+  "post_title": "Benchmark Agent Decisions, Not Just Final Scores",
+  "images": [
+    {
+      "role": "diagram",
+      "url_or_path": "public/assets/blog/benchmark-agent-decisions-not-just-final-scores/final-score-vs-decision-trace.svg",
+      "source": "original",
+      "creator": "Luca Vale",
+      "source_url": null,
+      "license": "owned",
+      "attribution_text": "Original diagram by Luca Vale for berryhill.dev.",
+      "alt_text": "Two evaluation views show the same strong terminal result, but only the decision trace exposes the evidence, decision, consequence, and hidden failure.",
+      "date": "2026-08-24",
+      "usage_rationale": "Contrasts endpoint-only evidence with an inspectable decision path without dismissing terminal performance.",
+      "bytes": 2955,
+      "sha256": "ee444ebca481b925415071940750e593d50adeba0a7aae17758162e6add07d99"
+    },
+    {
+      "role": "diagram",
+      "url_or_path": "public/assets/blog/benchmark-agent-decisions-not-just-final-scores/evidence-to-decision-loop.svg",
+      "source": "original",
+      "creator": "Luca Vale",
+      "source_url": null,
+      "license": "owned",
+      "attribution_text": "Original diagram by Luca Vale for berryhill.dev.",
+      "alt_text": "A closed five-stage loop moves from observe to diagnose, intervene, measure, and update before feeding updated evidence into the next observation.",
+      "date": "2026-08-24",
+      "usage_rationale": "Shows why every intervention changes the evidence available to the next decision.",
+      "bytes": 3701,
+      "sha256": "2a994a91aa5739ee00d253da21417d33a93f4286108cc877853923cc215b7bb4"
+    },
+    {
+      "role": "diagram",
+      "url_or_path": "public/assets/blog/benchmark-agent-decisions-not-just-final-scores/agent-decision-trace.svg",
+      "source": "original",
+      "creator": "Luca Vale",
+      "source_url": null,
+      "license": "owned",
+      "attribution_text": "Original diagram by Luca Vale for berryhill.dev.",
+      "alt_text": "A six-entry Agent Decision Trace records context, evidence used, the decision, expected effect, observed consequence, and validity plus budget for each consequential intervention.",
+      "date": "2026-08-24",
+      "usage_rationale": "Packages Matt's six-entry operator synthesis as a reusable review artifact with readable mobile typography.",
+      "bytes": 4304,
+      "sha256": "393c3fc090c5fad9fdde8ce613f3e1984bdf68b188e64f03df31c6be05612db6"
+    }
+  ]
+}
