@@ -376,6 +376,16 @@ export class S3BlogStore implements BlogStore {
         sourceSha256: contentSha256,
       })
     );
+
+    const preflight = await this.loadCurrentCatalog(true);
+    const existing = await this.preflightPut(
+      preflight.catalog,
+      slug,
+      options,
+      fingerprint
+    );
+    if (existing) return existing;
+
     await this.putImmutable(
       objectKey,
       source,
@@ -384,28 +394,18 @@ export class S3BlogStore implements BlogStore {
     );
 
     return this.commitMutation(async catalog => {
-      const receipt = catalog.operations[options.operationId];
-      if (receipt) {
-        this.assertMatchingReceipt(receipt, "put", slug, fingerprint);
-        const entry = catalog.posts[slug];
-        if (!entry || entry.revision !== receipt.revision) {
-          throw new BlogStoreConflictError(
-            "Idempotent operation result no longer matches stored post"
-          );
-        }
+      const existing = await this.preflightPut(
+        catalog,
+        slug,
+        options,
+        fingerprint
+      );
+      if (existing) {
         return {
           catalog,
-          result: await this.readCatalogPost(entry),
+          result: existing,
           changed: false,
         };
-      }
-
-      const current = catalog.posts[slug];
-      if (options.expectedRevision === "absent") {
-        if (current)
-          throw new BlogStoreConflictError(`Post already exists: ${slug}`);
-      } else if (!current || current.revision !== options.expectedRevision) {
-        throw new BlogStorePreconditionError(`Post revision is stale: ${slug}`);
       }
 
       const updatedAt = new Date().toISOString();
@@ -508,6 +508,34 @@ export class S3BlogStore implements BlogStore {
       "Catalog changed too frequently to commit within the retry limit",
       lastConflict
     );
+  }
+
+  private async preflightPut(
+    catalog: Catalog,
+    slug: string,
+    options: PutPostOptions,
+    fingerprint: string
+  ): Promise<StoredPost | undefined> {
+    const receipt = catalog.operations[options.operationId];
+    if (receipt) {
+      this.assertMatchingReceipt(receipt, "put", slug, fingerprint);
+      const entry = catalog.posts[slug];
+      if (!entry || entry.revision !== receipt.revision) {
+        throw new BlogStoreConflictError(
+          "Idempotent operation result no longer matches stored post"
+        );
+      }
+      return this.readCatalogPost(entry);
+    }
+
+    const current = catalog.posts[slug];
+    if (options.expectedRevision === "absent") {
+      if (current)
+        throw new BlogStoreConflictError(`Post already exists: ${slug}`);
+    } else if (!current || current.revision !== options.expectedRevision) {
+      throw new BlogStorePreconditionError(`Post revision is stale: ${slug}`);
+    }
+    return undefined;
   }
 
   private async writeCatalogAndPointer(

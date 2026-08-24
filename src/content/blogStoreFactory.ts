@@ -3,11 +3,7 @@ import { BLOG_PATH } from "@/content.config";
 import type { BlogStore } from "@/content/blogStore";
 import { BlogStoreValidationError } from "@/content/blogStore";
 import { FilesystemBlogStore } from "@/content/filesystemBlogStore";
-import {
-  createS3BlogStore,
-  objectBlogStoreConfigFromEnv,
-  type ObjectStoreDiagnostics,
-} from "@/content/s3BlogStore";
+import { createS3BlogStore } from "@/content/s3BlogStore";
 
 let sharedStore: BlogStore | undefined;
 
@@ -26,19 +22,9 @@ export function createBlogStore(
 
 export function getBlogStoreDiagnostics(
   mode = process.env.CONTENT_STORAGE_MODE ?? "filesystem"
-): { provider: "filesystem"; path: string } | ObjectStoreDiagnostics {
-  if (mode === "filesystem") {
-    return {
-      provider: "filesystem",
-      path: path.resolve(
-        process.env.CONTENT_STORAGE_FILESYSTEM_PATH ?? BLOG_PATH
-      ),
-    };
-  }
-  if (mode === "object") return objectBlogStoreConfigFromEnv().diagnostics;
-  throw new BlogStoreValidationError(
-    `Unsupported CONTENT_STORAGE_MODE: ${mode}`
-  );
+): { provider: "filesystem" | "object" | "unknown" } {
+  if (mode === "filesystem" || mode === "object") return { provider: mode };
+  return { provider: "unknown" };
 }
 
 export function getBlogStore(): BlogStore {

@@ -3,15 +3,14 @@ import {
   getBlogStore,
   getBlogStoreDiagnostics,
 } from "@/content/blogStoreFactory";
-import { BlogStoreUnavailableError } from "@/content/blogStore";
 import { requireApiKey } from "@/utils/apiAuth";
 
 export const GET: APIRoute = async context => {
   const authError = requireApiKey(context);
   if (authError) return authError;
 
-  const storage = getBlogStoreDiagnostics();
   try {
+    const storage = getBlogStoreDiagnostics();
     await getBlogStore().ready();
     return new Response(
       JSON.stringify({
@@ -24,8 +23,8 @@ export const GET: APIRoute = async context => {
         headers: { "Content-Type": "application/json" },
       }
     );
-  } catch (error) {
-    if (!(error instanceof BlogStoreUnavailableError)) throw error;
+  } catch {
+    const storage = getBlogStoreDiagnostics();
     return new Response(
       JSON.stringify({
         status: "unavailable",

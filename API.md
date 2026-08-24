@@ -65,9 +65,35 @@ x-api-key: YOUR_API_KEY
 ```json
 {
   "status": "healthy",
-  "message": "API is operational"
+  "message": "API is operational",
+  "storage": {
+    "provider": "filesystem",
+    "ready": true
+  }
 }
 ```
+
+The `storage` object reports only the selected provider and its readiness. It
+does not expose filesystem paths, object-store endpoints, bucket names,
+prefixes, regions, or credential-chain details. Object mode can be selected for
+validation and future migration work, but this capability does not change the
+filesystem-authoritative production default.
+
+**Response (503 Service Unavailable):**
+```json
+{
+  "status": "unavailable",
+  "message": "Blog storage is unavailable",
+  "storage": {
+    "provider": "object",
+    "ready": false
+  }
+}
+```
+
+A `503` includes `Cache-Control: no-store` and `Retry-After: 30`. It covers
+missing or invalid selected-storage configuration and provider readiness
+failures without returning internal configuration or provider error details.
 
 **Response (401 Unauthorized):**
 ```json
