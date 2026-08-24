@@ -41,6 +41,34 @@ function hasUnsafePathSegment(src: string): boolean {
   return src.split(/[\\/]/).some(segment => segment === "..");
 }
 
+function candidatePublicRoots(publicDir: string): string[] {
+  const sourcePublicRoot = path.resolve(publicDir);
+  const deployedStaticRoot = path.resolve(
+    sourcePublicRoot,
+    "..",
+    "dist",
+    "client"
+  );
+
+  return [...new Set([sourcePublicRoot, deployedStaticRoot])];
+}
+
+function resolveVisualAssetPath(src: string, publicDir: string): string | null {
+  for (const publicRoot of candidatePublicRoots(publicDir)) {
+    const assetPath = path.resolve(publicRoot, `.${src}`);
+
+    if (!assetPath.startsWith(`${publicRoot}${path.sep}`)) {
+      continue;
+    }
+
+    if (fs.existsSync(assetPath) && fs.statSync(assetPath).isFile()) {
+      return assetPath;
+    }
+  }
+
+  return null;
+}
+
 export function extractBlogImageReferences(
   markdown: string
 ): BlogImageReference[] {
@@ -137,8 +165,8 @@ export function validateBlogVisualAssets(
       });
     }
 
-    const assetPath = path.resolve(publicDir, `.${src}`);
     const publicRoot = path.resolve(publicDir);
+    const assetPath = path.resolve(publicRoot, `.${src}`);
 
     if (!assetPath.startsWith(`${publicRoot}${path.sep}`)) {
       issues.push({
@@ -148,7 +176,7 @@ export function validateBlogVisualAssets(
       continue;
     }
 
-    if (!fs.existsSync(assetPath) || !fs.statSync(assetPath).isFile()) {
+    if (!resolveVisualAssetPath(src, publicDir)) {
       issues.push({
         src,
         reason: `Referenced blog visual asset does not exist at ${path.relative(process.cwd(), assetPath)}.`,

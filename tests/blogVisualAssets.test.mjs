@@ -22,6 +22,28 @@ function createPublicDirWithAsset(postSlug = "durable-post") {
   return publicDir;
 }
 
+function createRuntimeRootWithBuiltAsset(postSlug = "durable-post") {
+  const appRoot = fs.mkdtempSync(path.join(os.tmpdir(), "bd-blog-runtime-"));
+  const publicDir = path.join(appRoot, "public");
+  const assetDir = path.join(
+    appRoot,
+    "dist",
+    "client",
+    "assets",
+    "blog",
+    postSlug
+  );
+
+  fs.mkdirSync(publicDir, { recursive: true });
+  fs.mkdirSync(assetDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(assetDir, "pipeline.svg"),
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"></svg>'
+  );
+
+  return { appRoot, publicDir };
+}
+
 let passed = 0;
 let failed = 0;
 
@@ -81,6 +103,20 @@ test("accepts durable blog visual assets stored under public/assets/blog/<post-s
   );
 });
 
+test("accepts durable blog visual assets from the deployed dist/client static root", () => {
+  const { publicDir } = createRuntimeRootWithBuiltAsset();
+  const markdown =
+    '![Pipeline diagram](/assets/blog/durable-post/pipeline.svg "Build gate diagram")';
+
+  const result = validateBlogVisualAssets(markdown, {
+    postSlug: "durable-post",
+    publicDir,
+  });
+
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.issues, []);
+});
+
 test("ignores external image URLs so existing posts remain unaffected", () => {
   const result = validateBlogVisualAssets(
     "![Remote source](https://images.example.test/photo.jpg)",
@@ -92,6 +128,21 @@ test("ignores external image URLs so existing posts remain unaffected", () => {
 
   assert.equal(result.valid, true);
   assert.deepEqual(result.issues, []);
+});
+
+test("does not use a remote-existence bypass for local blog asset references", () => {
+  const { publicDir } = createRuntimeRootWithBuiltAsset();
+  const result = validateBlogVisualAssets(
+    '![Missing local diagram](/assets/blog/durable-post/missing.svg "Missing local caption")',
+    {
+      postSlug: "durable-post",
+      publicDir,
+    }
+  );
+
+  assert.equal(result.valid, false);
+  assert.equal(result.issues.length, 1);
+  assert.match(result.issues[0].reason, /does not exist/);
 });
 
 test("rejects inline data image URIs", () => {
