@@ -40,6 +40,15 @@ async function waitForServer(origin, child, output) {
 const port = await getFreePort();
 const origin = `http://127.0.0.1:${port}`;
 const storePath = await fs.mkdtemp(path.join(os.tmpdir(), "bd-posts-api-"));
+const runtimeVisualSlug = "draft-runtime-visual-fixture";
+const runtimeVisualAssetDir = path.join(
+  process.cwd(),
+  "dist",
+  "client",
+  "assets",
+  "blog",
+  runtimeVisualSlug
+);
 const apiKey = randomUUID();
 const output = [];
 const child = spawn(
@@ -70,7 +79,27 @@ const request = (method, body) =>
   });
 
 try {
+  await fs.mkdir(runtimeVisualAssetDir, { recursive: true });
+  await fs.writeFile(
+    path.join(runtimeVisualAssetDir, "pipeline.svg"),
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"></svg>'
+  );
   await waitForServer(origin, child, output);
+
+  const createRuntimeVisualDraft = await request("POST", {
+    title: "Draft Runtime Visual Fixture",
+    description: "Draft fixture with a built static visual reference",
+    content:
+      '![Pipeline diagram](/assets/blog/draft-runtime-visual-fixture/pipeline.svg "Build gate diagram")',
+    draft: true,
+    operationId: "create-draft-runtime-visual-fixture",
+  });
+  const createRuntimeVisualDraftText = await createRuntimeVisualDraft.text();
+  assert.equal(
+    createRuntimeVisualDraft.status,
+    201,
+    createRuntimeVisualDraftText
+  );
 
   const create = await request("POST", {
     title: "PATCH Retry Route Fixture",
@@ -101,8 +130,9 @@ try {
   const retryBody = JSON.parse(retryText);
   assert.deepEqual(retryBody, firstBody);
 
-  console.log("PASS 1 FAIL 0");
+  console.log("PASS 2 FAIL 0");
 } finally {
   child.kill("SIGTERM");
   await fs.rm(storePath, { recursive: true, force: true });
+  await fs.rm(runtimeVisualAssetDir, { recursive: true, force: true });
 }
