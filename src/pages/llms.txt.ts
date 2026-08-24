@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getLiveCollection } from "astro:content";
+import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
@@ -8,7 +8,7 @@ import { CANONICAL_SITEMAP_PATH } from "@/utils/crawlSignals";
 export const prerender = false;
 
 export const GET: APIRoute = async () => {
-  const { entries: posts } = await getLiveCollection("liveBlog");
+  const posts = await getLiveBlogPosts();
   const sortedPosts = getSortedPosts(posts || []).slice(0, 15);
 
   const website = SITE.website.endsWith("/")

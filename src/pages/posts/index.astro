@@ -1,14 +1,14 @@
 ---
 export const prerender = false;
 
-import { getLiveCollection } from "astro:content";
+import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import Layout from "@/layouts/Layout.astro";
 import TerminalPostsArchive from "@/components/TerminalPostsArchive.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { SITE } from "@/config";
 import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 
-const { entries: allPosts } = await getLiveCollection("liveBlog");
+const allPosts = await getLiveBlogPosts();
 const posts = (allPosts || []).filter(({ data }) => !data.draft);
 const sortedPosts = getSortedPosts(posts);
 const postsMetadataDescription =

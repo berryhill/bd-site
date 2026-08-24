@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getLiveCollection } from "astro:content";
+import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
 import { toPostUrl } from "@/utils/url";
@@ -24,10 +24,7 @@ const getPostDate = (post: { data: Record<string, unknown> }) => {
 };
 
 export const GET: APIRoute = async () => {
-  // Get all blog posts from live collection. If the live loader returns an
-  // error-shaped response, emit an empty sitemap instead of throwing a 500.
-  const liveBlog = await getLiveCollection("liveBlog");
-  const allPosts = Array.isArray(liveBlog.entries) ? liveBlog.entries : [];
+  const allPosts = await getLiveBlogPosts();
 
   const publishedPosts = getSortedPosts(allPosts);
 
