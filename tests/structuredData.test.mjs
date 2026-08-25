@@ -107,15 +107,27 @@ test("WebSite produces expected type and required fields", () => {
     name: "berryhill.dev",
     url: "https://berryhill.dev/",
     description: "Exploring agentic-first development.",
-    author: "Berryhill",
-    authorUrl: "https://berryhill.dev/",
+    publisher: "Berryhill Dev",
+    publisherUrl: "https://berryhill.dev/",
+    creator: "Matt Berryhill",
+    creatorUrl: "https://berryhill.dev/about/",
   });
 
   assert.equal(jsonLd["@type"], "WebSite");
   assert.equal(jsonLd.name, "berryhill.dev");
   assert.equal(jsonLd.url, "https://berryhill.dev/");
   assert.equal(jsonLd.description, "Exploring agentic-first development.");
-  assert.equal(jsonLd.author.name, "Berryhill");
+  assert.deepEqual(jsonLd.publisher, {
+    "@type": "Organization",
+    name: "Berryhill Dev",
+    url: "https://berryhill.dev/",
+  });
+  assert.deepEqual(jsonLd.creator, {
+    "@type": "Person",
+    name: "Matt Berryhill",
+    url: "https://berryhill.dev/about/",
+  });
+  assert.equal("author" in jsonLd, false);
 });
 
 test("Person produces expected type and required fields", () => {

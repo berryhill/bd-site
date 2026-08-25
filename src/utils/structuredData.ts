@@ -24,8 +24,10 @@ export interface WebSiteJsonLdInput {
   url: string;
   description: string;
   image?: string;
-  author: string;
-  authorUrl?: string;
+  publisher: string;
+  publisherUrl?: string;
+  creator: string;
+  creatorUrl?: string;
 }
 
 export interface PersonJsonLdInput {
@@ -70,6 +72,14 @@ function buildPersonReference(name: string, url?: string) {
   });
 }
 
+function buildOrganizationReference(name: string, url?: string) {
+  return stripNullishValues({
+    "@type": "Organization",
+    name,
+    url,
+  });
+}
+
 export function buildBlogPostingJsonLd(input: BlogPostingJsonLdInput) {
   const author = buildPersonReference(input.author, input.authorUrl);
 
@@ -100,7 +110,8 @@ export function buildWebSiteJsonLd(input: WebSiteJsonLdInput) {
     url: input.url,
     description: input.description,
     image: input.image ? [input.image] : undefined,
-    author: buildPersonReference(input.author, input.authorUrl),
+    publisher: buildOrganizationReference(input.publisher, input.publisherUrl),
+    creator: buildPersonReference(input.creator, input.creatorUrl),
   });
 }
 
