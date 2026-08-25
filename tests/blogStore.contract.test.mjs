@@ -3,16 +3,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import {
-  BlogStoreConflictError,
-  BlogStoreNotFoundError,
-  BlogStoreValidationError,
-} from "../src/content/blogStore.ts";
+import { BlogStoreValidationError } from "../src/content/blogStore.ts";
 import { FilesystemBlogStore } from "../src/content/filesystemBlogStore.ts";
 import {
   assertCanonicalBlogSlug,
   resolveCreatePubDatetime,
 } from "../src/content/blogSchema.ts";
+import { runBlogStoreContract } from "./blogStore.sharedContract.mjs";
 
 let passed = 0;
 let failed = 0;
@@ -28,10 +25,11 @@ async function test(name, fn) {
   }
 }
 
-async function withStore(fn) {
+async function withFilesystemStore(fn) {
   const baseDir = await fs.mkdtemp(path.join(os.tmpdir(), "bd-blog-store-"));
+  const createStore = () => new FilesystemBlogStore({ baseDir });
   try {
-    await fn(new FilesystemBlogStore({ baseDir }), baseDir);
+    await fn(createStore(), createStore, { baseDir });
   } finally {
     await fs.rm(baseDir, { recursive: true, force: true });
   }
@@ -73,29 +71,14 @@ await test("strict slug validation rejects unsafe and noncanonical identities", 
   assert.equal(assertCanonicalBlogSlug("post-name-2"), "post-name-2");
 });
 
-await test("create is exclusive and preserves exact source bytes", async () => {
-  await withStore(async store => {
-    const raw = source("---\ntitle: Exact\ncustom: '01'\n---\nBody  \n");
-    const created = await store.putPost("exact-post", raw, {
-      expectedRevision: "absent",
-      operationId: "create-exact",
-    });
-
-    assert.deepEqual(created.source, raw);
-    assert.equal(text(created.source), text(raw));
-    await assert.rejects(
-      store.putPost("exact-post", source("replacement"), {
-        expectedRevision: "absent",
-        operationId: "duplicate-create",
-      }),
-      BlogStoreConflictError
-    );
-    assert.deepEqual((await store.getPost("exact-post")).source, raw);
-  });
+runBlogStoreContract({
+  test,
+  provider: "filesystem",
+  withStore: withFilesystemStore,
 });
 
-await test("invalid UTF-8 is rejected before it can poison storage", async () => {
-  await withStore(async (store, baseDir) => {
+await test("filesystem rejects invalid UTF-8 before creating a post file", async () => {
+  await withFilesystemStore(async (store, _createStore, { baseDir }) => {
     await assert.rejects(
       store.putPost("invalid-source", new Uint8Array([0xc3, 0x28]), {
         expectedRevision: "absent",
@@ -107,66 +90,8 @@ await test("invalid UTF-8 is rejected before it can poison storage", async () =>
   });
 });
 
-await test("updates prevent lost writes and operation retries are idempotent", async () => {
-  await withStore(async store => {
-    const created = await store.putPost("revision-post", source("one"), {
-      expectedRevision: "absent",
-      operationId: "create-revision",
-    });
-    const updated = await store.putPost("revision-post", source("two"), {
-      expectedRevision: created.revision,
-      operationId: "update-revision",
-    });
-    const retried = await store.putPost("revision-post", source("two"), {
-      expectedRevision: created.revision,
-      operationId: "update-revision",
-    });
-
-    assert.equal(retried.revision, updated.revision);
-    await assert.rejects(
-      store.putPost("revision-post", source("three"), {
-        expectedRevision: created.revision,
-        operationId: "stale-update",
-      }),
-      BlogStoreConflictError
-    );
-    await assert.rejects(
-      store.putPost("revision-post", source("different"), {
-        expectedRevision: created.revision,
-        operationId: "update-revision",
-      }),
-      BlogStoreConflictError
-    );
-    assert.equal(text((await store.getPost("revision-post")).source), "two");
-  });
-});
-
-await test("separate store instances serialize compare-and-swap updates", async () => {
-  await withStore(async (firstStore, baseDir) => {
-    const secondStore = new FilesystemBlogStore({ baseDir });
-    const created = await firstStore.putPost("shared-post", source("one"), {
-      expectedRevision: "absent",
-      operationId: "create-shared",
-    });
-
-    const results = await Promise.allSettled([
-      firstStore.putPost("shared-post", source("two"), {
-        expectedRevision: created.revision,
-        operationId: "update-shared-first",
-      }),
-      secondStore.putPost("shared-post", source("three"), {
-        expectedRevision: created.revision,
-        operationId: "update-shared-second",
-      }),
-    ]);
-
-    assert.equal(results.filter(result => result.status === "fulfilled").length, 1);
-    assert.equal(results.filter(result => result.status === "rejected").length, 1);
-  });
-});
-
-await test("failed atomic replacement preserves the previous post bytes", async () => {
-  await withStore(async (store, baseDir) => {
+await test("failed filesystem atomic replacement preserves previous bytes", async () => {
+  await withFilesystemStore(async (store, _createStore, { baseDir }) => {
     const created = await store.putPost("atomic-post", source("one"), {
       expectedRevision: "absent",
       operationId: "create-atomic",
@@ -200,59 +125,17 @@ await test("failed atomic replacement preserves the previous post bytes", async 
   });
 });
 
-await test("delete is revision-aware and idempotent for the same operation", async () => {
-  await withStore(async store => {
-    const created = await store.putPost("delete-post", source("delete me"), {
+await test("filesystem listing ignores private markdown and metadata", async () => {
+  await withFilesystemStore(async (store, _createStore, { baseDir }) => {
+    await store.putPost("public-post", source("public"), {
       expectedRevision: "absent",
-      operationId: "create-delete",
-    });
-
-    await assert.rejects(
-      store.deletePost("delete-post", {
-        expectedRevision: "stale",
-        operationId: "stale-delete",
-      }),
-      BlogStoreConflictError
-    );
-    await store.deletePost("delete-post", {
-      expectedRevision: created.revision,
-      operationId: "delete-post",
-    });
-    await store.deletePost("delete-post", {
-      expectedRevision: created.revision,
-      operationId: "delete-post",
-    });
-    assert.equal(await store.getPost("delete-post"), null);
-    await assert.rejects(
-      store.deletePost("delete-post", {
-        expectedRevision: created.revision,
-        operationId: "another-delete",
-      }),
-      BlogStoreNotFoundError
-    );
-  });
-});
-
-await test("snapshots are stable and listing ignores private markdown and metadata", async () => {
-  await withStore(async (store, baseDir) => {
-    await store.putPost("first-post", source("first"), {
-      expectedRevision: "absent",
-      operationId: "create-first",
+      operationId: "create-public",
     });
     await fs.writeFile(path.join(baseDir, "_private.md"), "private");
-    const snapshot = await store.snapshot();
-    await store.putPost("second-post", source("second"), {
-      expectedRevision: "absent",
-      operationId: "create-second",
-    });
 
     assert.deepEqual(
-      (await store.listPosts(snapshot)).map(post => post.slug),
-      ["first-post"]
-    );
-    assert.deepEqual(
       (await store.listPosts()).map(post => post.slug),
-      ["first-post", "second-post"]
+      ["public-post"]
     );
   });
 });
