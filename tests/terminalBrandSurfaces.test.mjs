@@ -81,9 +81,10 @@ for (const className of terminalClassContract) {
 }
 
 const exactCopyAnchors = [
-  [sources.home, "Measurable business outcomes, delivered through accountable AI systems."],
-  [sources.home, "Berryhill Dev builds and operates bounded AI systems"],
-  [sources.home, "Agents are delivery leverage—not the product and not the authority."],
+  [sources.home, "builder · operator · agent conductor."],
+  [sources.home, "I run a fleet of specialized AI agents that design, research, code, review, write, analyze markets, and ship software with me. This site is the public terminal into that operating system."],
+  [sources.home, "curl GET /fleet"],
+  [sources.home, "cat manifesto.md"],
   [sources.home, "ls featured/ --sort=latest"],
   [sources.home, "ls -la recent/"],
   [sources.home, "cat .env"],

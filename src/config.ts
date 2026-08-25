@@ -2,26 +2,13 @@ export const SITE = {
   website: "https://berryhill.dev/", // replace this with your deployed domain
   author: "Berryhill",
   profile: "https://berryhill.dev/",
-  organization: {
-    name: "Berryhill Dev",
-    url: "https://berryhill.dev/",
-  },
-  operator: {
-    name: "Matt Berryhill",
-    url: "https://berryhill.dev/about/",
-  },
-  homepage: {
-    description:
-      "Berryhill Dev builds and operates bounded AI systems for measurable business outcomes, with explicit evidence boundaries and human accountability.",
-  },
   desc: "Field notes on AI-native discovery systems, agent governance, provenance, review gates, protocol boundaries, and the operator work required to turn agent output into shipped proof.",
   title: "berryhill.dev",
   ogImage: "",
   socialPreview: {
-    title: "Measurable business outcomes through accountable AI systems",
-    imageAlt:
-      "Berryhill Dev — measurable business outcomes through accountable AI systems",
-    imageVersion: "3",
+    title: "Field notes from an AI systems operator",
+    imageAlt: "Berryhill.dev — field notes from an AI systems operator",
+    imageVersion: "2",
   },
   lightAndDarkMode: false,
   postPerIndex: 6,

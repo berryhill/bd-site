@@ -102,22 +102,21 @@ test("curated homepage fleet excludes non-public and temporarily omitted profile
   }
 });
 
-test("curated capability data remains available without homepage telemetry claims", () => {
+test("displayed homepage fleet count stays aligned with curated data length", () => {
   assert.equal(curatedHomepageFleet.length, 9);
   assert.equal(getHomepageFleetCountLabel(), "9 verified agents");
-  assert.doesNotMatch(
-    homepageSource,
-    /getHomepageFleetCountLabel|verified agents|curl GET \/fleet/
-  );
-});
-
-test("homepage frames agents only as downstream delivery leverage", () => {
-  assert.match(homepageSource, /id="delivery-leverage"/);
   assert.match(
     homepageSource,
-    /Agents are delivery leverage—not the product and not the authority\./
+    /getHomepageFleetCountLabel\(curatedHomepageFleet\)/
   );
-  assert.doesNotMatch(homepageSource, /curatedHomepageFleet\.map|data-agent=/);
+  assert.doesNotMatch(homepageSource, />8 verified agents</);
+});
+
+test("homepage renders fleet rows from the shared data structure without repeated hard-coded rows", () => {
+  assert.match(homepageSource, /curatedHomepageFleet\.map\(agent =>/);
+  assert.match(homepageSource, /data-agent=\{agent\.slug\}/);
+  assert.match(homepageSource, /<span>\{agent\.label\}<\/span>/);
+  assert.match(homepageSource, /<b>\{agent\.description\}<\/b>/);
 });
 
 console.log(`PASS ${passed} FAIL ${failed}`);
