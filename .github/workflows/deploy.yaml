@@ -58,9 +58,12 @@ jobs:
         with:
           context: .
           push: true
+          # BuildKit secret contents do not participate in cache keys. Force the
+          # production build step to consume the current DOT_ENV every time.
+          no-cache: true
           tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_ORG }}/${{ env.DOCKER_IMAGE }}:${{ steps.image.outputs.image_tag }}
-          build-args: |
-            DOT_ENV=${{ secrets.DOT_ENV }}
+          secrets: |
+            "dot_env=${{ secrets.DOT_ENV }}"
 
   deploy:
     needs: build-push
@@ -236,6 +239,20 @@ jobs:
               curl -fsS --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 30 "https://berryhill.dev${path}" >/dev/null || POST_DEPLOY_STATUS=$?
               [ "${POST_DEPLOY_STATUS}" -eq 0 ] || break
             done
+          fi
+          if [ "${POST_DEPLOY_STATUS}" -eq 0 ]; then
+            echo "Verifying production GA4 tag"
+            HOME_HTML="$(mktemp)"
+            trap 'rm -f "${HOME_HTML}"' EXIT
+            curl -fsS --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 30 \
+              "https://berryhill.dev/" > "${HOME_HTML}" || POST_DEPLOY_STATUS=$?
+            if [ "${POST_DEPLOY_STATUS}" -eq 0 ] && \
+              ! grep -Fq 'https://www.googletagmanager.com/gtag/js?id=G-SSLPRQNE9Q' "${HOME_HTML}"; then
+              echo "Production homepage is missing the configured GA4 script tag" >&2
+              POST_DEPLOY_STATUS=1
+            fi
+            rm -f "${HOME_HTML}"
+            trap - EXIT
           fi
           if [ "${POST_DEPLOY_STATUS}" -ne 0 ]; then
             if [ -z "${PREVIOUS_REVISION}" ]; then

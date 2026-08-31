@@ -12,11 +12,15 @@ RUN pnpm install --frozen-lockfile
 # Copy source and build
 COPY . .
 
-# Accept .env content as base64 encoded build argument and decode it
-ARG DOT_ENV
-RUN if [ -n "$DOT_ENV" ]; then echo "$DOT_ENV" | base64 -d > .env; fi
-
-RUN pnpm run build
+# Decode the base64 environment from a BuildKit secret. Build and verify in the
+# same layer so the decoded file is removed before the layer is committed.
+RUN --mount=type=secret,id=dot_env,required=true \
+    set -eu; \
+    trap 'rm -f .env' EXIT; \
+    base64 -d /run/secrets/dot_env > .env; \
+    test -s .env; \
+    pnpm run build; \
+    node scripts/verifyBuiltPublicEnv.mjs .env dist
 
 # SSR Runtime stage
 FROM node:lts-alpine AS runtime
