@@ -48,6 +48,7 @@ const ciWorkflow = readRepoFile(".github/workflows/ci.yml");
 const values = readRepoFile("helm/values.yaml");
 const pvcTemplate = readRepoFile("helm/templates/pvc.yaml");
 const deploymentTemplate = readRepoFile("helm/templates/deployment.yaml");
+const dockerfile = readRepoFile("Dockerfile");
 const serviceAccountPath = new URL("../helm/templates/serviceaccount.yaml", import.meta.url);
 const serviceAccountTemplate = existsSync(serviceAccountPath) ? readFileSync(serviceAccountPath, "utf8") : "";
 
@@ -128,6 +129,17 @@ test("main deployment builds and pushes a SHA tag while exporting its immutable 
   assert.doesNotMatch(workflow, /docker build/);
   assert.doesNotMatch(workflow, /docker push/);
   assert.doesNotMatch(workflow, /DOCKER_TAG:\s*0\.0\.56/);
+});
+
+test("production build delivers DOT_ENV as a required secret and fails closed on public build values", () => {
+  assert.match(workflow, /secrets:\s*\|\s*"dot_env=\$\{\{ secrets\.DOT_ENV \}\}"/);
+  assert.match(workflow, /no-cache:\s*true/);
+  assert.doesNotMatch(workflow, /build-args:[\s\S]*DOT_ENV=/);
+  assert.match(dockerfile, /--mount=type=secret,id=dot_env,required=true/);
+  assert.match(dockerfile, /base64 -d \/run\/secrets\/dot_env > \.env/);
+  assert.match(dockerfile, /test -s \.env/);
+  assert.match(dockerfile, /node scripts\/verifyBuiltPublicEnv\.mjs \.env dist/);
+  assert.match(dockerfile, /trap 'rm -f \.env' EXIT/);
 });
 
 test("preflight and Helm deploy the exact build digest while retaining SHA revision metadata", () => {
@@ -226,6 +238,11 @@ test("post-rollout public checks are bounded and roll back to the verified previ
   assert.match(workflow, /helm rollback bd-site "\$\{PREVIOUS_REVISION\}" -n "\$\{KUBE_NAMESPACE\}" --wait --timeout 3m/);
   assert.match(workflow, /kubectl rollout status deployment\/bd-site -n "\$\{KUBE_NAMESPACE\}" --timeout=180s/);
   assert.doesNotMatch(workflow, /curl -fsS https:\/\/berryhill\.dev\/posts\/ >\/dev\/null \|\| true/);
+  assert.match(
+    workflow,
+    /grep -Fq 'https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-SSLPRQNE9Q'/
+  );
+  assert.match(workflow, /Production homepage is missing the configured GA4 script tag/);
 });
 
 test("Helm rollout is atomic and all namespaced operations specify the production namespace", () => {
