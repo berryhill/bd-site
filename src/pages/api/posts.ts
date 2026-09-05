@@ -6,6 +6,7 @@ import {
   BlogStoreConflictError,
   BlogStoreNotFoundError,
   BlogStorePreconditionError,
+  BlogStoreReplicationPendingError,
   BlogStoreUnavailableError,
   BlogStoreValidationError,
 } from "@/content/blogStore";
@@ -72,6 +73,20 @@ const mutationPreconditionResponse = (fields: string[]) =>
   );
 
 const storageErrorResponse = (error: unknown, action: string) => {
+  if (error instanceof BlogStoreReplicationPendingError) {
+    return jsonResponse(
+      {
+        success: true,
+        state: "committed-primary",
+        replication: "pending",
+        operationId: error.operationId,
+        action: error.action,
+        slug: error.slug,
+        primaryRevision: error.primaryRevision,
+      },
+      202
+    );
+  }
   if (error instanceof BlogStoreValidationError) {
     return jsonResponse(
       { error: "Invalid post storage input", details: error.message },

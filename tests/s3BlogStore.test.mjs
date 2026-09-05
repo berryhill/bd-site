@@ -171,6 +171,36 @@ await test("snapshots pin one catalog generation while tombstones hide current p
   assert.ok(Date.parse(latest.tombstones.first.gcEligibleAt) > Date.parse(latest.tombstones.first.deletedAt));
 });
 
+await test("an explicitly selected catalog generation restores its exact posts and tombstones", async () => {
+  const { store } = fixture();
+  const first = await store.putPost("first-generation", bytes("first"), {
+    expectedRevision: "absent",
+    operationId: "generation-create-first",
+  });
+  const generationOne = await store.snapshotAtGeneration(1);
+  await store.putPost("second-generation", bytes("second"), {
+    expectedRevision: "absent",
+    operationId: "generation-create-second",
+  });
+  await store.deletePost("first-generation", {
+    expectedRevision: first.revision,
+    operationId: "generation-delete-first",
+  });
+
+  const selected = await store.snapshotAtGeneration(1);
+  assert.equal(selected.identity, "object-catalog:1");
+  assert.deepEqual([...selected.posts.keys()], ["first-generation"]);
+  assert.deepEqual(
+    selected.posts.get("first-generation").source,
+    generationOne.posts.get("first-generation").source
+  );
+  assert.equal(selected.tombstones.size, 0);
+
+  const current = await store.snapshot();
+  assert.deepEqual([...current.posts.keys()], ["second-generation"]);
+  assert.equal(current.tombstones.has("first-generation"), true);
+});
+
 await test("a failure before pointer commit exposes no partial release", async () => {
   const { client, store } = fixture();
   client.failBeforePointer = true;

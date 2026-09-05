@@ -177,13 +177,40 @@ contentStorage:
 
 The filesystem store defaults to `src/data/blog`. Operators may set
 `CONTENT_STORAGE_FILESYSTEM_PATH` to an alternate mounted directory. The store
-factory admits `CONTENT_STORAGE_MODE=filesystem` (the default and production
-authority) and `CONTENT_STORAGE_MODE=object` (an available, non-authoritative
-S3-compatible capability). This change does not cut production over, backfill
-posts, mirror writes, or remove the PVC rollback source. If the selected store
-is unavailable, blog-backed public routes return `503` with
-`Cache-Control: no-store` rather than publishing an empty collection, feed, or
-sitemap.
+factory admits four explicit modes:
+
+- `CONTENT_STORAGE_MODE=filesystem` (the default and production authority)
+- `CONTENT_STORAGE_MODE=object` (an available, non-authoritative S3-compatible capability)
+- `CONTENT_STORAGE_MODE=filesystem-mirror` (filesystem-only reads; filesystem authority; writes replicate to object storage)
+- `CONTENT_STORAGE_MODE=object-mirror` (object-only reads; object authority; writes replicate to filesystem)
+
+Mirror modes never merge inventories and never fall back to the secondary on a read miss. `CONTENT_MIRROR_RECONCILIATION_PATH` may select the durable, non-content reconciliation journal; by default it is `.blogstore-reconciliation` under the filesystem content directory. If a primary mutation commits but secondary replication fails, the API returns an explicit `202` committed-primary/replication-pending result keyed by the caller's operation ID. Retrying the same operation ID resumes replication without committing the primary mutation twice.
+
+These modes and tools do not cut production over, backfill posts, remove the PVC rollback source, or make object storage authoritative by themselves. If the selected read authority is unavailable, blog-backed public routes return `503` with `Cache-Control: no-store` rather than publishing an empty collection, feed, or sitemap.
+
+Migration commands preserve raw Markdown bytes and write metadata-only manifests:
+
+```bash
+# Forward dry-run, then deterministic copy/delta pass
+pnpm content:migrate -- --direction filesystem-to-object \
+  --migration-id forward-001 --manifest .local/manifests/forward-001.json --dry-run
+pnpm content:migrate -- --direction filesystem-to-object \
+  --migration-id forward-001 --manifest .local/manifests/forward-001.json
+
+# Materialize a selected immutable object catalog into a new disposable directory
+pnpm content:migrate -- --direction object-to-filesystem --catalog 42 \
+  --destination-path /tmp/bd-site-restore-generation-42 \
+  --migration-id restore-42 --manifest /tmp/restore-42.json
+
+# Compare bytes, checksums, parsed content, visibility, and sort order
+pnpm run content:verify -- --source filesystem --destination object
+pnpm run content:verify -- --source object --destination filesystem \
+  --filesystem-path /tmp/bd-site-restore-generation-42 --catalog 42
+```
+
+`content:verify` is a fail-closed live verification command. The package script explicitly targets `https://berryhill.dev/` and names `X_API_KEY` as the credential environment variable; resolve that variable through approved secret custody before running it. The command fails before touching either storage backend when the base URL, credential-variable selector, or selected credential is missing. It always checks authenticated API inventory plus homepage, posts, hidden archive behavior, detail, tags, RSS, Atom, post sitemap, `llms.txt`, and dynamic OG surfaces. It never prints the credential value. To verify another deployment, invoke `tsx scripts/content-verify.mjs` directly with explicit `--base-url` and `--api-key-env` arguments.
+
+`--dry-run` and `--verify-only` do not write posts. `--delete-extraneous` is explicit for filesystem-to-object source deletions; reverse restores automatically respect tombstones in the selected object catalog. A reverse destination must differ from the active filesystem path, so restore rehearsal creates a new generation instead of overwriting the mounted authority in place. A manifest is not verified when source drift, malformed frontmatter, slug/checksum/content differences, draft/scheduled/sort differences, authenticated API inventory differences, or required public-surface failures remain.
 
 Object mode uses provider-neutral settings:
 
