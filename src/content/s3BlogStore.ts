@@ -98,6 +98,7 @@ interface Catalog {
   posts: Record<string, CatalogPost>;
   tombstones: Record<string, CatalogTombstone>;
   operations: Record<string, OperationReceipt>;
+  previousCatalogKey?: string;
 }
 
 interface CatalogPointer {
@@ -315,12 +316,54 @@ export class S3BlogStore implements BlogStore {
 
   async snapshot(): Promise<BlogSnapshot> {
     const state = await this.loadCurrentCatalog();
+    return this.snapshotFromCatalog(state.catalog);
+  }
+
+  async snapshotAtGeneration(generation: number): Promise<BlogSnapshot> {
+    if (!Number.isSafeInteger(generation) || generation <= 0) {
+      throw new BlogStoreValidationError(
+        "Object catalog generation must be a positive integer"
+      );
+    }
+    const current = await this.loadCurrentCatalog(true);
+    if (current.catalog.generation === generation) {
+      return this.snapshotFromCatalog(current.catalog);
+    }
+    try {
+      let catalog = current.catalog;
+      while (catalog.generation > generation && catalog.previousCatalogKey) {
+        const catalogObject = await this.getObject(catalog.previousCatalogKey);
+        const expectedSha256 = catalog.previousCatalogKey.match(
+          /-([a-f0-9]{64})\.json$/
+        )?.[1];
+        if (!expectedSha256 || sha256(catalogObject.body) !== expectedSha256) {
+          throw new Error("Historical catalog checksum does not match its key");
+        }
+        catalog = this.parseJson<Catalog>(catalogObject.body, "catalog");
+      }
+      if (catalog.generation !== generation) {
+        throw new Error(
+          "Selected catalog is not reachable from current history"
+        );
+      }
+      return this.snapshotFromCatalog(catalog);
+    } catch (error) {
+      throw this.asUnavailable(
+        `Object catalog generation is unavailable: ${generation}`,
+        error
+      );
+    }
+  }
+
+  private async snapshotFromCatalog(catalog: Catalog): Promise<BlogSnapshot> {
     const posts = await Promise.all(
-      Object.values(state.catalog.posts).map(entry =>
-        this.readCatalogPost(entry)
-      )
+      Object.values(catalog.posts).map(entry => this.readCatalogPost(entry))
     );
-    return { posts: new Map(posts.map(post => [post.slug, post])) };
+    return {
+      posts: new Map(posts.map(post => [post.slug, post])),
+      identity: `object-catalog:${catalog.generation}`,
+      tombstones: new Set(Object.keys(catalog.tombstones)),
+    };
   }
 
   async listPosts(snapshot?: BlogSnapshot): Promise<readonly StoredPost[]> {
@@ -547,6 +590,7 @@ export class S3BlogStore implements BlogStore {
       ...proposed,
       generation,
       createdAt: new Date().toISOString(),
+      previousCatalogKey: previous.pointer?.catalogKey,
     };
     const catalogBody = jsonBytes(catalog);
     const catalogSha256 = sha256(catalogBody);

@@ -8,6 +8,8 @@ export interface StoredPost {
 
 export interface BlogSnapshot {
   readonly posts: ReadonlyMap<string, StoredPost>;
+  readonly identity?: string;
+  readonly tombstones?: ReadonlySet<string>;
 }
 
 export interface PutPostOptions {
@@ -71,5 +73,21 @@ export class BlogStoreNotFoundError extends BlogStoreError {
 export class BlogStoreUnavailableError extends BlogStoreError {
   constructor(message: string, cause?: unknown) {
     super(message, "BLOG_STORE_UNAVAILABLE", cause);
+  }
+}
+
+export class BlogStoreReplicationPendingError extends BlogStoreError {
+  constructor(
+    readonly operationId: string,
+    readonly action: "put" | "delete",
+    readonly slug: string,
+    readonly primaryRevision?: string,
+    cause?: unknown
+  ) {
+    super(
+      `Primary ${action} committed but secondary replication is pending: ${slug}`,
+      "BLOG_STORE_REPLICATION_PENDING",
+      cause
+    );
   }
 }

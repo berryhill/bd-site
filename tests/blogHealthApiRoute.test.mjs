@@ -125,7 +125,7 @@ try {
       assert.deepEqual(body, {
         status: "healthy",
         message: "API is operational",
-        storage: { provider: "filesystem", ready: true },
+        storage: { mode: "filesystem", provider: "filesystem", ready: true },
       });
       assert.doesNotMatch(JSON.stringify(body), new RegExp(filesystemPath));
     }
@@ -149,7 +149,7 @@ try {
         assert.deepEqual(body, {
           status: "healthy",
           message: "API is operational",
-          storage: { provider: "object", ready: true },
+          storage: { mode: "object", provider: "object", ready: true },
         });
         assert.doesNotMatch(JSON.stringify(body), /127\.0\.0\.1|health-/);
       }
@@ -171,7 +171,11 @@ try {
       assert.equal(response.headers.get("retry-after"), "30");
       assert.equal(body.status, "unavailable");
       assert.equal(body.message, "Blog storage is unavailable");
-      assert.deepEqual(body.storage, { provider: "object", ready: false });
+      assert.deepEqual(body.storage, {
+        mode: "object",
+        provider: "object",
+        ready: false,
+      });
     });
   }
 
@@ -193,7 +197,7 @@ try {
       assert.deepEqual(body, {
         status: "unavailable",
         message: "Blog storage is unavailable",
-        storage: { provider: "object", ready: false },
+        storage: { mode: "object", provider: "object", ready: false },
       });
       assert.doesNotMatch(JSON.stringify(body), /health-test|127\.0\.0\.1/);
     }

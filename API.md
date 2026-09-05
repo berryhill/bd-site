@@ -67,17 +67,14 @@ x-api-key: YOUR_API_KEY
   "status": "healthy",
   "message": "API is operational",
   "storage": {
+    "mode": "filesystem",
     "provider": "filesystem",
     "ready": true
   }
 }
 ```
 
-The `storage` object reports only the selected provider and its readiness. It
-does not expose filesystem paths, object-store endpoints, bucket names,
-prefixes, regions, or credential-chain details. Object mode can be selected for
-validation and future migration work, but this capability does not change the
-filesystem-authoritative production default.
+The `storage` object reports the selected mode, its single read-authority provider, and readiness. Mirror modes additionally report a non-secret `mirror` object naming the authority and secondary. It does not expose filesystem paths, object-store endpoints, bucket names, prefixes, regions, credential-chain details, or reconciliation content. Supported modes are `filesystem`, `object`, `filesystem-mirror`, and `object-mirror`; production remains `filesystem` unless a separate operator-controlled cutover changes it.
 
 **Response (503 Service Unavailable):**
 ```json
@@ -591,6 +588,24 @@ curl -X GET "https://berryhill.dev/api/auth/validate" \
 curl -X GET "https://berryhill.dev/api/health" \
   -H "x-api-key: YOUR_API_KEY"
 ```
+
+## Mirror Replication Pending
+
+In either mirror mode, a POST, PATCH, or DELETE can commit to the declared primary before secondary replication fails. That outcome is not returned as an ambiguous generic storage failure. The API returns `202 Accepted` with durable reconciliation identity:
+
+```json
+{
+  "success": true,
+  "state": "committed-primary",
+  "replication": "pending",
+  "operationId": "caller-stable-operation-id",
+  "action": "put",
+  "slug": "example-post",
+  "primaryRevision": "PRIMARY_REVISION"
+}
+```
+
+Retry the exact mutation with the same operation ID and bytes. The mirror journal verifies the retry against the committed-primary evidence and resumes only the idempotent secondary replication. Do not generate a new operation ID, because that would describe a new mutation rather than reconciliation of the committed one.
 
 ## Error Responses
 
