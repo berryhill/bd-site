@@ -20,6 +20,8 @@ env:
   DOCKER_IMAGE: bd-site-app
   GHCR_PULL_SECRET: ghcr-pull
   GHCR_PREFLIGHT_SECRET: ghcr-pull-preflight
+  DOPPLER_RUNTIME_SECRET: bd-site-doppler
+  DOPPLER_RUNTIME_SECRET_KEY: token
   PREFLIGHT_NAME: bd-site-image-preflight
   KUBE_NAMESPACE: default
 
@@ -183,9 +185,24 @@ jobs:
             --from-file=.dockerconfigjson="${DOCKER_CONFIG_PATH}" \
             --dry-run=client -o yaml | kubectl apply -n "${KUBE_NAMESPACE}" -f -
 
-      - name: Deploy exact built image using Helm
+      - name: Reconcile Doppler runtime secret
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          DOPPLER_TOKEN_PATH: ${{ runner.temp }}/doppler-token
+        run: |
+          if [ -z "${DOPPLER_TOKEN}" ]; then
+            echo "DOPPLER_TOKEN is required for the production runtime" >&2
+            exit 1
+          fi
+          umask 077
+          printf '%s' "${DOPPLER_TOKEN}" > "${DOPPLER_TOKEN_PATH}"
+          chmod 600 "${DOPPLER_TOKEN_PATH}"
+          kubectl create secret generic "${DOPPLER_RUNTIME_SECRET}" -n "${KUBE_NAMESPACE}" \
+            --from-file="${DOPPLER_RUNTIME_SECRET_KEY}=${DOPPLER_TOKEN_PATH}" \
+            --dry-run=client -o yaml | kubectl apply -n "${KUBE_NAMESPACE}" -f -
+
+      - name: Deploy exact built image using Helm
+        env:
           IMAGE_TAG: ${{ needs.build-push.outputs.image-tag }}
           IMAGE_DIGEST: ${{ needs.build-push.outputs.image-digest }}
         run: |
@@ -202,7 +219,6 @@ jobs:
 
           set +e
           helm upgrade --install bd-site ./helm -n "${KUBE_NAMESPACE}" -f ./helm/values.yaml \
-            --set dopplerToken="${DOPPLER_TOKEN}" \
             --set image.tag="${IMAGE_TAG}" \
             --set image.digest="${IMAGE_DIGEST}" \
             --set deploymentRevision="${GITHUB_SHA}" \
@@ -233,6 +249,20 @@ jobs:
             POST_DEPLOY_STATUS=1
           fi
 
+          if [ "${POST_DEPLOY_STATUS}" -eq 0 ]; then
+            LIVEZ_BODY="$(curl -fsS --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 30 "https://berryhill.dev/livez")" || POST_DEPLOY_STATUS=$?
+            if [ "${POST_DEPLOY_STATUS}" -eq 0 ] && ! printf '%s' "${LIVEZ_BODY}" | grep -Fq '"status":"alive"'; then
+              echo "Production /livez did not report process liveness" >&2
+              POST_DEPLOY_STATUS=1
+            fi
+          fi
+          if [ "${POST_DEPLOY_STATUS}" -eq 0 ]; then
+            READYZ_BODY="$(curl -fsS --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 30 "https://berryhill.dev/readyz")" || POST_DEPLOY_STATUS=$?
+            if [ "${POST_DEPLOY_STATUS}" -eq 0 ] && ! printf '%s' "${READYZ_BODY}" | grep -Fq '"status":"ready"'; then
+              echo "Production /readyz did not report storage readiness" >&2
+              POST_DEPLOY_STATUS=1
+            fi
+          fi
           if [ "${POST_DEPLOY_STATUS}" -eq 0 ]; then
             for path in "/" "/posts/" "/rss.xml" "/sitemap.xml" "/sitemap-posts.xml"; do
               echo "Verifying https://berryhill.dev${path}"
@@ -274,6 +304,13 @@ jobs:
           kubectl delete daemonset "${PREFLIGHT_NAME}" -n "${KUBE_NAMESPACE}" --ignore-not-found --wait=false >/dev/null 2>&1 || true
           kubectl delete secret "${GHCR_PREFLIGHT_SECRET}" -n "${KUBE_NAMESPACE}" --ignore-not-found --wait=false >/dev/null 2>&1 || true
           rm -f "${DOCKER_CONFIG_PATH}"
+
+      - name: Cleanup temporary credential files
+        if: always()
+        env:
+          DOPPLER_TOKEN_PATH: ${{ runner.temp }}/doppler-token
+        run: |
+          rm -f "${DOPPLER_TOKEN_PATH}"
 
       - name: Deployment diagnostics
         if: always()

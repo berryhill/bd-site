@@ -37,6 +37,13 @@ function renderChart(setValues = []) {
   });
 }
 
+function assertRenderFails(setValues, message) {
+  assert.throws(
+    () => renderChart(setValues),
+    error => String(error.stderr ?? error.message).includes(message)
+  );
+}
+
 function renderedDocument(renderedChart, kind) {
   return renderedChart
     .split(/^---\s*$/m)
@@ -70,6 +77,7 @@ test("pull request CI runs the repository tests before linting and building", ()
 });
 
 test("filesystem defaults render the retained PVC and mount it at the live posts path", () => {
+  assert.match(values, /contentStorage:[\s\S]*mode:\s*filesystem/);
   assert.match(values, /contentStorage:[\s\S]*filesystem:[\s\S]*pvc:[\s\S]*create:\s*true/);
   assert.match(values, /pvc:[\s\S]*mount:\s*true/);
   assert.match(values, /existingClaim:\s*bd-site-posts-pvc/);
@@ -89,17 +97,29 @@ test("filesystem defaults render the retained PVC and mount it at the live posts
   assert.doesNotMatch(deployment, /emptyDir:/);
 });
 
-test("preserved-but-unmounted mode retains the PVC without any content volume", () => {
+test("object mode retains the rollback PVC without any content volume", () => {
+  const rendered = renderChart(["contentStorage.mode=object"]);
+  const pvc = renderedDocument(rendered, "PersistentVolumeClaim");
+  const deployment = renderedDocument(rendered, "Deployment");
+
+  assert.ok(pvc, "object mode must continue rendering the rollback PVC");
+  assert.ok(deployment, "object mode must include the deployment");
+  assert.match(pvc, /name: bd-site-posts-pvc/);
+  assert.match(pvc, /helm\.sh\/resource-policy: keep/);
+  assert.doesNotMatch(deployment, /posts-content/);
+  assert.doesNotMatch(deployment, /emptyDir:/);
+});
+
+test("filesystem mount=false retains the rollback PVC without attaching content storage", () => {
   const rendered = renderChart(["contentStorage.filesystem.pvc.mount=false"]);
   const pvc = renderedDocument(rendered, "PersistentVolumeClaim");
   const deployment = renderedDocument(rendered, "Deployment");
 
-  assert.ok(pvc, "preserved mode must continue rendering the posts PVC");
-  assert.ok(deployment, "preserved mode must include the deployment");
+  assert.ok(pvc, "mount=false must continue rendering the rollback PVC");
+  assert.ok(deployment, "mount=false must include the deployment");
   assert.match(pvc, /name: bd-site-posts-pvc/);
   assert.match(pvc, /helm\.sh\/resource-policy: keep/);
   assert.doesNotMatch(deployment, /posts-content/);
-  assert.doesNotMatch(deployment, /\/app\/src\/data\/blog/);
   assert.doesNotMatch(deployment, /emptyDir:/);
 });
 
@@ -163,13 +183,78 @@ test("Helm defaults preserve local chart behavior when workflow overrides are ab
   assert.match(deploymentTemplate, /default \.Values\.image\.tag/);
 });
 
-test("single-replica ReadWriteOnce deployments replace pods without overlapping volume mounts", () => {
+test("filesystem and mirror deployments replace one pod without overlapping PVC mounts", () => {
   assert.match(values, /replicaCount:\s*1/);
   assert.match(values, /accessMode:\s*ReadWriteOnce/);
-  assert.match(deploymentTemplate, /strategy:[\s\S]*type:\s*Recreate/);
-  assert.doesNotMatch(deploymentTemplate, /type:\s*RollingUpdate/);
-  assert.doesNotMatch(deploymentTemplate, /rollingUpdate:/);
-  assert.doesNotMatch(deploymentTemplate, /podAffinity:/);
+  for (const mode of ["filesystem", "filesystem-mirror", "object-mirror"]) {
+    const deployment = renderedDocument(
+      renderChart([`contentStorage.mode=${mode}`]),
+      "Deployment"
+    );
+    assert.match(deployment, /strategy:[\s\S]*type: Recreate/);
+    assert.match(deployment, /name: posts-content/);
+    assert.doesNotMatch(deployment, /rollingUpdate:/);
+  }
+});
+
+test("object mode is stateless and uses a bounded zero-unavailable rolling update", () => {
+  const deployment = renderedDocument(
+    renderChart(["contentStorage.mode=object"]),
+    "Deployment"
+  );
+  assert.match(deployment, /type: RollingUpdate/);
+  assert.match(deployment, /maxUnavailable: 0/);
+  assert.match(deployment, /maxSurge: 1/);
+  assert.doesNotMatch(deployment, /posts-content|emptyDir:/);
+});
+
+test("Helm rejects invalid modes and unsafe replica combinations", () => {
+  assertRenderFails(
+    ["contentStorage.mode=invalid"],
+    "contentStorage.mode must be one of"
+  );
+  for (const mode of ["filesystem", "filesystem-mirror", "object-mirror"]) {
+    assertRenderFails(
+      [`contentStorage.mode=${mode}`, "replicaCount=2"],
+      "requires replicaCount=1"
+    );
+  }
+  assertRenderFails(
+    ["contentStorage.mode=object", "replicaCount=2"],
+    "multiReplicaConcurrencySafe=true"
+  );
+
+  const admitted = renderedDocument(
+    renderChart([
+      "contentStorage.mode=object",
+      "replicaCount=2",
+      "contentStorage.multiReplicaConcurrencySafe=true",
+    ]),
+    "Deployment"
+  );
+  assert.match(admitted, /replicas: 2/);
+  assert.match(admitted, /type: RollingUpdate/);
+});
+
+test("all storage modes render non-secret runtime configuration and dedicated probes", () => {
+  for (const mode of ["filesystem", "object", "filesystem-mirror", "object-mirror"]) {
+    const deployment = renderedDocument(
+      renderChart([`contentStorage.mode=${mode}`]),
+      "Deployment"
+    );
+    assert.match(
+      deployment,
+      new RegExp(`name: CONTENT_STORAGE_MODE\\s+value: "${mode}"`)
+    );
+    assert.match(deployment, /readinessProbe:[\s\S]*path: \/readyz/);
+    assert.match(deployment, /livenessProbe:[\s\S]*path: \/livez/);
+    assert.match(
+      deployment,
+      /startupProbe:[\s\S]*path: \/livez[\s\S]*failureThreshold: 24/
+    );
+    assert.match(deployment, /name: CONTENT_OBJECT_BUCKET/);
+    assert.match(deployment, /name: CONTENT_WRITER_EPOCH/);
+  }
 });
 
 test("deployment workflow fails closed on missing or mismatched image identity", () => {
@@ -194,6 +279,41 @@ test("deployment uses a dedicated service account with one durable GHCR pull sec
   assert.match(serviceAccountTemplate, /name:\s*\{\{ \.Values\.serviceAccount\.name \}\}/);
   assert.match(serviceAccountTemplate, /imagePullSecrets:[\s\S]*name:\s*\{\{ \.Values\.imagePullSecret\.name \}\}/);
   assert.match(deploymentTemplate, /serviceAccountName:\s*\{\{ \.Values\.serviceAccount\.name \}\}/);
+});
+
+test("Doppler credentials stay in a runtime Kubernetes Secret reference", () => {
+  const syntheticCredential = "synthetic-doppler-credential-marker";
+  const rendered = renderChart([`dopplerToken=${syntheticCredential}`]);
+  const deployment = renderedDocument(rendered, "Deployment");
+
+  assert.ok(deployment, "render must include the deployment");
+  assert.doesNotMatch(rendered, new RegExp(syntheticCredential));
+  assert.match(
+    deployment,
+    /name: DOPPLER_TOKEN\s+valueFrom:\s+secretKeyRef:\s+name: "?bd-site-doppler"?\s+key: "?token"?/
+  );
+  assert.match(
+    values,
+    /runtimeSecrets:[\s\S]*doppler:[\s\S]*name: bd-site-doppler[\s\S]*key: token/
+  );
+  assert.doesNotMatch(values, /^dopplerToken:/m);
+  assert.doesNotMatch(deploymentTemplate, /\.Values\.dopplerToken/);
+});
+
+test("deployment workflow reconciles the runtime Secret without exposing it to Helm or diagnostics", () => {
+  assert.match(workflow, /name: Reconcile Doppler runtime secret/);
+  assert.match(workflow, /DOPPLER_TOKEN_PATH:\s*\$\{\{ runner\.temp \}\}\/doppler-token/);
+  assert.match(workflow, /umask 077/);
+  assert.match(workflow, /chmod 600 "\$\{DOPPLER_TOKEN_PATH\}"/);
+  assert.match(
+    workflow,
+    /secret generic "\$\{DOPPLER_RUNTIME_SECRET\}"[\s\S]*--from-file="\$\{DOPPLER_RUNTIME_SECRET_KEY\}=\$\{DOPPLER_TOKEN_PATH\}"[\s\S]*--dry-run=client -o yaml \| kubectl apply/
+  );
+  assert.doesNotMatch(workflow, /--set(?:-string)?\s+dopplerToken/);
+  assert.doesNotMatch(workflow, /helm[^\n]*DOPPLER_TOKEN/);
+  assert.doesNotMatch(workflow, /kubectl (?:get|describe) secret/);
+  assert.match(workflow, /name: Cleanup temporary credential files[\s\S]*if:\s*always\(\)/);
+  assert.match(workflow, /rm -f "\$\{DOPPLER_TOKEN_PATH\}"/);
 });
 
 test("temporary pull credentials are env-bound, file-backed, promoted only after preflight", () => {
@@ -235,6 +355,14 @@ test("post-rollout public checks are bounded and roll back to the verified previ
   assert.match(workflow, /PREVIOUS_REVISION=.*helm history bd-site -n "\$\{KUBE_NAMESPACE\}"/);
   assert.match(workflow, /for path in "\/" "\/posts\/" "\/rss\.xml" "\/sitemap\.xml" "\/sitemap-posts\.xml"/);
   assert.match(workflow, /curl -fsS --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 30/);
+  assert.match(
+    workflow,
+    /curl -fsS --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 30 "https:\/\/berryhill\.dev\/livez"[\s\S]*grep -Fq '\"status\":\"alive\"'/
+  );
+  assert.match(
+    workflow,
+    /curl -fsS --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 30 "https:\/\/berryhill\.dev\/readyz"[\s\S]*grep -Fq '\"status\":\"ready\"'/
+  );
   assert.match(workflow, /helm rollback bd-site "\$\{PREVIOUS_REVISION\}" -n "\$\{KUBE_NAMESPACE\}" --wait --timeout 3m/);
   assert.match(workflow, /kubectl rollout status deployment\/bd-site -n "\$\{KUBE_NAMESPACE\}" --timeout=180s/);
   assert.doesNotMatch(workflow, /curl -fsS https:\/\/berryhill\.dev\/posts\/ >\/dev\/null \|\| true/);

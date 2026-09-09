@@ -32,26 +32,33 @@ doppler secrets set PUBLIC_GA_MEASUREMENT_ID="G-XXXXXXXXXX"
 In Doppler dashboard:
 1. Go to your project → Access
 2. Create a **Service Token** for production
-3. Copy the token (starts with `dp.st.`)
+3. Store the token through approved credential custody; do not add it to this repository
 
 ## Deploy to Kubernetes
 
-### Method 1: Using Helm Values File
+### Method 1: Use the runtime Kubernetes Secret
 
-Create `helm/values.prod.yaml`:
+The Deployment reads `DOPPLER_TOKEN` from the `bd-site-doppler` Secret's
+`token` key. Reconcile that Secret from an approved protected credential file;
+do not put the token in a values file, Helm argument, rendered manifest, or
+shell output:
 
-```yaml
-dopplerToken: "dp.st.prod.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```bash
+DOPPLER_TOKEN_PATH=/path/to/protected/doppler-token
+test -s "${DOPPLER_TOKEN_PATH}"
+test "$(stat -c '%a' "${DOPPLER_TOKEN_PATH}")" = "600"
+kubectl create secret generic bd-site-doppler \
+  --from-file="token=${DOPPLER_TOKEN_PATH}" \
+  --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-Deploy:
+Then deploy only non-secret values through Helm:
 
 ```bash
 REVISION="$(git rev-parse HEAD)"
 
 helm upgrade --install bd-site ./helm \
   -f helm/values.yaml \
-  -f helm/values.prod.yaml \
   --set image.tag="${REVISION}" \
   --set deploymentRevision="${REVISION}" \
   --namespace default
@@ -67,7 +74,10 @@ The chart defaults to the current filesystem-backed production behavior:
 
 ```yaml
 contentStorage:
+  mode: filesystem
+  multiReplicaConcurrencySafe: false
   filesystem:
+    directory: /app/src/data/blog
     pvc:
       create: true
       mount: true
@@ -75,7 +85,37 @@ contentStorage:
       preserveOnDelete: true
 ```
 
-`create` controls whether Helm renders the PVC. `mount` independently controls whether the Deployment renders `/app/src/data/blog` as a `volumeMount` and matching PVC volume. With `create: true` and `mount: false`, Helm preserves the claim as a rollback source but the application pod has no posts-content volume. The chart never substitutes `emptyDir` when mounting is disabled. Set `create: false` only when `existingClaim` is managed outside this release.
+`mode` controls storage and rollout behavior. `filesystem`, `filesystem-mirror`, and `object-mirror` require exactly one replica and use `Recreate`; by default they mount the retained claim. `object` keeps the PVC resource but renders no content `volumeMount`, content volume, or `emptyDir`; it uses `RollingUpdate` with `maxUnavailable: 0` and `maxSurge: 1`. `create` controls whether Helm renders the PVC, while `mount` independently controls whether filesystem-backed modes attach it. With `create: true` and `mount: false`, Helm retains the rollback claim but renders no posts content mount, volume, or `emptyDir`. Set `create: false` only when `existingClaim` is managed outside this release.
+
+Object mode still defaults to one replica. A replica count above one fails chart rendering unless `contentStorage.multiReplicaConcurrencySafe=true` is set explicitly after the object-store concurrency contract has passed. Filesystem and mirror modes reject every replica count other than one.
+
+The Deployment sends process-only liveness and startup probes to the exact, unsuffixed `/livez` path. Storage outages therefore remove a pod from service through the exact `/readyz` path without creating liveness restart storms. Both routes are unauthenticated JSON machine endpoints, bypass canonical HTML redirects, and set `Cache-Control: no-store`; `/readyz` also returns `Retry-After: 30` when unavailable. `/readyz` checks only the configured primary store; mirror readiness never falls back to the secondary. It also checks the admitted migration state, writer epoch, and optional expected object-catalog generation. Non-secret readiness diagnostics include storage mode, catalog generation, CAS-conflict count, mirror lag, parity mismatch, write-freeze state, and restore timestamp. Authenticated `/api/health` remains the API credential and API-oriented storage-status check; it is not used for Kubernetes probes.
+
+The following values are non-secret runtime wiring. The Doppler Secret name and
+key are selectors, not credential values. Object credentials remain
+Doppler/runtime-only and must not be added to values files:
+
+```yaml
+runtimeSecrets:
+  doppler:
+    name: bd-site-doppler
+    key: token
+contentStorage:
+  object:
+    bucket: ""
+    prefix: bd-site/content/v1
+    region: ""
+    endpoint: ""
+    forcePathStyle: false
+    requestTimeoutMs: 5000
+    maxAttempts: 3
+  migration:
+    state: steady
+    requiredState: steady
+    writerEpoch: "1"
+    requiredWriterEpoch: "1"
+    expectedCatalogGeneration: ""
+```
 
 `preserveOnDelete: true` applies `helm.sh/resource-policy: keep` to a chart-created PVC. That protects the claim from Helm deletion; the backing PV remains governed by its Kubernetes reclaim policy. Before any object-storage migration, use credential-safe metadata readback and require `Retain`:
 
@@ -89,13 +129,17 @@ kubectl get pv "${PV_NAME}" -o jsonpath='{.metadata.name}{"\t"}{.spec.persistent
 
 If the policy is not `Retain`, stop before migration and route the policy change to the cluster operator. Do not print kubeconfig, Doppler values, or Kubernetes Secret content as verification.
 
-### Method 2: Using Helm CLI Argument
+### Method 2: Select an operator-managed runtime Secret
+
+If an operator uses a differently named Secret or key, pass only those
+non-secret selectors to Helm. The referenced Secret must already exist:
 
 ```bash
 REVISION="$(git rev-parse HEAD)"
 
 helm upgrade --install bd-site ./helm \
-  --set dopplerToken="dp.st.prod.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+  --set runtimeSecrets.doppler.name="operator-managed-doppler" \
+  --set runtimeSecrets.doppler.key="token" \
   --set image.tag="${REVISION}" \
   --set deploymentRevision="${REVISION}" \
   --namespace default
@@ -161,14 +205,11 @@ The `ENV` environment variable controls the mode:
 ### Check if Doppler is working in container:
 
 ```bash
-# Exec into pod
-kubectl exec -it <pod-name> -- sh
-
-# Verify Doppler token
-echo $DOPPLER_TOKEN
-
-# Test Doppler CLI
-doppler secrets
+# Verify the Secret reference and runtime injection without reading the value
+kubectl get secret bd-site-doppler
+kubectl get deployment bd-site \
+  -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="DOPPLER_TOKEN")].valueFrom.secretKeyRef}{"\n"}'
+kubectl exec deployment/bd-site -- sh -c 'test -n "${DOPPLER_TOKEN:-}"'
 ```
 
 ### Check application logs:
@@ -193,6 +234,8 @@ kubectl rollout status deployment/bd-site --timeout=180s
 kubectl get pods -l app=bd-site -o wide
 
 # Live crawl/social-preview checks after rollout completion
+curl -fsS https://berryhill.dev/livez | grep -Fq '"status":"alive"'
+curl -fsS https://berryhill.dev/readyz | grep -Fq '"status":"ready"'
 curl -fsS https://berryhill.dev/robots.txt | grep -A2 '^User-agent: Twitterbot$'
 curl -fsSI https://berryhill.dev/posts/<post-slug>/index.png
 pnpm run check:social-preview -- https://berryhill.dev/posts/<post-slug>/
