@@ -28,7 +28,10 @@ spec:
               protocol: TCP
           env:
             - name: DOPPLER_TOKEN
-              value: {{ .Values.dopplerToken }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.runtimeSecrets.doppler.name | quote }}
+                  key: {{ .Values.runtimeSecrets.doppler.key | quote }}
           {{- if .Values.contentStorage.filesystem.pvc.mount }}
           volumeMounts:
             - name: posts-content

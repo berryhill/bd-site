@@ -27,10 +27,21 @@ ingress:
   host: berryhill.dev
   name: bd-site
 
-dopplerToken: ""
+runtimeSecrets:
+  doppler:
+    # The workflow reconciles this Secret out of band; Helm renders selectors only.
+    name: bd-site-doppler
+    key: token
 
 contentStorage:
+  # Production remains filesystem-backed until the separately gated cutover.
+  # Supported values: filesystem, object, filesystem-mirror, object-mirror.
+  mode: filesystem
+  # Object mode may scale above one replica only after the object-store
+  # concurrency contract has been explicitly admitted by the operator.
+  multiReplicaConcurrencySafe: false
   filesystem:
+    directory: /app/src/data/blog
     pvc:
       # Creation and mounting are independent so object-mode preparation can
       # retain the rollback claim without attaching it to the application pod.
@@ -41,3 +52,22 @@ contentStorage:
       size: 25Gi
       storageClassName: ""  # Use default storage class
       accessMode: ReadWriteOnce  # Linode Block Storage only supports ReadWriteOnce
+  object:
+    bucket: ""
+    prefix: bd-site/content/v1
+    region: ""
+    endpoint: ""
+    forcePathStyle: false
+    requestTimeoutMs: 5000
+    maxAttempts: 3
+    catalogCasRetries: 128
+  migration:
+    state: steady
+    requiredState: steady
+    writerEpoch: "1"
+    requiredWriterEpoch: "1"
+    expectedCatalogGeneration: ""
+    writeFrozen: false
+    mirrorLag: 0
+    parityMismatch: false
+    restoreTimestamp: ""

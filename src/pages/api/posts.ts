@@ -15,6 +15,10 @@ import {
   resolveCreatePubDatetime,
 } from "@/content/blogSchema";
 import { getBlogStore } from "@/content/blogStoreFactory";
+import {
+  assertContentWriteAdmitted,
+  recordContentCasConflict,
+} from "@/content/runtimeReadiness";
 import { resolveUpdateModDatetime } from "@/content/blogMutation";
 import { SITE } from "@/config";
 import { submitPublicPostCrawlSignals } from "@/utils/publicPostCrawlSignals";
@@ -106,6 +110,7 @@ const storageErrorResponse = (error: unknown, action: string) => {
     );
   }
   if (error instanceof BlogStoreConflictError) {
+    recordContentCasConflict();
     return jsonResponse(
       { error: "Post storage conflict", details: error.message },
       409
@@ -297,6 +302,11 @@ export const POST: APIRoute = async context => {
   // Validate API key
   const authError = requireApiKey(context);
   if (authError) return authError;
+  try {
+    assertContentWriteAdmitted();
+  } catch (error) {
+    return storageErrorResponse(error, "create post");
+  }
 
   try {
     const { request } = context;
@@ -441,6 +451,11 @@ export const PATCH: APIRoute = async context => {
   // Validate API key
   const authError = requireApiKey(context);
   if (authError) return authError;
+  try {
+    assertContentWriteAdmitted();
+  } catch (error) {
+    return storageErrorResponse(error, "update post");
+  }
 
   try {
     const { request } = context;
@@ -623,6 +638,11 @@ export const PATCH: APIRoute = async context => {
 export const DELETE: APIRoute = async context => {
   const authError = requireApiKey(context);
   if (authError) return authError;
+  try {
+    assertContentWriteAdmitted();
+  } catch (error) {
+    return storageErrorResponse(error, "delete post");
+  }
 
   try {
     const searchParams = new URL(context.url).searchParams;

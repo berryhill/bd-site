@@ -48,7 +48,29 @@ curl https://berryhill.dev/api/auth/validate \
   -H "x-api-key: YOUR_API_KEY"
 ```
 
-## 2. Health Check
+## 2. Runtime Probes
+
+Kubernetes and deployment automation use two unauthenticated, exact-path JSON
+probes. These machine endpoints do not redirect to slash-suffixed URLs:
+
+- `GET` or `HEAD /livez` checks only that the application process can answer.
+  It returns `200` with `Cache-Control: no-store` while the process is alive,
+  even if the selected object store is temporarily unavailable.
+- `GET` or `HEAD /readyz` checks the selected primary store, catalog generation,
+  admitted migration state, and writer epoch without falling back to a mirror
+  secondary. It returns `200` when ready or `503` with
+  `Cache-Control: no-store` and `Retry-After: 30` when unavailable.
+
+These probes intentionally expose bounded, non-secret diagnostics and require
+no API key. Use authenticated `/api/health` when validating API credentials or
+requesting the API-oriented storage status response.
+
+Production injects `DOPPLER_TOKEN` through a Kubernetes `secretKeyRef`. Helm
+values and API diagnostics contain only the non-secret Secret name/key
+selectors; credential values must not be passed through Helm arguments,
+rendered manifests, probe responses, or troubleshooting output.
+
+## 3. Authenticated Health Check
 
 Verify the API connection is working and validate your API key.
 
@@ -100,7 +122,7 @@ failures without returning internal configuration or provider error details.
 }
 ```
 
-## 3. Get Posts
+## 4. Get Posts
 
 Retrieve a list of blog posts with optional filtering.
 
@@ -145,7 +167,7 @@ x-api-key: YOUR_API_KEY
 }
 ```
 
-## 4. Create Post
+## 5. Create Post
 
 Create a new blog post.
 
@@ -324,7 +346,7 @@ With a URL input, the command verifies `<title>`, meta description, Open Graph t
 }
 ```
 
-## 5. Update Post
+## 6. Update Post
 
 Update an existing blog post's metadata or content.
 
@@ -526,7 +548,7 @@ curl --fail --silent --show-error -X PATCH "${BASE_URL}/api/posts" \
 }
 ```
 
-## 6. Delete Post
+## 7. Delete Post
 
 Delete a blog post by slug.
 

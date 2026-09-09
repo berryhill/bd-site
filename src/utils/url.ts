@@ -1,6 +1,7 @@
 const DEFAULT_WEBSITE = "https://berryhill.dev/";
 const FILE_EXTENSION_PATH_RE = /\/[^/]+\.[^/]+$/;
 const CANONICAL_HTML_REDIRECT_METHODS = new Set(["GET", "HEAD"]);
+const RUNTIME_PROBE_PATHS = new Set(["/livez", "/readyz"]);
 const PAGE_ONE_ARCHIVE_PATH_RE = /^\/posts\/page\/1\/?$/;
 const PAGE_ONE_ARCHIVE_TARGET = "/posts/";
 
@@ -30,6 +31,10 @@ function isApiPath(pathname: string) {
   return pathname === "/api" || pathname.startsWith("/api/");
 }
 
+function isRuntimeProbePath(pathname: string) {
+  return RUNTIME_PROBE_PATHS.has(pathname);
+}
+
 export function isFileLikePathname(pathname: string): boolean {
   return FILE_EXTENSION_PATH_RE.test(pathname);
 }
@@ -39,12 +44,18 @@ export function shouldEnforceTrailingSlash(pathname: string): boolean {
     pathname !== "/" &&
     !pathname.endsWith("/") &&
     !isApiPath(pathname) &&
+    !isRuntimeProbePath(pathname) &&
     !isFileLikePathname(pathname)
   );
 }
 
 export function getAlternateHtmlPathname(pathname: string): string | null {
-  if (pathname === "/" || isApiPath(pathname) || isFileLikePathname(pathname)) {
+  if (
+    pathname === "/" ||
+    isApiPath(pathname) ||
+    isRuntimeProbePath(pathname) ||
+    isFileLikePathname(pathname)
+  ) {
     return null;
   }
 

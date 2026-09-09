@@ -92,8 +92,10 @@ test("canonical HTML URLs enforce trailing slashes for route-like paths", () => 
   );
 });
 
-test("trailing slash enforcement excludes APIs, XML feeds, assets, and generated images", () => {
+test("trailing slash enforcement excludes APIs, probes, XML feeds, assets, and generated images", () => {
   assert.equal(shouldEnforceTrailingSlash("/api/posts"), false);
+  assert.equal(shouldEnforceTrailingSlash("/livez"), false);
+  assert.equal(shouldEnforceTrailingSlash("/readyz"), false);
   assert.equal(shouldEnforceTrailingSlash("/robots.txt"), false);
   assert.equal(shouldEnforceTrailingSlash("/sitemap.xml"), false);
   assert.equal(shouldEnforceTrailingSlash("/rss.xml"), false);
@@ -107,6 +109,8 @@ test("HTML alternate path detection ignores non-HTML crawl surfaces", () => {
   assert.equal(getAlternateHtmlPathname("/about"), "/about/");
   assert.equal(getAlternateHtmlPathname("/"), null);
   assert.equal(getAlternateHtmlPathname("/api/posts"), null);
+  assert.equal(getAlternateHtmlPathname("/livez"), null);
+  assert.equal(getAlternateHtmlPathname("/readyz"), null);
   assert.equal(getAlternateHtmlPathname("/rss.xml"), null);
   assert.equal(getAlternateHtmlPathname("/posts/example/index.png"), null);
 });
@@ -158,6 +162,21 @@ test("canonical HTML redirect helper excludes canonical, API, and file-like path
     getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/api/posts", "text/html"),
     null
   );
+  for (const method of ["GET", "HEAD"]) {
+    for (const pathname of ["/livez", "/readyz"]) {
+      for (const accept of [undefined, "*/*", "application/json"]) {
+        assert.equal(
+          getCanonicalHtmlRedirectLocation(
+            method,
+            `https://berryhill.dev${pathname}`,
+            accept
+          ),
+          null,
+          `${method} ${pathname} accept=${accept ?? "unset"}`
+        );
+      }
+    }
+  }
   assert.equal(
     getCanonicalHtmlRedirectLocation("GET", "https://berryhill.dev/rss.xml", "text/html"),
     null

@@ -1,3 +1,16 @@
+{{- $mode := .Values.contentStorage.mode -}}
+{{- $validModes := list "filesystem" "object" "filesystem-mirror" "object-mirror" -}}
+{{- if not (has $mode $validModes) -}}
+{{- fail (printf "contentStorage.mode must be one of filesystem, object, filesystem-mirror, object-mirror; got %q" $mode) -}}
+{{- end -}}
+{{- $usesFilesystem := ne $mode "object" -}}
+{{- $mountsFilesystem := and $usesFilesystem .Values.contentStorage.filesystem.pvc.mount -}}
+{{- if and $usesFilesystem (ne (int .Values.replicaCount) 1) -}}
+{{- fail (printf "contentStorage.mode %s requires replicaCount=1 because it is filesystem-backed" $mode) -}}
+{{- end -}}
+{{- if and (gt (int .Values.replicaCount) 1) (not .Values.contentStorage.multiReplicaConcurrencySafe) -}}
+{{- fail "replicaCount above one requires contentStorage.mode=object and contentStorage.multiReplicaConcurrencySafe=true" -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,9 +18,16 @@ metadata:
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
+    {{- if eq $mode "object" }}
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+    {{- else }}
     # A single ReadWriteOnce posts volume cannot safely support overlapping
     # old/new pods when Kubernetes schedules them on different nodes.
     type: Recreate
+    {{- end }}
   selector:
     matchLabels:
       app: {{ .Values.service.name }}
@@ -31,11 +51,52 @@ spec:
               protocol: TCP
           env:
             - name: DOPPLER_TOKEN
-              value: {{ .Values.dopplerToken | quote }}
-          {{- if .Values.contentStorage.filesystem.pvc.mount }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.runtimeSecrets.doppler.name | quote }}
+                  key: {{ .Values.runtimeSecrets.doppler.key | quote }}
+            - name: CONTENT_STORAGE_MODE
+              value: {{ $mode | quote }}
+            - name: CONTENT_STORAGE_FILESYSTEM_PATH
+              value: {{ .Values.contentStorage.filesystem.directory | quote }}
+            - name: CONTENT_OBJECT_BUCKET
+              value: {{ .Values.contentStorage.object.bucket | quote }}
+            - name: CONTENT_OBJECT_PREFIX
+              value: {{ .Values.contentStorage.object.prefix | quote }}
+            - name: CONTENT_OBJECT_REGION
+              value: {{ .Values.contentStorage.object.region | quote }}
+            - name: CONTENT_OBJECT_ENDPOINT
+              value: {{ .Values.contentStorage.object.endpoint | quote }}
+            - name: CONTENT_OBJECT_FORCE_PATH_STYLE
+              value: {{ .Values.contentStorage.object.forcePathStyle | quote }}
+            - name: CONTENT_OBJECT_REQUEST_TIMEOUT_MS
+              value: {{ .Values.contentStorage.object.requestTimeoutMs | quote }}
+            - name: CONTENT_OBJECT_MAX_ATTEMPTS
+              value: {{ .Values.contentStorage.object.maxAttempts | quote }}
+            - name: CONTENT_OBJECT_CATALOG_CAS_RETRIES
+              value: {{ .Values.contentStorage.object.catalogCasRetries | quote }}
+            - name: CONTENT_MIGRATION_STATE
+              value: {{ .Values.contentStorage.migration.state | quote }}
+            - name: CONTENT_MIGRATION_REQUIRED_STATE
+              value: {{ .Values.contentStorage.migration.requiredState | quote }}
+            - name: CONTENT_WRITER_EPOCH
+              value: {{ .Values.contentStorage.migration.writerEpoch | quote }}
+            - name: CONTENT_WRITER_REQUIRED_EPOCH
+              value: {{ .Values.contentStorage.migration.requiredWriterEpoch | quote }}
+            - name: CONTENT_CATALOG_EXPECTED_GENERATION
+              value: {{ .Values.contentStorage.migration.expectedCatalogGeneration | quote }}
+            - name: CONTENT_WRITE_FROZEN
+              value: {{ .Values.contentStorage.migration.writeFrozen | quote }}
+            - name: CONTENT_MIRROR_LAG
+              value: {{ .Values.contentStorage.migration.mirrorLag | quote }}
+            - name: CONTENT_PARITY_MISMATCH
+              value: {{ .Values.contentStorage.migration.parityMismatch | quote }}
+            - name: CONTENT_RESTORE_TIMESTAMP
+              value: {{ .Values.contentStorage.migration.restoreTimestamp | quote }}
+          {{- if $mountsFilesystem }}
           volumeMounts:
             - name: posts-content
-              mountPath: /app/src/data/blog
+              mountPath: {{ .Values.contentStorage.filesystem.directory }}
           {{- end }}
           lifecycle:
             preStop:
@@ -43,7 +104,7 @@ spec:
                 command: ["/bin/sh", "-c", "sleep 15"]
           readinessProbe:
             httpGet:
-              path: /
+              path: /readyz
               port: {{ .Values.service.targetPort }}
             initialDelaySeconds: 5
             periodSeconds: 5
@@ -52,14 +113,21 @@ spec:
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /
+              path: /livez
               port: {{ .Values.service.targetPort }}
             initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 3
             successThreshold: 1
             failureThreshold: 3
-      {{- if .Values.contentStorage.filesystem.pvc.mount }}
+          startupProbe:
+            httpGet:
+              path: /livez
+              port: {{ .Values.service.targetPort }}
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 24
+      {{- if $mountsFilesystem }}
       volumes:
         - name: posts-content
           persistentVolumeClaim:
