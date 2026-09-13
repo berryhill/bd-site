@@ -93,6 +93,14 @@ const transitionFixturePath = path.join(
   "blog",
   `${transitionSlug}.md`
 );
+// Seed enough public posts to exercise page 2 in a clean checkout, independent
+// of the production content store. Remove only these test-owned files on exit.
+const paginationFixtures = Array.from({ length: 7 }, (_, i) =>
+  path.join(process.cwd(), "src/data/blog", `indexing-pagination-fixture-${i}.md`)
+);
+for (const [i, fixture] of paginationFixtures.entries()) {
+  await writeFile(fixture, `---\ntitle: Indexing Pagination Fixture ${i}\ndescription: Deterministic local crawl navigation fixture.\npubDatetime: 2020-01-01T00:00:00Z\ndraft: false\ntags:\n  - testing\n---\nLocal pagination verification content.\n`, { flag: "wx" });
+}
 const server = spawn(
   "pnpm",
   ["exec", "astro", "dev", "--host", "127.0.0.1", "--port", String(port)],
@@ -107,6 +115,44 @@ server.stderr.on("data", data => output.push(data.toString()));
 
 try {
   await waitForServer(origin, server, output);
+
+  await test("rendered HTML navigation agrees with canonical URLs without redirect hops", async () => {
+    for (const pathname of ["/", "/posts/", "/posts/page/2/", "/posts/welcome-to-dynamic-blog/"]) {
+      const response = await fetch(`${origin}${pathname}`, { redirect: "manual" });
+      assert.equal(response.status, 200, pathname);
+      const html = await response.text();
+      const links = [...html.matchAll(/<a\b[^>]*\bhref="(\/[^"]*)"/g)].map(match => match[1]);
+      assert.ok(links.length > 0);
+      for (const href of links) {
+        const url = new URL(href, origin);
+        if (/\.[^/]+$/.test(url.pathname)) continue;
+        assert.ok(url.pathname.endsWith("/"), `${pathname} links to ${href}`);
+        assert.notEqual(url.pathname, "/posts/page/1/");
+      }
+      const postLink = links.find(href => /^\/posts\/(?!page\/)[^/]+\/$/.test(href));
+      assert.ok(postLink, `${pathname} needs representative post navigation`);
+      const target = await fetch(`${origin}${postLink}`, { redirect: "manual" });
+      assert.equal(target.status, 200, postLink);
+      const targetHtml = await target.text();
+      assert.ok(targetHtml.includes(`rel="canonical" href="https://berryhill.dev${postLink}"`));
+      const metadata = extractSocialPreviewMetadata(targetHtml);
+      assert.equal(metadata.ogUrl, `https://berryhill.dev${postLink}`);
+    }
+    for (const pathname of ["/posts/page/1", "/posts/page/1/"]) {
+      const response = await fetch(`${origin}${pathname}`, { redirect: "manual" });
+      assert.ok([301, 308].includes(response.status));
+      assert.equal(response.headers.get("location"), "/posts/");
+    }
+    const oldPost = await fetch(`${origin}/posts/welcome-to-dynamic-blog`, { redirect: "manual" });
+    assert.ok([301, 308].includes(oldPost.status));
+    assert.equal(oldPost.headers.get("location"), "/posts/welcome-to-dynamic-blog/");
+    assert.equal((await fetch(`${origin}/posts/page/999999/`)).status, 404);
+    for (const path of ["/rss.xml", "/atom.xml", "/sitemap-posts.xml"]) {
+      const response = await fetch(`${origin}${path}`, { redirect: "manual" });
+      assert.equal(response.status, 200);
+      assert.ok((await response.text()).includes("https://berryhill.dev/posts/welcome-to-dynamic-blog/"));
+    }
+  });
 
   await test("advertised social image resolves to a valid dynamic PNG", async () => {
     const pageUrl = `${origin}/posts/welcome-to-dynamic-blog/`;
@@ -210,6 +256,7 @@ fresh-publication transition path instead of an already-loaded collection entry.
   });
 } finally {
   server.kill("SIGTERM");
+  await Promise.all(paginationFixtures.map(fixture => unlink(fixture)));
   await unlink(transitionFixturePath).catch(error => {
     if (error?.code !== "ENOENT") throw error;
   });

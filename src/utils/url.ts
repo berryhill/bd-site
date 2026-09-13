@@ -77,6 +77,15 @@ export function normalizeCanonicalHtmlUrl(
   return url;
 }
 
+/** Site-relative HTML navigation only; keep getPath raw for slug/asset consumers. */
+export function toCanonicalHtmlPath(path: string): string {
+  const url = normalizeCanonicalHtmlUrl(path);
+  if (PAGE_ONE_ARCHIVE_PATH_RE.test(url.pathname)) {
+    url.pathname = PAGE_ONE_ARCHIVE_TARGET;
+  }
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 export function acceptsHtmlResponse(
   acceptHeader: string | null | undefined
 ): boolean {

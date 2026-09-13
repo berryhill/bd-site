@@ -65,7 +65,16 @@ const getTwitterbotGroup = () =>
 export const getRobotsTxt = (site: string = DEFAULT_SITE) => {
   const sitemapUrl = getCanonicalSitemapUrl(site);
 
+  // Explicit groups avoid broadening the wildcard or intentional AI policies.
+  const googleGroups = ["Googlebot", "Googlebot-Image"]
+    .map(agent =>
+      [`User-agent: ${agent}`, "Allow: /", "Disallow: /pagefind/"].join("\n")
+    )
+    .join("\n\n");
+
   return `${getTwitterbotGroup()}
+
+${googleGroups}
 
 ${CRAWLER_USER_AGENTS.map(getCrawlerGroup).join("\n\n")}
 

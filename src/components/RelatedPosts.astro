@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { getPath } from "@/utils/getPath";
+import { toCanonicalHtmlPath } from "@/utils/url";
 
 export interface Props {
   posts: CollectionEntry<"liveBlog">[];
@@ -19,7 +20,7 @@ const { posts } = Astro.props;
         {posts.map(post => (
           <li>
             <a
-              href={getPath(post.id, post.filePath)}
+              href={toCanonicalHtmlPath(getPath(post.id, post.filePath))}
               class="group inline-flex items-center gap-2 transition-colors hover:text-accent"
             >
               <span class="text-accent opacity-0 transition-opacity group-hover:opacity-100">

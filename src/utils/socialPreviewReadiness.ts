@@ -161,7 +161,7 @@ function robotsPatternMatches(rulePath: string, targetPath: string) {
   return regex.test(targetPath);
 }
 
-function getRobotsDecision(
+export function getRobotsDecision(
   robotsTxt: string,
   userAgent: string,
   targetUrl: string

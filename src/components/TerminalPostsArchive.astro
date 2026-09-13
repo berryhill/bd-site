@@ -3,6 +3,7 @@ import type { CollectionEntry } from "astro:content";
 import Pagination from "@/components/Pagination.astro";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
+import { toCanonicalHtmlPath } from "@/utils/url";
 
 export interface Props {
   sortedPosts: CollectionEntry<"liveBlog">[];
@@ -166,7 +167,7 @@ const page = {
             {featuredPosts.map(post => (
               <a
                 class="pin"
-                href={getPath(post.id, post.filePath)}
+                href={toCanonicalHtmlPath(getPath(post.id, post.filePath))}
                 aria-label={`Read pinned post: ${post.data.title}`}
                 data-tag={post.data.tags?.[0] ?? "post"}
                 data-search={`${post.data.title} ${post.data.description}`}
@@ -222,7 +223,7 @@ const page = {
             {posts.map(post => (
               <a
                 class="ls-row posts-archive-row"
-                href={getPath(post.id, post.filePath)}
+                href={toCanonicalHtmlPath(getPath(post.id, post.filePath))}
                 data-tag={post.data.tags?.[0] ?? "post"}
                 data-search={`${post.data.title} ${post.data.description}`}
               >

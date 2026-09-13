@@ -50,6 +50,14 @@ spec:
             - containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
           env:
+            {{- if .Values.googleSearchConsole.enabled }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/run/secrets/google-search-console/credentials.json
+            - name: GOOGLE_SEARCH_CONSOLE_SITE_URL
+              value: {{ .Values.googleSearchConsole.siteUrl | quote }}
+            - name: GOOGLE_SEARCH_CONSOLE_SITEMAP_URL
+              value: {{ .Values.googleSearchConsole.sitemapUrl | quote }}
+            {{- end }}
             - name: DOPPLER_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -93,10 +101,17 @@ spec:
               value: {{ .Values.contentStorage.migration.parityMismatch | quote }}
             - name: CONTENT_RESTORE_TIMESTAMP
               value: {{ .Values.contentStorage.migration.restoreTimestamp | quote }}
-          {{- if $mountsFilesystem }}
+          {{- if or $mountsFilesystem .Values.googleSearchConsole.enabled }}
           volumeMounts:
+            {{- if .Values.googleSearchConsole.enabled }}
+            - name: google-search-console
+              mountPath: /var/run/secrets/google-search-console
+              readOnly: true
+            {{- end }}
+            {{- if $mountsFilesystem }}
             - name: posts-content
               mountPath: {{ .Values.contentStorage.filesystem.directory }}
+            {{- end }}
           {{- end }}
           lifecycle:
             preStop:
@@ -127,9 +142,19 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 24
-      {{- if $mountsFilesystem }}
+      {{- if or $mountsFilesystem .Values.googleSearchConsole.enabled }}
       volumes:
+        {{- if .Values.googleSearchConsole.enabled }}
+        - name: google-search-console
+          secret:
+            secretName: {{ required "googleSearchConsole.credentials.existingSecret is required when enabled" .Values.googleSearchConsole.credentials.existingSecret | quote }}
+            items:
+              - key: {{ .Values.googleSearchConsole.credentials.key | quote }}
+                path: credentials.json
+        {{- end }}
+        {{- if $mountsFilesystem }}
         - name: posts-content
           persistentVolumeClaim:
             claimName: {{ .Values.contentStorage.filesystem.pvc.existingClaim }}
+        {{- end }}
       {{- end }}

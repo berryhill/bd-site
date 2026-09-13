@@ -8,11 +8,9 @@ export const GET: APIRoute = async () => {
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>${SITE.website}sitemap-static.xml</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
   </sitemap>
   <sitemap>
     <loc>${SITE.website}sitemap-posts.xml</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
   </sitemap>
 </sitemapindex>`;
 

@@ -87,7 +87,7 @@ test("robots.txt applies pagefind/static disallows to named AI crawler groups", 
 
   assert.equal(
     (robots.match(/^User-agent:/gm) ?? []).length,
-    CRAWLER_USER_AGENTS.length + 1
+    CRAWLER_USER_AGENTS.length + 3 // Twitterbot plus Googlebot and Googlebot-Image
   );
 });
 

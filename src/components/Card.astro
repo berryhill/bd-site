@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { getPath } from "@/utils/getPath";
+import { toCanonicalHtmlPath } from "@/utils/url";
 import Datetime from "./Datetime.astro";
 
 export interface Props extends CollectionEntry<"liveBlog"> {
@@ -10,7 +11,7 @@ export interface Props extends CollectionEntry<"liveBlog"> {
 const { variant = "h2", data, id, filePath } = Astro.props;
 
 const { title, description, pubDatetime, modDatetime, timezone, tags } = data;
-const href = getPath(id, filePath);
+const href = toCanonicalHtmlPath(getPath(id, filePath));
 const lane = tags?.[0] ?? "field-note";
 const filename = `${id}.md`;
 ---
