@@ -1,5 +1,6 @@
 ---
 import type { Page } from "astro";
+import { toCanonicalHtmlPath } from "@/utils/url";
 import type { CollectionEntry } from "astro:content";
 import IconArrowLeft from "@/assets/icons/IconArrowLeft.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
@@ -20,7 +21,7 @@ const { page } = Astro.props;
     >
       <LinkButton
         disabled={!page.url.prev}
-        href={page.url.prev as string}
+        href={page.url.prev ? toCanonicalHtmlPath(page.url.prev) : ""}
         class:list={[
           "hover:text-background bg-transparent px-6 py-3 text-sm font-bold tracking-wider text-accent uppercase transition-all duration-200 select-none hover:bg-accent",
           { "pointer-events-none opacity-30": !page.url.prev },
@@ -35,7 +36,7 @@ const { page } = Astro.props;
       </span>
       <LinkButton
         disabled={!page.url.next}
-        href={page.url.next as string}
+        href={page.url.next ? toCanonicalHtmlPath(page.url.next) : ""}
         class:list={[
           "hover:text-background bg-transparent px-6 py-3 text-sm font-bold tracking-wider text-accent uppercase transition-all duration-200 select-none hover:bg-accent",
           { "pointer-events-none opacity-30": !page.url.next },

@@ -27,7 +27,7 @@ async function run() {
       assert.deepEqual(result, {
         ok: false,
         skipped: true,
-        reason: "missing_config: GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN",
+        reason: "missing_config: GOOGLE_APPLICATION_CREDENTIALS or GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN",
       });
       assert.equal(fetchCalled, false);
     } finally {
@@ -85,7 +85,7 @@ async function run() {
         accessToken: "test-token",
       });
 
-      assert.deepEqual(result, { ok: false, status: 403 });
+      assert.deepEqual(result, { ok: false, status: 403, reason: "authorization_failed" });
       assert.equal(warned, true);
     } finally {
       globalThis.fetch = originalFetch;

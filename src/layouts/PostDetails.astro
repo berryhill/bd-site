@@ -9,6 +9,7 @@ import IconMail from "@/assets/icons/IconMail.svg";
 import IconTelegram from "@/assets/icons/IconTelegram.svg";
 import IconWhatsapp from "@/assets/icons/IconWhatsapp.svg";
 import { getPath } from "@/utils/getPath";
+import { toCanonicalHtmlPath } from "@/utils/url";
 import { getRelatedPosts } from "@/utils/getRelatedPosts";
 import { slugifyStr } from "@/utils/slugify";
 import { SITE } from "@/config";
@@ -312,7 +313,9 @@ const shareMailHref = `mailto:?subject=${encodedShareTitle}&body=${encodedPostUr
             prevPost && (
               <a
                 class="adj prev"
-                href={getPath(prevPost.id, prevPost.filePath)}
+                href={toCanonicalHtmlPath(
+                  getPath(prevPost.id, prevPost.filePath)
+                )}
               >
                 <>
                   <span class="lbl">
@@ -329,7 +332,9 @@ const shareMailHref = `mailto:?subject=${encodedShareTitle}&body=${encodedPostUr
             nextPost && (
               <a
                 class="adj next"
-                href={getPath(nextPost.id, nextPost.filePath)}
+                href={toCanonicalHtmlPath(
+                  getPath(nextPost.id, nextPost.filePath)
+                )}
               >
                 <>
                   <span class="lbl">

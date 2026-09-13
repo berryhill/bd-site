@@ -5,6 +5,7 @@ import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import Layout from "@/layouts/Layout.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { getPath } from "@/utils/getPath";
+import { toCanonicalHtmlPath } from "@/utils/url";
 import { SITE } from "@/config";
 import { buildWebSiteJsonLd } from "@/utils/structuredData";
 import {
@@ -165,7 +166,7 @@ const jsonLd = buildWebSiteJsonLd({
               {featuredPosts.map(post => (
                 <a
                   class="file featured-file"
-                  href={getPath(post.id, post.filePath)}
+                  href={toCanonicalHtmlPath(getPath(post.id, post.filePath))}
                   aria-label={`Read featured post: ${post.data.title}`}
                 >
                   <div class="head">
@@ -201,7 +202,10 @@ const jsonLd = buildWebSiteJsonLd({
       <div class="ls">
         {
           recentPosts.map(post => (
-            <a class="ls-row" href={getPath(post.id, post.filePath)}>
+            <a
+              class="ls-row"
+              href={toCanonicalHtmlPath(getPath(post.id, post.filePath))}
+            >
               <>
                 <span class="perm">-rw-r--</span>
                 <span class="date">{formatDate(post.data.pubDatetime)}</span>

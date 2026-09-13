@@ -33,6 +33,15 @@ runtimeSecrets:
     name: bd-site-doppler
     key: token
 
+googleSearchConsole:
+  # Opt-in only. The operator provisions the existing Secret out of band.
+  enabled: false
+  siteUrl: sc-domain:berryhill.dev
+  sitemapUrl: https://berryhill.dev/sitemap.xml
+  credentials:
+    existingSecret: ""
+    key: credentials.json
+
 contentStorage:
   # Production remains filesystem-backed until the separately gated cutover.
   # Supported values: filesystem, object, filesystem-mirror, object-mirror.

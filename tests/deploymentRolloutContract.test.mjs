@@ -59,6 +59,25 @@ const dockerfile = readRepoFile("Dockerfile");
 const serviceAccountPath = new URL("../helm/templates/serviceaccount.yaml", import.meta.url);
 const serviceAccountTemplate = existsSync(serviceAccountPath) ? readFileSync(serviceAccountPath, "utf8") : "";
 
+test("Google sitemap credentials are opt-in, read-only existing Secret references in both storage modes", () => {
+  const defaults = renderChart();
+  assert.doesNotMatch(defaults, /name: GOOGLE_APPLICATION_CREDENTIALS/);
+  assertRenderFails(["googleSearchConsole.enabled=true"], "googleSearchConsole.credentials.existingSecret is required");
+  for (const mode of ["filesystem", "object"]) {
+    const chart = renderChart([
+      `contentStorage.mode=${mode}`,
+      "googleSearchConsole.enabled=true",
+      "googleSearchConsole.credentials.existingSecret=operator-managed-gsc",
+    ]);
+    assert.match(chart, /name: GOOGLE_APPLICATION_CREDENTIALS\s+value: \/var\/run\/secrets\/google-search-console\/credentials.json/);
+    assert.match(chart, /value: "sc-domain:berryhill.dev"/);
+    assert.match(chart, /mountPath: \/var\/run\/secrets\/google-search-console\s+readOnly: true/);
+    assert.match(chart, /secretName: "operator-managed-gsc"/);
+    assert.doesNotMatch(chart, /^kind: Secret$/m);
+    assert.doesNotMatch(chart, /subPath:/);
+  }
+});
+
 test("production deployments are serialized without cancelling an in-flight release", () => {
   assert.match(workflow, /concurrency:\s+group:\s*bd-site-production\s+cancel-in-progress:\s*false/);
 });
