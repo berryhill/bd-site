@@ -14,7 +14,11 @@ import { SITE } from "@/config";
 import { buildCollectionPageJsonLd } from "@/utils/structuredData";
 
 const { tag, page: pageParam } = Astro.params;
-const currentPage = pageParam ? parseInt(pageParam) : 1;
+if (pageParam !== undefined && !/^[1-9]\d*$/.test(pageParam)) {
+  return Astro.rewrite("/404/");
+}
+const currentPage = pageParam === undefined ? 1 : Number(pageParam);
+if (!Number.isSafeInteger(currentPage)) return Astro.rewrite("/404/");
 
 const allPosts = await getLiveBlogPosts();
 const posts = allPosts || [];
@@ -24,7 +28,7 @@ const tags = getUniqueTags(posts);
 const tagData = tags.find(t => t.tag === tag);
 
 if (!tagData) {
-  return Astro.redirect("/404");
+  return Astro.rewrite("/404/");
 }
 
 const { tagName } = tagData;
@@ -36,6 +40,8 @@ const tagPosts = getPostsByTag(posts, tag);
 // Calculate pagination
 const pageSize = SITE.postPerPage;
 const totalPages = Math.ceil(tagPosts.length / pageSize);
+if (currentPage > totalPages) return Astro.rewrite("/404/");
+if (pageParam === "1") return Astro.redirect(`/tags/${tag}/`, 301);
 const start = (currentPage - 1) * pageSize;
 const end = start + pageSize;
 const paginatedPosts = tagPosts.slice(start, end);
@@ -50,10 +56,16 @@ const page = {
   currentPage,
   lastPage: totalPages,
   url: {
-    current: `/tags/${tag}/${currentPage}`,
-    prev: currentPage > 1 ? `/tags/${tag}/${currentPage - 1}` : undefined,
+    current:
+      currentPage === 1 ? `/tags/${tag}/` : `/tags/${tag}/${currentPage}/`,
+    prev:
+      currentPage === 2
+        ? `/tags/${tag}/`
+        : currentPage > 2
+          ? `/tags/${tag}/${currentPage - 1}/`
+          : undefined,
     next:
-      currentPage < totalPages ? `/tags/${tag}/${currentPage + 1}` : undefined,
+      currentPage < totalPages ? `/tags/${tag}/${currentPage + 1}/` : undefined,
   },
 };
 const jsonLd = buildCollectionPageJsonLd({

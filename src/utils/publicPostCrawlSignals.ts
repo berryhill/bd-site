@@ -59,7 +59,7 @@ export async function submitPublicPostCrawlSignals(
     return {
       ok:
         indexNow &&
-        (google.ok || google.skipped === true) &&
+        google.ok &&
         (duckDuckGo.ok || duckDuckGo.mode === "skipped") &&
         yahoo.ok,
       indexNow,

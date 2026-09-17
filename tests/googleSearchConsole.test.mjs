@@ -113,9 +113,12 @@ async function run() {
       "utf8"
     );
 
-    assert.match(source, /const socialPreviewReadiness = !draft[\s\S]*?verifyPublicPostShareReadiness\(slug\)[\s\S]*?: undefined;/);
-    assert.match(source, /const crawlSignals = socialPreviewReadiness\?\.ready[\s\S]*?submitPublicPostCrawlSignals\(publicPostUrl\(slug\)\)[\s\S]*?: undefined;/);
-    assert.match(source, /const isDraft = draft !== undefined \? draft : frontmatterData\.draft;[\s\S]*?const socialPreviewReadiness = !isDraft[\s\S]*?verifyPublicPostShareReadiness\(slug\)[\s\S]*?: undefined;/);
+  for (const method of ["POST", "PATCH"]) {
+    const handler = source.split(`export const ${method}: APIRoute`)[1].split("export const ")[0];
+    assert.match(handler, /await postPublicationSignals\(publicPostUrl\(slug\), frontmatterData\)/);
+    assert.ok(handler.indexOf("await blogStore.putPost(") < handler.indexOf("await postPublicationSignals("));
+    assert.match(handler, /crawlSignals,/);
+  }
   });
 
   for (const [name, fn] of tests) {

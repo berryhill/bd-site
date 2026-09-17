@@ -205,7 +205,23 @@ jobs:
         env:
           IMAGE_TAG: ${{ needs.build-push.outputs.image-tag }}
           IMAGE_DIGEST: ${{ needs.build-push.outputs.image-digest }}
+          GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET: ${{ vars.GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET }}
         run: |
+          GOOGLE_ARGS=()
+          if [ -n "${GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET}" ]; then
+            if ! [[ "${GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET}" =~ ^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$ ]]; then
+              echo "Invalid Google credential Secret reference" >&2
+              exit 1
+            fi
+            # Check key presence without printing credential data. Never create
+            # a placeholder Secret or mount a nonexistent credential.
+            PRESENT="$(kubectl get secret "${GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET}" -n "${KUBE_NAMESPACE}" -o go-template='{{if index .data "credentials.json"}}present{{end}}')"
+            [ "${PRESENT}" = present ] || { echo "Google credential Secret/key missing" >&2; exit 1; }
+            GOOGLE_ARGS=(--set googleSearchConsole.enabled=true --set-string "googleSearchConsole.credentials.existingSecret=${GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET}")
+            echo "Google sitemap submission: service-account mount enabled (acceptance still requires provider verification)"
+          else
+            echo "::warning::Google service-account mount disabled; set GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET after owner provisioning. Legacy runtime token configuration is separate."
+          fi
           if [ -z "${IMAGE_TAG}" ] || [ "${IMAGE_TAG}" != "${GITHUB_SHA}" ]; then
             echo "Build image tag is missing or does not match GitHub revision" >&2
             exit 1
@@ -219,6 +235,7 @@ jobs:
 
           set +e
           helm upgrade --install bd-site ./helm -n "${KUBE_NAMESPACE}" -f ./helm/values.yaml \
+            "${GOOGLE_ARGS[@]}" \
             --set image.tag="${IMAGE_TAG}" \
             --set image.digest="${IMAGE_DIGEST}" \
             --set deploymentRevision="${GITHUB_SHA}" \
