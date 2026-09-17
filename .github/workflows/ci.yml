@@ -16,7 +16,7 @@ jobs:
   build:
     name: Code standards & build
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 8
 
     strategy:
       matrix:
@@ -56,3 +56,5 @@ jobs:
 
       - name: "🚀 Build the project"
         run: pnpm run build
+      - name: "Standalone indexing HTTP regressions"
+        run: node tests/indexingStandalone.test.mjs

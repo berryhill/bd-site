@@ -21,11 +21,11 @@ import {
 } from "@/content/runtimeReadiness";
 import { resolveUpdateModDatetime } from "@/content/blogMutation";
 import { SITE } from "@/config";
-import { submitPublicPostCrawlSignals } from "@/utils/publicPostCrawlSignals";
+import { postPublicationSignals } from "@/utils/postPublicationSignals";
+import { assertBlogInput, assertBlogMetadata } from "@/content/blogMetadata";
 import { requireApiKey } from "@/utils/apiAuth";
 import { validateBlogVisualAssets } from "@/utils/blogVisualAssets";
 import { auditPostTitleQuality } from "@/utils/postTitleQuality";
-import { waitForSocialPreviewReadiness } from "@/utils/socialPreviewReadiness";
 
 export const prerender = false;
 
@@ -227,9 +227,6 @@ type PostRecord = Record<string, unknown> & {
 
 const publicPostUrl = (slug: string) => `${SITE.website}posts/${slug}/`;
 
-const verifyPublicPostShareReadiness = async (slug: string) =>
-  waitForSocialPreviewReadiness(publicPostUrl(slug));
-
 export const GET: APIRoute = async context => {
   const authError = requireApiKey(context);
   if (authError) return authError;
@@ -311,7 +308,10 @@ export const POST: APIRoute = async context => {
   try {
     const { request } = context;
     // Parse the incoming JSON
-    const body = await request.json();
+    const body = await request.json().catch(() => {
+      throw new BlogStoreValidationError("Invalid JSON");
+    });
+    assertBlogInput(body);
     const operationId = requestOperationId(request, body as PostData);
     if (!operationId) return mutationPreconditionResponse(["operationId"]);
     const {
@@ -390,6 +390,7 @@ export const POST: APIRoute = async context => {
     applyOptionalFrontmatter(frontmatterData, "timezone", timezone);
 
     // Use gray-matter to properly stringify frontmatter with content
+    assertBlogMetadata(frontmatterData);
     const fileContent = matter.stringify(content, frontmatterData);
 
     const stored = await blogStore.putPost(
@@ -398,13 +399,8 @@ export const POST: APIRoute = async context => {
       { expectedRevision: "absent", operationId }
     );
 
-    // Verify public social-card readiness before submitting crawler signals.
-    const socialPreviewReadiness = !draft
-      ? await verifyPublicPostShareReadiness(slug)
-      : undefined;
-    const crawlSignals = socialPreviewReadiness?.ready
-      ? await submitPublicPostCrawlSignals(publicPostUrl(slug))
-      : undefined;
+    const { socialPreviewReadiness, crawlSignals } =
+      await postPublicationSignals(publicPostUrl(slug), frontmatterData);
 
     return new Response(
       JSON.stringify({
@@ -460,7 +456,10 @@ export const PATCH: APIRoute = async context => {
   try {
     const { request } = context;
     // Parse the incoming JSON
-    const body = await request.json();
+    const body = await request.json().catch(() => {
+      throw new BlogStoreValidationError("Invalid JSON");
+    });
+    assertBlogInput(body);
     const operationId = requestOperationId(request, body as UpdatePostData);
     const expectedRevision = requestExpectedRevision(
       request,
@@ -594,6 +593,7 @@ export const PATCH: APIRoute = async context => {
     if (validationError) return validationError;
 
     // Rebuild the file with updated frontmatter and content
+    assertBlogMetadata(frontmatterData);
     const updatedFile = matter.stringify(updatedContent, frontmatterData);
 
     const stored = await blogStore.putPost(
@@ -602,13 +602,8 @@ export const PATCH: APIRoute = async context => {
       { expectedRevision: expectedRevision!, operationId: operationId! }
     );
 
-    // Verify public social-card readiness before submitting crawler signals.
-    const socialPreviewReadiness = !isDraft
-      ? await verifyPublicPostShareReadiness(slug)
-      : undefined;
-    const crawlSignals = socialPreviewReadiness?.ready
-      ? await submitPublicPostCrawlSignals(publicPostUrl(slug))
-      : undefined;
+    const { socialPreviewReadiness, crawlSignals } =
+      await postPublicationSignals(publicPostUrl(slug), frontmatterData);
 
     return new Response(
       JSON.stringify({

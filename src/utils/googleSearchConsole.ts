@@ -59,6 +59,9 @@ export async function submitSitemapToGoogleSearchConsole(options?: {
   const keyFile = getEnv("GOOGLE_APPLICATION_CREDENTIALS");
   // Require explicit configuration: do not probe workstation ADC or metadata.
   if (!accessToken && !keyFile) {
+    console.warn(
+      "Google Search Console sitemap submission unavailable: missing_config"
+    );
     return {
       ok: false,
       skipped: true,

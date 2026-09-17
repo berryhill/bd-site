@@ -4,6 +4,7 @@ export const prerender = false;
 import { getLiveBlogPosts } from "@/content/liveBlogPosts";
 import PostDetails from "@/layouts/PostDetails.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
+import { isPublicPost } from "@/utils/postFilter";
 
 // Get the slug from the URL
 const { slug } = Astro.params;
@@ -12,14 +13,14 @@ const { slug } = Astro.params;
 const allPosts = await getLiveBlogPosts();
 
 if (!allPosts || allPosts.length === 0) {
-  return Astro.redirect("/404");
+  return Astro.rewrite("/404/");
 }
 
 // Find the post matching the slug (slug = filename without extension)
 const post = allPosts.find(p => p.id === slug);
 
-if (!post || post.data.draft) {
-  return Astro.redirect("/404");
+if (!post || !isPublicPost(post)) {
+  return Astro.rewrite("/404/");
 }
 
 const sortedPosts = getSortedPosts(allPosts);

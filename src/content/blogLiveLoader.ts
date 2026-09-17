@@ -1,8 +1,9 @@
 import path from "node:path";
 import type { BlogStore } from "@/content/blogStore";
-import { parseBlogSource } from "@/content/blogSchema";
+import { parseBlogSource, decodeBlogSource } from "@/content/blogSchema";
 import { getBlogStore } from "@/content/blogStoreFactory";
 import { assertValidBlogVisualAssets } from "@/utils/blogVisualAssets";
+import { blogMetadataSchema } from "@/content/blogMetadata";
 
 interface FilterOptions {
   id?: string;
@@ -28,7 +29,24 @@ export function blogLiveLoader(options: BlogLiveLoaderOptions = {}) {
 
   const toEntry = (post: Awaited<ReturnType<BlogStore["getPost"]>>) => {
     if (!post) return null;
-    const parsed = parseBlogSource(post.source);
+    // Byte-level storage integrity failures are not metadata quarantine.
+    decodeBlogSource(post.source);
+    let parsed;
+    try {
+      parsed = parseBlogSource(post.source);
+      parsed.data = {
+        ...parsed.data,
+        ...blogMetadataSchema.parse(parsed.data),
+      };
+    } catch {
+      // Record-local corruption is isolated, never deleted or rewritten. Store
+      // reads remain outside this catch so genuine outages still fail closed.
+      // eslint-disable-next-line no-console
+      console.warn("Blog record excluded: invalid_metadata", {
+        slug: post.slug,
+      });
+      return null;
+    }
     try {
       assertValidBlogVisualAssets(parsed.content, {
         postSlug: post.slug,

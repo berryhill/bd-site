@@ -330,7 +330,14 @@ test("deployment workflow reconciles the runtime Secret without exposing it to H
   );
   assert.doesNotMatch(workflow, /--set(?:-string)?\s+dopplerToken/);
   assert.doesNotMatch(workflow, /helm[^\n]*DOPPLER_TOKEN/);
-  assert.doesNotMatch(workflow, /kubectl (?:get|describe) secret/);
+  // Permit only this fixed boolean projection; arbitrary Secret reads or
+  // diagnostic dumps remain forbidden across the entire workflow.
+  const safeGoogleProbe = 'kubectl get secret "${GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET}" -n "${KUBE_NAMESPACE}" -o go-template=\'{{if index .data "credentials.json"}}present{{end}}\'';
+  assert.equal(workflow.split(safeGoogleProbe).length, 2);
+  assert.doesNotMatch(workflow.replace(safeGoogleProbe, ""), /kubectl (?:get|describe) secret/);
+  assert.match(workflow, /GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET:.*vars\.GOOGLE_SEARCH_CONSOLE_EXISTING_SECRET/);
+  assert.match(workflow, /--set googleSearchConsole.enabled=true --set-string/);
+  assert.match(workflow, /"\$\{GOOGLE_ARGS\[@\]\}"/);
   assert.match(workflow, /name: Cleanup temporary credential files[\s\S]*if:\s*always\(\)/);
   assert.match(workflow, /rm -f "\$\{DOPPLER_TOKEN_PATH\}"/);
 });

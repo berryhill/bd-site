@@ -1,5 +1,6 @@
 ---
-export const prerender = true;
+export const prerender = false;
+Astro.response.status = 404;
 
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
@@ -8,7 +9,7 @@ import LinkButton from "@/components/LinkButton.astro";
 import { SITE } from "@/config";
 ---
 
-<Layout title={`404 Not Found | ${SITE.title}`}>
+<Layout title={`404 Not Found | ${SITE.title}`} noindex={true}>
   <Header />
 
   <main
