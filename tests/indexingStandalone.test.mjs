@@ -6,6 +6,12 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
+import { createRequire } from 'node:module';
+
+// Use the RSS serializer's own XML parser without adding a runtime dependency.
+const require = createRequire(import.meta.url);
+const { XMLParser, XMLValidator } = createRequire(require.resolve('@astrojs/rss'))('fast-xml-parser');
+const xmlParser = new XMLParser({ ignoreAttributes: false });
 
 // Run against the production adapter, not Astro dev (which masks /404 failures).
 const root = await fs.mkdtemp(path.join(os.tmpdir(), 'bd-indexing-'));
@@ -53,6 +59,36 @@ try {
   });
   for (const p of ['/posts/valid/', '/tags/audit/', '/sitemap-posts.xml']) await check(p, async () => assert.equal((await get(p)).status, 200));
   await check('future excluded from sitemap', async () => assert.doesNotMatch(await (await get('/sitemap-posts.xml')).text(), /\/posts\/future\//));
+  await fs.writeFile(path.join(store, 'draft.md'), source('Draft fixture', '2020-01-01', true));
+  for (const p of ['/rss.xml', '/atom.xml', '/sitemap.xml', '/sitemap-static.xml', '/sitemap-posts.xml']) {
+    await check(`XML semantics ${p}`, async () => {
+      const response = await get(p);
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get('location'), null);
+      assert.match(response.headers.get('content-type'), /xml/);
+      const text = await response.text();
+      assert.equal(XMLValidator.validate(text), true);
+      assert.doesNotMatch(text, /\/posts\/(future|draft)\//);
+      const xml = xmlParser.parse(text);
+      const url = 'https://berryhill.dev/posts/valid/';
+      if (p === '/rss.xml') {
+        const items = [].concat(xml.rss.channel.item);
+        assert.equal(items.length, 1);
+        for (const item of items) {
+          assert.equal(item.link, url, 'RSS item link must be URL text, not an HTML-style attribute object');
+          assert.equal(item.guid['#text'], url);
+          assert.equal(item['atom:link']['@_href'], url);
+          assert.equal(item['atom:link']['@_xmlns:atom'], 'http://www.w3.org/2005/Atom');
+        }
+      } else if (p === '/atom.xml') {
+        assert.equal(xml.feed['@_xmlns'], 'http://www.w3.org/2005/Atom');
+        assert.equal(xml.feed.entry.link['@_href'], url);
+        assert.equal(xml.feed.entry.id, url);
+      } else if (p === '/sitemap-posts.xml') {
+        assert.equal(xml.urlset.url.loc, url);
+      }
+    });
+  }
   const malformed = source('Bad draft', 'NOT_A_DATE', true);
   await fs.writeFile(path.join(store, 'malformed.md'), malformed);
   for (const p of ['/posts/valid/', '/sitemap-posts.xml', '/rss.xml', '/readyz']) await check(`malformed isolation ${p}`, async () => assert.equal((await get(p)).status, 200));
