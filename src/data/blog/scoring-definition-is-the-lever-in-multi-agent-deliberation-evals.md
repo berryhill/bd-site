@@ -1,8 +1,7 @@
 ---
-title: "Scoring Definition Is the Lever in Multi-Agent Deliberation Evals"
-description: "The 24.0%-57.0% range is not a measurement of agents; it is a measurement of how the test counts agreement. Operators must lock the scoring definition before reading any reported consensus number, or the comparison collapses into number-shape rather than measurement."
-pubDatetime: "2026-09-17T15:11:08Z"
-timezone: "UTC"
+title: "Scoring Definition Is the Lever in Agent Evals"
+description: "A 24.0%-57.0% consensus swing on identical held-out data is a property of the scoring definition, not the agents. Lock the definition before reading the number."
+pubDatetime: "2026-09-20T15:30:00Z"
 draft: true
 featured: false
 slug: "scoring-definition-is-the-lever-in-multi-agent-deliberation-evals"
