@@ -1,0 +1,67 @@
+<svg width="390" height="640" viewBox="0 0 390 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two complementary post-unblinding routes — submit-based n=98 and participation-matched n=45 — converge within 0.5 percentage points on chat and reasoning mode gaps, anchoring the operator claim that the result is robust to scoring-definition choice rather than noise around a single point estimate." style="display:block;width:100%;max-width:100%;height:auto;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <title>Two post-unblinding routes converge within 0.5 percentage points</title>
+  <desc>Two parallel vertical rails hold the submit-based n=98 route and the participation-matched n=45 route. Each rail lists a chat-mode consensus gap and a reasoning-mode consensus gap. The two rails converge through a comparison band that emphasizes the within-0.5pp convergence despite reducing different measurement asymmetries. The figure is an operator robustness read on the v1 preprint's headline.</desc>
+  <defs>
+    <marker id="conv-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#76f5a4"/>
+    </marker>
+  </defs>
+  <rect width="390" height="640" rx="6" fill="#081018"/>
+  <text x="20" y="34" font-size="16" font-weight="600" letter-spacing="0.04em" fill="#76f5a4">TWO-ROUTE CONVERGENCE</text>
+  <text x="20" y="60" font-size="20" font-weight="600" fill="#e8f1f2">Different asymmetries, same number</text>
+  <text x="20" y="82" font-size="14" fill="#b7c7c9">Within-0.5pp convergence is the robustness evidence.</text>
+
+  <g fill="#7f9297" font-size="14" font-weight="600" text-anchor="middle">
+    <text x="100" y="116">SUBMIT-BASED</text>
+    <text x="290" y="116">PARTICIPATION-MATCHED</text>
+  </g>
+  <g fill="#7f9297" font-size="14" text-anchor="middle">
+    <text x="100" y="134">n = 98</text>
+    <text x="290" y="134">n = 45</text>
+  </g>
+
+  <g stroke="#22333c" stroke-width="1.5" fill="#101b24">
+    <rect x="30" y="152" width="140" height="78" rx="6"/>
+    <rect x="30" y="246" width="140" height="78" rx="6"/>
+    <rect x="220" y="152" width="140" height="78" rx="6"/>
+    <rect x="220" y="246" width="140" height="78" rx="6"/>
+  </g>
+  <g fill="#76f5a4" font-size="14" font-weight="600">
+    <text x="44" y="174">CHAT MODE</text>
+    <text x="44" y="268">REASONING MODE</text>
+    <text x="234" y="174">CHAT MODE</text>
+    <text x="234" y="268">REASONING MODE</text>
+  </g>
+  <g fill="#e8f1f2" font-size="22" font-weight="700">
+    <text x="44" y="208">+34.0 pp</text>
+    <text x="44" y="302">+43.9 pp</text>
+    <text x="234" y="208">+34.1 pp</text>
+    <text x="234" y="302">+44.4 pp</text>
+  </g>
+  <g fill="#7f9297" font-size="14" text-anchor="end">
+    <text x="156" y="208">agent vs human</text>
+    <text x="156" y="302">agent vs human</text>
+    <text x="346" y="208">agent vs human</text>
+    <text x="346" y="302">agent vs human</text>
+  </g>
+
+  <line x1="170" y1="190" x2="220" y2="190" stroke="#76f5a4" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <text x="195" y="186" font-size="14" fill="#76f5a4" text-anchor="middle">Δ 0.1 pp</text>
+  <line x1="170" y1="284" x2="220" y2="284" stroke="#76f5a4" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <text x="195" y="280" font-size="14" fill="#76f5a4" text-anchor="middle">Δ 0.5 pp</text>
+
+  <rect x="30" y="358" width="330" height="56" rx="6" fill="#101b24" stroke="#76f5a4" stroke-width="1.5"/>
+  <text x="46" y="380" font-size="14" font-weight="600" fill="#76f5a4">CONVERGENCE BAND</text>
+  <text x="46" y="400" font-size="14" fill="#e8f1f2">Different asymmetries fixed; same within 0.5pp.</text>
+
+  <g fill="#b7c7c9" font-size="14">
+    <text x="20" y="448" font-weight="600" fill="#e8f1f2">Why this is the robustness claim</text>
+    <text x="20" y="472">The submit-based and participation-</text>
+    <text x="20" y="492">matched routes fix different asymmetries.</text>
+    <text x="20" y="512">Their convergence within 0.5pp is the</text>
+    <text x="20" y="532" fill="#76f5a4">evidence the gap is structural, not noise.</text>
+  </g>
+
+  <path d="M30 568 H370" stroke="#76f5a4" stroke-width="2" marker-end="url(#conv-arrow)"/>
+  <text x="200" y="608" text-anchor="middle" font-size="16" font-weight="600" fill="#76f5a4">Two routes → same headline → robustness.</text>
+</svg>

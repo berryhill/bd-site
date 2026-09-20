@@ -1,0 +1,62 @@
+{
+  "protected_base_global_css_sha": "1b3a96617fb1ad7ec7d7b71d55249b26c2e43e8e",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "diagrams": {
+        "range-versus-baseline": {
+          "svgWidth": 1256,
+          "min": 14,
+          "max": 20,
+          "items_count": 23,
+          "floor_12px_met": true
+        },
+        "two-route-convergence": {
+          "svgWidth": 1256,
+          "min": 14,
+          "max": 22,
+          "items_count": 29,
+          "floor_12px_met": true
+        },
+        "scoring-definition-inventory": {
+          "svgWidth": 1256,
+          "min": 14,
+          "max": 22,
+          "items_count": 28,
+          "floor_12px_met": true
+        }
+      },
+      "smallest_computed_font_px": 14,
+      "floor_12px_met": true
+    },
+    "mobile-390": {
+      "width": 390,
+      "diagrams": {
+        "range-versus-baseline": {
+          "svgWidth": 366,
+          "min": 14,
+          "max": 20,
+          "items_count": 23,
+          "floor_12px_met": true
+        },
+        "two-route-convergence": {
+          "svgWidth": 366,
+          "min": 14,
+          "max": 22,
+          "items_count": 29,
+          "floor_12px_met": true
+        },
+        "scoring-definition-inventory": {
+          "svgWidth": 366,
+          "min": 14,
+          "max": 22,
+          "items_count": 28,
+          "floor_12px_met": true
+        }
+      },
+      "smallest_computed_font_px": 14,
+      "floor_12px_met": true
+    }
+  },
+  "verdict": "PASS"
+}

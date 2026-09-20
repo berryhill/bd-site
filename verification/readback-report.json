@@ -1,0 +1,259 @@
+{
+  "protected_base_global_css_sha": "1b3a96617fb1ad7ec7d7b71d55249b26c2e43e8e",
+  "svg_count": 3,
+  "svg_names": [
+    "range-versus-baseline.svg",
+    "scoring-definition-inventory.svg",
+    "two-route-convergence.svg"
+  ],
+  "per_svg": [
+    {
+      "path": "/home/silas/.hermes/profiles/luca/workspace/worktrees/berryhill/bd-site/scoring-definition-three-diagrams/public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/range-versus-baseline.svg",
+      "diagram_id": "range-versus-baseline",
+      "all_hex_found": [
+        "#081018",
+        "#0c151d",
+        "#101b24",
+        "#22333c",
+        "#76f5a4",
+        "#7f9297",
+        "#b7c7c9",
+        "#e8f1f2",
+        "#f6b76b"
+      ],
+      "all_in_palette": true,
+      "unknown_hex": [],
+      "has_inter_or_system": true,
+      "monospace_in_body": false,
+      "monospace_tokens": [],
+      "role": "img",
+      "has_aria_label": true,
+      "aria_label": "Two stacked horizontal bars compare a single-scoring-definition slice of the consensus number against the full 24.0%-57.0% range produced when the same held-out Wason data is rescored under different scoring definitions; the top bar shows one slice, the bottom bar shows the entire range, with annotations for the lever and the reporting gap.",
+      "has_title": true,
+      "title_text": "The reported number is one slice of the scoring-definition lever",
+      "has_desc": true,
+      "desc_text": "Two stacked horizontal bars sit on a shared 0%-100% scale. The top bar shows a single reported consensus number as one slice of the lever. The bottom bar shows the full 24.0%-57.0% range produced when the same held-out Wason data is rescored under different scoring definitions. The visual emphasizes that the headline number is a property of the scoring definition that produced it, not a property of the agents under test.",
+      "role_is_img": true
+    },
+    {
+      "path": "/home/silas/.hermes/profiles/luca/workspace/worktrees/berryhill/bd-site/scoring-definition-three-diagrams/public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/scoring-definition-inventory.svg",
+      "diagram_id": "scoring-definition-inventory",
+      "all_hex_found": [
+        "#081018",
+        "#101b24",
+        "#22333c",
+        "#76f5a4",
+        "#b7c7c9",
+        "#e8f1f2"
+      ],
+      "all_in_palette": true,
+      "unknown_hex": [],
+      "has_inter_or_system": true,
+      "monospace_in_body": false,
+      "monospace_tokens": [],
+      "role": "img",
+      "has_aria_label": true,
+      "aria_label": "Six-field Scoring Definition Inventory: participation rule, final-state operationalization, submission-vs-participation alignment, pre-discussion anchoring, chat-vs-reasoning mode, and memorability control, ordered as gates before the consensus number is read.",
+      "has_title": true,
+      "title_text": "The Scoring Definition Inventory: six operator decisions before the consensus number",
+      "has_desc": true,
+      "desc_text": "Six numbered operator gates stacked in one vertical column. Each gate is a scoring-definition decision Matt names explicitly. The order is the order of decreasing leverage: participation rule, final-state operationalization, submission-versus-participation alignment, pre-discussion anchoring, chat-versus-reasoning mode, and memorability control. Each gate maps to a measurable lever on the 24.0%-57.0% full-consensus range the v1 preprint reports.",
+      "role_is_img": true
+    },
+    {
+      "path": "/home/silas/.hermes/profiles/luca/workspace/worktrees/berryhill/bd-site/scoring-definition-three-diagrams/public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/two-route-convergence.svg",
+      "diagram_id": "two-route-convergence",
+      "all_hex_found": [
+        "#081018",
+        "#101b24",
+        "#22333c",
+        "#76f5a4",
+        "#7f9297",
+        "#b7c7c9",
+        "#e8f1f2"
+      ],
+      "all_in_palette": true,
+      "unknown_hex": [],
+      "has_inter_or_system": true,
+      "monospace_in_body": false,
+      "monospace_tokens": [],
+      "role": "img",
+      "has_aria_label": true,
+      "aria_label": "Two complementary post-unblinding routes \u2014 submit-based n=98 and participation-matched n=45 \u2014 converge within 0.5 percentage points on chat and reasoning mode gaps, anchoring the operator claim that the result is robust to scoring-definition choice rather than noise around a single point estimate.",
+      "has_title": true,
+      "title_text": "Two post-unblinding routes converge within 0.5 percentage points",
+      "has_desc": true,
+      "desc_text": "Two parallel vertical rails hold the submit-based n=98 route and the participation-matched n=45 route. Each rail lists a chat-mode consensus gap and a reasoning-mode consensus gap. The two rails converge through a comparison band that emphasizes the within-0.5pp convergence despite reducing different measurement asymmetries. The figure is an operator robustness read on the v1 preprint's headline.",
+      "role_is_img": true
+    }
+  ],
+  "inventory_typography": {
+    "diagram_id": "scoring-definition-inventory",
+    "list_body_font_sizes": [
+      16
+    ],
+    "min_list_body_font_size": 16,
+    "list_body_floor_16_met": true,
+    "number_font_sizes": [],
+    "number_box_dimensions": [
+      [
+        44,
+        44
+      ],
+      [
+        44,
+        44
+      ],
+      [
+        44,
+        44
+      ],
+      [
+        44,
+        44
+      ],
+      [
+        44,
+        44
+      ],
+      [
+        44,
+        44
+      ]
+    ],
+    "number_box_min_width": 44,
+    "number_box_min_height": 44,
+    "number_box_floor_28x28_met": true,
+    "row_top_y_values": [
+      106,
+      226,
+      346,
+      466,
+      586,
+      706
+    ],
+    "row_top_gaps": [
+      120,
+      120,
+      120,
+      120,
+      120
+    ],
+    "min_row_gap": 120,
+    "row_gap_floor_32_met": true
+  },
+  "markdown": {
+    "figure_block_count": 3,
+    "img_embed_count": 3,
+    "img_embeds": [
+      "/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/range-versus-baseline.svg",
+      "/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/two-route-convergence.svg",
+      "/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/scoring-definition-inventory.svg"
+    ],
+    "figure_blocks_have_caption": true,
+    "data_uri_count": 0,
+    "data_uri_examples": [],
+    "pre_or_code_or_copy_inside_figure": []
+  },
+  "screenshots": {
+    "screenshots": {
+      "desktop.png": {
+        "width": 1280,
+        "height": 1800
+      },
+      "mobile-390.png": {
+        "width": 390,
+        "height": 2400
+      },
+      "range-versus-baseline-desktop.png": {
+        "width": 1280,
+        "height": 2400
+      },
+      "range-versus-baseline-mobile-390.png": {
+        "width": 390,
+        "height": 2400
+      },
+      "scoring-definition-inventory-desktop.png": {
+        "width": 1280,
+        "height": 2400
+      },
+      "scoring-definition-inventory-mobile-390.png": {
+        "width": 390,
+        "height": 2400
+      },
+      "two-route-convergence-desktop.png": {
+        "width": 1280,
+        "height": 2400
+      },
+      "two-route-convergence-mobile-390.png": {
+        "width": 390,
+        "height": 2400
+      }
+    },
+    "exists": true
+  },
+  "rendered_font_sizes": {
+    "protected_base_global_css_sha": "1b3a96617fb1ad7ec7d7b71d55249b26c2e43e8e",
+    "viewports": {
+      "desktop": {
+        "width": 1280,
+        "diagrams": {
+          "range-versus-baseline": {
+            "svgWidth": 1256,
+            "min": 14,
+            "max": 20,
+            "items_count": 23,
+            "floor_12px_met": true
+          },
+          "two-route-convergence": {
+            "svgWidth": 1256,
+            "min": 14,
+            "max": 22,
+            "items_count": 29,
+            "floor_12px_met": true
+          },
+          "scoring-definition-inventory": {
+            "svgWidth": 1256,
+            "min": 14,
+            "max": 22,
+            "items_count": 28,
+            "floor_12px_met": true
+          }
+        },
+        "smallest_computed_font_px": 14,
+        "floor_12px_met": true
+      },
+      "mobile-390": {
+        "width": 390,
+        "diagrams": {
+          "range-versus-baseline": {
+            "svgWidth": 366,
+            "min": 14,
+            "max": 20,
+            "items_count": 23,
+            "floor_12px_met": true
+          },
+          "two-route-convergence": {
+            "svgWidth": 366,
+            "min": 14,
+            "max": 22,
+            "items_count": 29,
+            "floor_12px_met": true
+          },
+          "scoring-definition-inventory": {
+            "svgWidth": 366,
+            "min": 14,
+            "max": 22,
+            "items_count": 28,
+            "floor_12px_met": true
+          }
+        },
+        "smallest_computed_font_px": 14,
+        "floor_12px_met": true
+      }
+    },
+    "verdict": "PASS"
+  },
+  "verdict": "PASS",
+  "failures": []
+}

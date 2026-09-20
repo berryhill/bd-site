@@ -1,0 +1,61 @@
+<svg width="390" height="900" viewBox="0 0 390 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Six-field Scoring Definition Inventory: participation rule, final-state operationalization, submission-vs-participation alignment, pre-discussion anchoring, chat-vs-reasoning mode, and memorability control, ordered as gates before the consensus number is read." style="display:block;width:100%;max-width:100%;height:auto;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <title>The Scoring Definition Inventory: six operator decisions before the consensus number</title>
+  <desc>Six numbered operator gates stacked in one vertical column. Each gate is a scoring-definition decision Matt names explicitly. The order is the order of decreasing leverage: participation rule, final-state operationalization, submission-versus-participation alignment, pre-discussion anchoring, chat-versus-reasoning mode, and memorability control. Each gate maps to a measurable lever on the 24.0%-57.0% full-consensus range the v1 preprint reports.</desc>
+  <defs>
+    <marker id="inv-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#76f5a4"/>
+    </marker>
+  </defs>
+  <rect width="390" height="900" rx="6" fill="#081018"/>
+  <text x="20" y="34" font-size="16" font-weight="600" letter-spacing="0.04em" fill="#76f5a4">MATT'S OPERATOR SYNTHESIS</text>
+  <text x="20" y="64" font-size="20" font-weight="600" fill="#e8f1f2">Six scoring-definition gates</text>
+  <text x="20" y="86" font-size="16" fill="#b7c7c9">Lock before reading any consensus number.</text>
+  <g stroke="#22333c" stroke-width="1.5" fill="#101b24">
+    <rect x="20" y="106" width="350" height="108" rx="6"/>
+    <rect x="20" y="226" width="350" height="108" rx="6"/>
+    <rect x="20" y="346" width="350" height="108" rx="6"/>
+    <rect x="20" y="466" width="350" height="108" rx="6"/>
+    <rect x="20" y="586" width="350" height="108" rx="6"/>
+    <rect x="20" y="706" width="350" height="108" rx="6"/>
+  </g>
+  <g fill="#76f5a4">
+    <rect x="36" y="118" width="44" height="44" rx="6"/>
+    <rect x="36" y="238" width="44" height="44" rx="6"/>
+    <rect x="36" y="358" width="44" height="44" rx="6"/>
+    <rect x="36" y="478" width="44" height="44" rx="6"/>
+    <rect x="36" y="598" width="44" height="44" rx="6"/>
+    <rect x="36" y="718" width="44" height="44" rx="6"/>
+  </g>
+  <g fill="#081018" font-size="22" font-weight="700" text-anchor="middle">
+    <text x="58" y="148">1</text>
+    <text x="58" y="268">2</text>
+    <text x="58" y="388">3</text>
+    <text x="58" y="508">4</text>
+    <text x="58" y="628">5</text>
+    <text x="58" y="748">6</text>
+  </g>
+  <g fill="#e8f1f2" font-size="16" font-weight="600">
+    <text x="92" y="138">Participation rule</text>
+    <text x="92" y="258">Final-state op.</text>
+    <text x="92" y="378">Submit-vs-match alignment</text>
+    <text x="92" y="498">Pre-discussion anchoring</text>
+    <text x="92" y="618">Chat-vs-reasoning mode</text>
+    <text x="92" y="738">Memorability control</text>
+  </g>
+  <g fill="#b7c7c9" font-size="16">
+    <text x="92" y="166">posted, read-only, late, silent</text>
+    <text x="92" y="190">who counts as a participant</text>
+    <text x="92" y="286">last, loudest, modal answer</text>
+    <text x="92" y="310">what "final" means here</text>
+    <text x="92" y="406">submit-based vs matched</text>
+    <text x="92" y="430">n=98 vs n=45, score silent</text>
+    <text x="92" y="526">seed agent from one prior</text>
+    <text x="92" y="550">belief-anchored required</text>
+    <text x="92" y="646">chat + reasoning mode</text>
+    <text x="92" y="670">both modes are definition</text>
+    <text x="92" y="766">reparam memorizable</text>
+    <text x="92" y="790">controls contamination</text>
+  </g>
+  <path d="M20 836 H370" stroke="#76f5a4" stroke-width="2" marker-end="url(#inv-arrow)"/>
+  <text x="195" y="868" text-anchor="middle" font-size="14" font-weight="600" fill="#76f5a4">Six decisions → then read the number.</text>
+</svg>
