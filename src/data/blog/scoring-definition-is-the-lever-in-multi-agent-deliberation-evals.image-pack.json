@@ -138,7 +138,18 @@
     "source_url": null,
     "attribution_text": "Original diagrams by Luca Vale for berryhill.dev.",
     "date": "2026-09-20",
-    "per_asset_required_fields": ["role", "url_or_path", "source", "creator", "source_url", "license", "attribution_text", "alt_text", "date", "usage_rationale"],
+    "per_asset_required_fields": [
+      "role",
+      "url_or_path",
+      "source",
+      "creator",
+      "source_url",
+      "license",
+      "attribution_text",
+      "alt_text",
+      "date",
+      "usage_rationale"
+    ],
     "validation": "Per-asset visual review completed via headless Chrome at desktop and 390px viewports; all three diagrams render with smallest computed font-size 14px (>12px mobile floor); palette, role=img, title, desc, aria-label confirmed via Python xml.etree."
   },
   "boundaries": {

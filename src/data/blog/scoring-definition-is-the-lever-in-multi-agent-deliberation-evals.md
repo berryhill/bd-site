@@ -6,7 +6,14 @@ draft: true
 featured: false
 slug: "scoring-definition-is-the-lever-in-multi-agent-deliberation-evals"
 canonicalURL: "https://berryhill.dev/posts/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals"
-tags: ["AI Agents", "Agent Operations", "Multi-Agent Systems", "Evaluation", "AI Governance"]
+tags:
+  [
+    "AI Agents",
+    "Agent Operations",
+    "Multi-Agent Systems",
+    "Evaluation",
+    "AI Governance",
+  ]
 ---
 
 A consensus rate that moves by 33 percentage points across scoring definitions is not a measurement of agents. It is a measurement of how the test counts agreement. Treat the number as a lever, not as a fact.

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SVG rendered text measurement</title>
+<style>
+  body { margin: 0; padding: 0; background: #081018; }
+  #target { width: 390px; }
+  #target svg { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<div id="target"></div>
+<script>
+  async function main() {
+    const url = new URLSearchParams(location.search).get('svg');
+    const res = await fetch(url);
+    const text = await res.text();
+    document.getElementById('target').innerHTML = text;
+    // Allow render
+    await new Promise(r => requestAnimationFrame(r));
+    await new Promise(r => requestAnimationFrame(r));
+    const svg = document.querySelector('svg');
+    const texts = Array.from(svg.querySelectorAll('text'));
+    const result = texts.map(t => {
+        const bb = t.getBBox();
+        const fs = parseFloat(t.getAttribute('font-size') || t.parentElement.getAttribute('font-size') || '0');
+        // Computed font-size in pixels: use the style on t
+        const styleFs = parseFloat(window.getComputedStyle(t).fontSize);
+        return {
+          text: (t.textContent || '').trim().slice(0, 40),
+          x: bb.x,
+          y: bb.y,
+          w: bb.width,
+          h: bb.height,
+          attrFontSize: fs,
+          computedFontSizePx: styleFs
+        };
+    });
+    const fig = document.querySelector('svg').getBoundingClientRect();
+    document.title = 'READY';
+    document.body.setAttribute('data-result', JSON.stringify({ svg: { width: fig.width, height: fig.height }, texts: result }));
+  }
+  main();
+</script>
+</body>
+</html>

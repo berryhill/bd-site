@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Diagram rendering verification</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #081018;
+    color: #e8f1f2;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  article {
+    max-width: 736px;
+    margin: 0 auto;
+  }
+  figure.diagram {
+    margin: 32px 0;
+  }
+  figure.diagram img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  figcaption {
+    margin-top: 12px;
+    color: #b7c7c9;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+  <article>
+    <figure class="diagram">
+      <img src="/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/range-versus-baseline.svg" alt="Two horizontal bars compare a single-scoring-definition slice against the full 24.0%-57.0% range." />
+      <figcaption>The headline number is a property of the scoring definition that produced it.</figcaption>
+    </figure>
+    <figure class="diagram">
+      <img src="/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/two-route-convergence.svg" alt="Two complementary routes converge within 0.5 percentage points." />
+      <figcaption>The convergence within 0.5pp is the strongest evidence the result is robust.</figcaption>
+    </figure>
+    <figure class="diagram">
+      <img src="/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/scoring-definition-inventory.svg" alt="Six-field scoring-definition inventory." />
+      <figcaption>Six gates, one rail. Lock the definition, then read the number.</figcaption>
+    </figure>
+  </article>
+</body>
+</html>
