@@ -1,0 +1,58 @@
+<svg width="390" height="540" viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two stacked horizontal bars compare a single-scoring-definition slice of the consensus number against the full 24.0%-57.0% range produced when the same held-out Wason data is rescored under different scoring definitions; the top bar shows one slice, the bottom bar shows the entire range, with annotations for the lever and the reporting gap." style="display:block;width:100%;max-width:100%;height:auto;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <title>The reported number is one slice of the scoring-definition lever</title>
+  <desc>Two stacked horizontal bars sit on a shared 0%-100% scale. The top bar shows a single reported consensus number as one slice of the lever. The bottom bar shows the full 24.0%-57.0% range produced when the same held-out Wason data is rescored under different scoring definitions. The visual emphasizes that the headline number is a property of the scoring definition that produced it, not a property of the agents under test.</desc>
+  <defs>
+    <marker id="range-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#76f5a4"/>
+    </marker>
+  </defs>
+  <rect width="390" height="540" rx="6" fill="#081018"/>
+  <text x="20" y="34" font-size="16" font-weight="600" letter-spacing="0.04em" fill="#76f5a4">RANGE-VERSUS-BASELINE</text>
+  <text x="20" y="62" font-size="20" font-weight="600" fill="#e8f1f2">The slice vs the lever</text>
+  <text x="20" y="84" font-size="14" fill="#b7c7c9">Same Wason data. Same scoring code. Different definitions.</text>
+
+  <g fill="#7f9297" font-size="14">
+    <text x="40" y="124" text-anchor="middle">0%</text>
+    <text x="118" y="124" text-anchor="middle">20%</text>
+    <text x="196" y="124" text-anchor="middle">40%</text>
+    <text x="274" y="124" text-anchor="middle">60%</text>
+    <text x="352" y="124" text-anchor="middle">80%</text>
+  </g>
+  <g stroke="#22333c" stroke-width="1">
+    <line x1="40" y1="134" x2="40" y2="234"/>
+    <line x1="118" y1="134" x2="118" y2="234"/>
+    <line x1="196" y1="134" x2="196" y2="234"/>
+    <line x1="274" y1="134" x2="274" y2="234"/>
+    <line x1="352" y1="134" x2="352" y2="234"/>
+  </g>
+  <line x1="40" y1="134" x2="370" y2="134" stroke="#22333c" stroke-width="1"/>
+
+  <text x="20" y="164" font-size="14" font-weight="600" fill="#f6b76b">REPORTED NUMBER</text>
+  <rect x="40" y="174" width="60" height="32" rx="6" fill="#101b24" stroke="#f6b76b" stroke-width="1.5"/>
+  <text x="70" y="195" text-anchor="middle" font-size="14" font-weight="600" fill="#f6b76b">one slice</text>
+  <text x="118" y="194" font-size="14" fill="#b7c7c9">One definition, one number.</text>
+
+  <text x="20" y="248" font-size="14" font-weight="600" fill="#76f5a4">FULL RANGE</text>
+  <rect x="40" y="258" width="330" height="32" rx="6" fill="#0c151d" stroke="#22333c" stroke-width="1"/>
+  <rect x="40" y="258" width="100" height="32" rx="6" fill="#76f5a4"/>
+  <rect x="140" y="258" width="148" height="32" rx="6" fill="#76f5a4" opacity="0.55"/>
+  <line x1="40" y1="258" x2="40" y2="290" stroke="#e8f1f2" stroke-width="1.5"/>
+  <text x="36" y="310" font-size="14" font-weight="700" fill="#e8f1f2" text-anchor="end">24.0%</text>
+  <line x1="274" y1="258" x2="274" y2="290" stroke="#e8f1f2" stroke-width="1.5"/>
+  <text x="278" y="310" font-size="14" font-weight="700" fill="#e8f1f2">57.0%</text>
+  <text x="190" y="280" text-anchor="middle" font-size="14" font-weight="700" fill="#081018">+33.0 pp lever</text>
+
+  <g fill="#b7c7c9" font-size="14">
+    <text x="20" y="358" font-weight="600" fill="#e8f1f2">What the range proves</text>
+    <text x="20" y="382">The 24.0%-57.0% range is the lever</text>
+    <text x="20" y="402">demonstration, not the headline.</text>
+    <text x="20" y="426">Any reported consensus number is a</text>
+    <text x="20" y="446">property of the scoring definition that</text>
+    <text x="20" y="466">produced it — not the agents under test.</text>
+  </g>
+
+  <rect x="20" y="486" width="350" height="36" rx="6" fill="#101b24" stroke="#22333c" stroke-width="1.5"/>
+  <text x="34" y="510" font-size="14" font-weight="600" fill="#76f5a4">OPERATOR MOVE</text>
+  <text x="174" y="510" font-size="14" fill="#e8f1f2">Lock the definition first.</text>
+  <line x1="320" y1="510" x2="350" y2="510" stroke="#76f5a4" stroke-width="2" marker-end="url(#range-arrow)"/>
+</svg>

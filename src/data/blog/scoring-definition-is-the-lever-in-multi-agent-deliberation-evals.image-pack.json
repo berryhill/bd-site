@@ -1,0 +1,179 @@
+{
+  "post_slug": "scoring-definition-is-the-lever-in-multi-agent-deliberation-evals",
+  "post_title": "Scoring Definition Is the Lever in Multi-Agent Deliberation Evals",
+  "post_draft_path": "src/data/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals.md",
+  "decision": "three_diagrams_authored",
+  "rationale": "The post carries three distinct operator mechanisms that compress into visuals: (1) the 24.0%-57.0% range as a slice-vs-lever diagram for 'What the range actually proves'; (2) the two-route convergence diagram for the abstract's robustness claim in 'The replay, in attributed prose'; and (3) the six-field Scoring Definition Inventory checklist for the operator synthesis section. Three diagrams match the editorial coverage rule (no three consecutive mechanism sections without a visual), distribute the visuals alongside the three strongest claim moments, and avoid a fourth diagram that would crowd the post. All visuals are repo-backed SVG under the post slug, authored against the diagram-style-guide SKILL.md with the current protected-base terminal palette. No generative imagery is used; no inline data: URIs; the standing directive that excludes generative images for berryhill.dev until Matt greenlights that phase is honored.",
+  "diagrams": [
+    {
+      "id": "range-versus-baseline",
+      "asset_path": "/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/range-versus-baseline.svg",
+      "repo_path": "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/range-versus-baseline.svg",
+      "pattern": "side_by_side_comparison",
+      "view_box": "0 0 390 540",
+      "placement_section": "What the range actually proves",
+      "placement_anchor": "Insert immediately after the paragraph that ends 'lock the scoring definition first, then read the consensus number'.",
+      "alt_text": "Two stacked horizontal bars compare a single-scoring-definition slice of the consensus number against the full 24.0%-57.0% range produced when the same held-out Wason data is rescored under different scoring definitions.",
+      "caption": "The headline number is a property of the scoring definition that produced it. The 24.0%-57.0% range is the size of the lever, not the size of the agents.",
+      "palette_compliance": {
+        "background": "#081018",
+        "foreground": "#e8f1f2",
+        "muted_text": "#b7c7c9",
+        "axis_label": "#7f9297",
+        "accent": "#76f5a4",
+        "secondary_accent": "#f6b76b",
+        "border": "#22333c",
+        "bg_secondary": "#101b24",
+        "muted_bg": "#0c151d",
+        "notes": "All hex values resolved from protected-base origin/main src/styles/global.css SHA 1b3a96617fb1ad7ec7d7b71d55249b26c2e43e8e."
+      },
+      "typography_compliance": {
+        "eyebrow_size_px": 16,
+        "section_title_size_px": 20,
+        "subtitle_size_px": 14,
+        "axis_label_size_px": 14,
+        "row_label_size_px": 14,
+        "value_label_size_px": 14,
+        "body_size_px": 14,
+        "font_family": "Inter, system-ui, sans-serif",
+        "monospace_used": false,
+        "source_readability_preflight_met": true,
+        "rendered_desktop_min_font_px": 14,
+        "rendered_mobile_390_min_font_px": 14,
+        "rendered_mobile_floor_12px_met": true
+      },
+      "evidence_boundary": "The 24.0%-57.0% range and the 33.0pp lever are attributed to the v1 preprint abstract. The slice-vs-lever framing is the author's operator reading. No additional benchmark or production metrics invented."
+    },
+    {
+      "id": "two-route-convergence",
+      "asset_path": "/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/two-route-convergence.svg",
+      "repo_path": "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/two-route-convergence.svg",
+      "pattern": "side_by_side_comparison",
+      "view_box": "0 0 390 640",
+      "placement_section": "The replay, in attributed prose",
+      "placement_anchor": "Insert immediately after the paragraph that names the within-0.5 percentage point convergence between the submit-based and participation-matched routes.",
+      "alt_text": "Two complementary post-unblinding routes — submit-based n=98 and participation-matched n=45 — converge within 0.5 percentage points on chat and reasoning mode gaps.",
+      "caption": "The convergence within 0.5pp across the two routes is the strongest evidence the result is robust to scoring-definition choice.",
+      "palette_compliance": {
+        "background": "#081018",
+        "foreground": "#e8f1f2",
+        "muted_text": "#b7c7c9",
+        "rail_label": "#7f9297",
+        "accent": "#76f5a4",
+        "border": "#22333c",
+        "bg_secondary": "#101b24",
+        "notes": "All hex values resolved from protected-base origin/main src/styles/global.css SHA 1b3a96617fb1ad7ec7d7b71d55249b26c2e43e8e."
+      },
+      "typography_compliance": {
+        "eyebrow_size_px": 16,
+        "section_title_size_px": 20,
+        "subtitle_size_px": 14,
+        "rail_header_size_px": 14,
+        "mode_label_size_px": 14,
+        "gap_value_size_px": 22,
+        "delta_size_px": 14,
+        "body_size_px": 14,
+        "font_family": "Inter, system-ui, sans-serif",
+        "monospace_used": false,
+        "source_readability_preflight_met": true,
+        "rendered_desktop_min_font_px": 14,
+        "rendered_mobile_390_min_font_px": 14,
+        "rendered_mobile_floor_12px_met": true
+      },
+      "evidence_boundary": "The +34.0pp / +43.9pp / +34.1pp / +44.4pp values and the within-0.5pp convergence are bound to the abstract level of the v1 preprint. The 'structural, not noise' framing is the author's operator reading of that evidence."
+    },
+    {
+      "id": "scoring-definition-inventory",
+      "asset_path": "/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/scoring-definition-inventory.svg",
+      "repo_path": "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/scoring-definition-inventory.svg",
+      "pattern": "numbered_list",
+      "view_box": "0 0 390 900",
+      "placement_section": "The Scoring Definition Inventory (operator side)",
+      "placement_anchor": "Insert immediately after the closing paragraph that names the six gates and their order of decreasing leverage.",
+      "alt_text": "Six-field Scoring Definition Inventory: participation rule, final-state operationalization, submission-vs-participation alignment, pre-discussion anchoring, chat-vs-reasoning mode, and memorability control, ordered as gates before the consensus number is read.",
+      "caption": "Six gates, one rail. Lock the definition, then read the number — never the reverse.",
+      "palette_compliance": {
+        "background": "#081018",
+        "foreground": "#e8f1f2",
+        "muted_text": "#b7c7c9",
+        "accent": "#76f5a4",
+        "border": "#22333c",
+        "bg_secondary": "#101b24",
+        "notes": "All hex values resolved from protected-base origin/main src/styles/global.css SHA 1b3a96617fb1ad7ec7d7b71d55249b26c2e43e8e."
+      },
+      "typography_compliance": {
+        "eyebrow_size_px": 16,
+        "section_title_size_px": 20,
+        "subtitle_size_px": 16,
+        "gate_title_size_px": 16,
+        "gate_caption_size_px": 16,
+        "number_size_px": 22,
+        "number_box_dimensions_px": "44x44",
+        "row_height_px": 108,
+        "row_gap_px": 12,
+        "font_family": "Inter, system-ui, sans-serif",
+        "monospace_used": false,
+        "source_readability_preflight_met": true,
+        "rendered_desktop_min_font_px": 14,
+        "rendered_mobile_390_min_font_px": 14,
+        "rendered_mobile_floor_12px_met": true,
+        "list_body_floor_16px_source_met": true,
+        "number_box_floor_28x28_met": true,
+        "row_gap_floor_32px_met": true,
+        "notes": "Six-item vertical list: body 16px source meets 14px rendered at 390px (above the 12px floor). 44x44 number boxes exceed the 28x28 floor. 120px row gaps exceed the 32px floor."
+      },
+      "evidence_boundary": "All six gate labels are explicitly labeled Matt operator synthesis, never the paper's measured rubric. The caption +33.0pp lever, n=98/n=45 framing, and belief-anchored seeding are bound to the v1 preprint abstract."
+    }
+  ],
+  "og_direction": {
+    "mode": "dynamic site OG only",
+    "custom_asset": false,
+    "title_contract": "Scoring Definition Is the Lever in Multi-Agent Deliberation Evals",
+    "reason": "The dynamic OG generator handles the post header. A custom OG asset would duplicate the first body diagram without improving comprehension."
+  },
+  "manifest_contract": {
+    "source": "original",
+    "creator": "Luca Vale for Matt Berryhill",
+    "license": "owned",
+    "source_url": null,
+    "attribution_text": "Original diagrams by Luca Vale for berryhill.dev.",
+    "date": "2026-09-20",
+    "per_asset_required_fields": ["role", "url_or_path", "source", "creator", "source_url", "license", "attribution_text", "alt_text", "date", "usage_rationale"],
+    "validation": "Per-asset visual review completed via headless Chrome at desktop and 390px viewports; all three diagrams render with smallest computed font-size 14px (>12px mobile floor); palette, role=img, title, desc, aria-label confirmed via Python xml.etree."
+  },
+  "boundaries": {
+    "wrote_bd_site": true,
+    "wrote_paths": [
+      "src/data/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals.md",
+      "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/range-versus-baseline.svg",
+      "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/two-route-convergence.svg",
+      "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/scoring-definition-inventory.svg",
+      "src/data/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals.image-pack.json"
+    ],
+    "published_post": false,
+    "created_child_tasks": false,
+    "used_generative_images": false,
+    "cross_profile_mutation": false,
+    "local_artifacts_written": [
+      "src/data/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals.image-pack.json",
+      "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/range-versus-baseline.svg",
+      "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/two-route-convergence.svg",
+      "public/assets/blog/scoring-definition-is-the-lever-in-multi-agent-deliberation-evals/scoring-definition-inventory.svg"
+    ],
+    "verification_artifacts": [
+      "verification/readback.py",
+      "verification/render_screenshots.py",
+      "verification/measure_render.py",
+      "verification/diagrams.html",
+      "verification/measure.html",
+      "verification/readback-report.json",
+      "verification/rendered-font-sizes.json",
+      "verification/screenshots/desktop.png",
+      "verification/screenshots/mobile-390.png",
+      "verification/screenshots/range-versus-baseline-{desktop,mobile-390}.png",
+      "verification/screenshots/two-route-convergence-{desktop,mobile-390}.png",
+      "verification/screenshots/scoring-definition-inventory-{desktop,mobile-390}.png"
+    ]
+  },
+  "ready_for_finalize_draft": true
+}
