@@ -39,7 +39,9 @@ export async function GET() {
         categories: data.tags || [],
         // Custom data for additional metadata
         customData: [
-          `<link rel="canonical" href="${canonicalUrl}"/>`,
+          // Keep extension metadata namespaced: an unqualified link in customData
+          // overwrites @astrojs/rss's standard <link>URL</link> item field.
+          `<atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="canonical" href="${canonicalUrl}"/>`,
           // OG image as enclosure
           ogImageUrl ? `<enclosure url="${ogImageUrl}" type="image/png"/>` : "",
           // Permanent GUID
