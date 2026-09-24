@@ -47,6 +47,28 @@ test("service-account path uses Google's refresh-capable auth client with scoped
   }
 });
 
+test("a configured service-account mount wins over a legacy static environment token", async () => {
+  const original = GoogleAuth.prototype.getClient;
+  const originalFetch = globalThis.fetch;
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = "/not-read/test-service-account.json";
+  process.env.GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN = "stale-test-token";
+  let requests = 0;
+  try {
+    globalThis.fetch = async () => { throw new Error("stale token path selected"); };
+    GoogleAuth.prototype.getClient = async function () {
+      assert.equal(this.keyFilename, "/not-read/test-service-account.json");
+      return { request: async () => { requests++; return { status: 204 }; } };
+    };
+    assert.deepEqual(await submit(), { ok: true, status: 204 });
+    assert.equal(requests, 1);
+  } finally {
+    GoogleAuth.prototype.getClient = original;
+    globalThis.fetch = originalFetch;
+    delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    delete process.env.GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN;
+  }
+});
+
 test("Google's real OAuth client refreshes expired credentials rather than reusing a stale token", async () => {
   const original = GoogleAuth.prototype.getClient;
   process.env.GOOGLE_APPLICATION_CREDENTIALS = "/not-read/test-service-account.json";
