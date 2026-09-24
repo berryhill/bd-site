@@ -15,9 +15,15 @@ a deployment, an HTTP 200, or an accepted sitemap PUT.
   page-one aliases consolidate to `/posts/`.
 - The sitemap index omits optional child `lastmod` values: request time is not
   content modification time. Child-map post timestamps/inventory are unchanged.
-- After a public post write and successful share-readiness gate, the API attempts
-  a best-effort Search Console sitemap submission. It is not a general Indexing
-  API call, and submission failure does not roll back the published post.
+- After a public post write, the API attempts a best-effort Search Console sitemap
+  submission. An operator can also re-notify without modifying a post using
+  authenticated `POST /api/search-console/sitemap` with the existing server API
+  key in `x-api-key`, no query or body. The route uses only the server-configured
+  canonical property and sitemap and returns sanitized submission status with
+  `Cache-Control: no-store`: 200 for accepted, 503 for missing configuration,
+  502 for other provider failures. Do not call it from browser/client code, and
+  do not pass credentials or target URLs in a request. It is not Google's
+  restricted Indexing API, and submission failure does not roll back a post.
 
 ## Owner-controlled server authentication
 
