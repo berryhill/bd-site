@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import {
   auditInternalPostLinks,
+  auditLiveInternalPostLinks,
   auditLocalCrawlSurface,
   auditPageOneArchiveAliasesStatic,
   auditPublishedPostTitleQuality,
@@ -117,6 +118,24 @@ test("detects public posts linking to missing post routes", async () => {
       assert.equal(issues[0].target, "/posts/missing-post/");
     }
   );
+});
+
+test("live audit catches absent runtime post links without flagging pagination", () => {
+  const issues = auditLiveInternalPostLinks(
+    [{
+      url: "https://berryhill.dev/posts/current/",
+      html: '<a href="/posts/missing/">missing</a><a href="/posts/known/">known</a><a href="/posts/page/2/">archive</a><a href="https://other.example/posts/missing/">external</a>',
+    }],
+    new Set([
+      "https://berryhill.dev/posts/current/",
+      "https://berryhill.dev/posts/known/",
+    ])
+  );
+  assert.deepEqual(issues, [{
+    message: "Live article links to a post absent from the public sitemap",
+    source: "https://berryhill.dev/posts/current/",
+    target: "https://berryhill.dev/posts/missing/",
+  }]);
 });
 
 test("ignores links from draft posts and accepts links to published posts", async () => {
