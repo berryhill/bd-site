@@ -37,11 +37,13 @@ reloads a rotated projected file; it does not retain a static bearer token or
 implement its own JWT signer. An explicit file path is required: without it, the
 application does not search local ADC files or probe metadata servers.
 
-Compatibility: `accessToken` in the server function takes precedence, followed by
-`GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN`, then the credential file. For the first two
-paths, the caller/external secret owner must supply and refresh the short-lived
-token. Remove stale static-token configuration when moving to a service account.
-Do not infer that another tool's authenticated Google session configures this app.
+Compatibility: an explicit `accessToken` function argument takes precedence;
+otherwise a configured `GOOGLE_APPLICATION_CREDENTIALS` file takes precedence over
+legacy `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN`. Without a file, the legacy token still
+works, but its external owner must refresh it. This prevents a stale runtime token
+from silently shadowing an owner-enabled service-account mount. Remove unused static
+tokens as an operational cleanup; do not infer that another tool's authenticated
+Google session configures this app.
 
 Optional server overrides:
 
@@ -80,9 +82,10 @@ must be allowed to read that file. The chart renders references only; do not
 commit a Secret manifest or put key data in values. This works with either
 filesystem or object content storage and does not alter existing content mounts.
 The existing Doppler runtime can still supply compatible server environment
-configuration; ensure it does not override the mounted path/property or leave a
-stale access token taking precedence. Provisioning, permissions, rotation and
-rollout belong to the authorized operator, not this patch.
+configuration; ensure it does not override the mounted path/property. When a
+credential file is mounted, the server prefers it over any legacy static token;
+remove unused token configuration when the owner is ready. Provisioning, permissions,
+rotation and rollout belong to the authorized operator, not this patch.
 
 ## Result interpretation
 

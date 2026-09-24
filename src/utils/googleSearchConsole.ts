@@ -50,13 +50,16 @@ function statusResult(status: number): GoogleSearchConsoleSubmitResult {
 export async function submitSitemapToGoogleSearchConsole(options?: {
   sitemapUrl?: string;
   siteUrl?: string;
-  /** Compatibility override; the caller owns refreshing this short-lived token. */
+  /** Explicit compatibility override; the caller owns refreshing this short-lived token. */
   accessToken?: string;
   timeoutMs?: number;
 }): Promise<GoogleSearchConsoleSubmitResult> {
-  const accessToken =
-    options?.accessToken ?? getEnv("GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN");
   const keyFile = getEnv("GOOGLE_APPLICATION_CREDENTIALS");
+  // A deployed service-account mount must not be shadowed by a stale legacy
+  // environment token. An explicit caller override remains available.
+  const accessToken =
+    options?.accessToken ??
+    (keyFile ? undefined : getEnv("GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN"));
   // Require explicit configuration: do not probe workstation ADC or metadata.
   if (!accessToken && !keyFile) {
     console.warn(
