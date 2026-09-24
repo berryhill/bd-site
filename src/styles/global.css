@@ -1824,6 +1824,25 @@ a:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
+.archive-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.archive-pages a {
+  min-width: 28px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--fg);
+  text-align: center;
+}
+.archive-pages a:hover,
+.archive-pages a:focus-visible,
+.archive-pages a[aria-current="page"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 footer {
   color: var(--dim);
   font-size: 11px;

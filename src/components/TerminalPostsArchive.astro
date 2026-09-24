@@ -3,6 +3,7 @@ import type { CollectionEntry } from "astro:content";
 import Pagination from "@/components/Pagination.astro";
 import { SITE } from "@/config";
 import { getPath } from "@/utils/getPath";
+import { archivePageLinks } from "@/utils/archivePageLinks";
 import { toCanonicalHtmlPath } from "@/utils/url";
 
 export interface Props {
@@ -14,6 +15,7 @@ export interface Props {
 const { sortedPosts, currentPage, pageUrlBase = "/posts/page" } = Astro.props;
 const pageSize = SITE.postPerPage;
 const totalPages = Math.max(1, Math.ceil(sortedPosts.length / pageSize));
+const archiveLinks = archivePageLinks(sortedPosts.length, pageSize);
 const safePage = Math.min(Math.max(currentPage, 1), totalPages);
 const start = (safePage - 1) * pageSize;
 const end = start + pageSize;
@@ -250,6 +252,21 @@ const page = {
         <span class="label">page {safePage} ·</span>
         <b>showing {page.start + 1}-{page.end}</b> of {page.total} live posts.
       </div>
+      {
+        totalPages > 1 && (
+          <nav class="archive-pages" aria-label="Archive pages">
+            {archiveLinks.map(({ page: pageNumber, href }) => (
+              <a
+                href={href}
+                aria-label={`Archive page ${pageNumber}`}
+                aria-current={pageNumber === safePage ? "page" : undefined}
+              >
+                {pageNumber}
+              </a>
+            ))}
+          </nav>
+        )
+      }
     </div>
     <div class="block-h">
       <h2>cat subscribe.md</h2><span class="n">stay in the loop</span>
