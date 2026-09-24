@@ -133,6 +133,33 @@ export function auditInternalPostLinks(posts) {
   return issues;
 }
 
+export function auditLiveInternalPostLinks(pages, publicPostUrls) {
+  const issues = [];
+  const seen = new Set();
+  for (const { url: source, html } of pages) {
+    for (const match of html.matchAll(HTML_HREF_RE)) {
+      let target;
+      try {
+        target = new URL(match[1], source);
+      } catch {
+        continue;
+      }
+      if (target.origin !== new URL(source).origin) continue;
+      if (!/^\/posts\/[^/]+\/?$/.test(target.pathname)) continue;
+      const canonical = new URL(normalizeCanonicalHtmlUrl(target.pathname, source).pathname, source).href;
+      if (publicPostUrls.has(canonical)) continue;
+      const key = `${source}\n${canonical}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      addIssue(issues, "Live article links to a post absent from the public sitemap", {
+        source,
+        target: canonical,
+      });
+    }
+  }
+  return issues;
+}
+
 function slugFromRoute(route) {
   return route?.replace(/^\/posts\//, "").replace(/\/$/, "");
 }
@@ -402,6 +429,8 @@ async function auditPageOneArchiveAliases(base, issues) {
 
 async function auditLiveCrawlSurface(baseUrl) {
   const issues = [];
+  const livePostHtml = [];
+  const publicPostUrls = new Set();
   const base = normalizeSiteWebsite(baseUrl);
   const expectedOrigin = new URL(DEFAULT_BASE_URL).origin;
   const surfacePaths = ["/robots.txt", "/sitemap.xml", "/rss.xml", "/atom.xml", "/search/"];
@@ -430,11 +459,15 @@ async function auditLiveCrawlSurface(baseUrl) {
     try {
       const { text } = await fetchText(loc);
       const childLocs = extractXmlLocs(text);
+      if (/sitemap-posts\.xml$/i.test(loc)) {
+        for (const childLoc of childLocs) publicPostUrls.add(childLoc);
+      }
       issues.push(...auditUrlInvariants(childLocs, { expectedOrigin, label: `${loc} loc` }));
       for (const childLoc of childLocs) {
         const childUrl = new URL(childLoc);
         const expected = normalizeCanonicalHtmlUrl(childUrl.pathname, DEFAULT_BASE_URL).href;
         const { text: html, finalUrl, contentType } = await fetchText(childLoc);
+        if (/sitemap-posts\.xml$/i.test(loc)) livePostHtml.push({ url: childLoc, html });
         const canonical = extractAttr(html, /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i);
         const ogUrl = extractAttr(html, /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i);
 
@@ -475,6 +508,8 @@ async function auditLiveCrawlSurface(baseUrl) {
       addIssue(issues, "Live child sitemap audit failed", { loc, error: error.message });
     }
   }
+
+  issues.push(...auditLiveInternalPostLinks(livePostHtml, publicPostUrls));
 
   const searchHtml = fetched.get("/search/")?.text ?? "";
   if (!/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(searchHtml)) {
