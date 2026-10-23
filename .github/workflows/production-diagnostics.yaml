@@ -1,0 +1,101 @@
+name: Production diagnostics
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/production-diagnostics.yaml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bd-site-production
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect production without mutation
+        env:
+          LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          umask 077
+          CONFIG="${RUNNER_TEMP}/bd-site-diagnostics-kubeconfig"
+          trap 'rm -f "${CONFIG}"' EXIT
+          printf '%s' "${LINODE_KUBECONFIG}" | base64 -d > "${CONFIG}"
+          export KUBECONFIG="${CONFIG}"
+          kubectl get deployment bd-site -n default -o jsonpath='serviceAccount={.spec.template.spec.serviceAccountName} pullSecrets={.spec.template.spec.imagePullSecrets[*].name}{"\n"}'
+          kubectl get serviceaccount bd-site -n default -o jsonpath='pullSecrets={.imagePullSecrets[*].name}{"\n"}'
+          kubectl get pods -n default -l app=bd-site -o jsonpath='{range .items[*]}{.metadata.name}{" pullSecrets="}{.spec.imagePullSecrets[*].name}{"\n"}{end}'
+          kubectl get secret ghcr-pull -n default -o jsonpath='type={.type} created={.metadata.creationTimestamp}{"\n"}'
+          python3 -c '
+          import os,base64,urllib.request,urllib.error,json
+          auth=base64.b64encode((os.environ["GHCR_USERNAME"]+":"+os.environ["GHCR_TOKEN"]).encode()).decode()
+          req=urllib.request.Request("https://ghcr.io/token?scope=repository%3Aberryhill%2Fbd-site-app%3Apull&service=ghcr.io",headers={"Authorization":"Basic "+auth})
+          try:
+              with urllib.request.urlopen(req,timeout=20) as r: token=json.load(r)["token"]
+              req=urllib.request.Request("https://ghcr.io/v2/berryhill/bd-site-app/manifests/sha256:90cea532b2882e32330c5920199759b5d021598c454b7561498b61bce0fddf77",headers={"Authorization":"Bearer "+token,"Accept":"application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json"})
+              with urllib.request.urlopen(req,timeout=20) as r: print("Configured registry credential exact-image manifest HTTP",r.status)
+          except urllib.error.HTTPError as e: print("Configured registry credential HTTP",e.code)
+          '
+          kubectl get deployment bd-site -n default -o json | python3 -c '
+          import json,sys
+          d=json.load(sys.stdin); t=d["spec"]["template"]
+          print(json.dumps({"status":d.get("status"),"replicas":d["spec"].get("replicas"),"selector":d["spec"]["selector"],"revision":t["metadata"].get("annotations"),"containers":[{"name":c["name"],"image":c["image"],"readinessProbe":c.get("readinessProbe"),"volumeMounts":c.get("volumeMounts"),"storageMode":[e for e in c.get("env",[]) if e["name"] in ["CONTENT_STORAGE_MODE","CONTENT_STORAGE_FILESYSTEM_PATH"]]} for c in t["spec"]["containers"]],"volumes":t["spec"].get("volumes")},indent=2))'
+          kubectl get pods -n default -l app=bd-site -o json | python3 -c '
+          import json,sys
+          for p in json.load(sys.stdin)["items"]:
+              print(json.dumps({"pod":p["metadata"]["name"],"node":p["spec"].get("nodeName"),"status":p.get("status")},indent=2))'
+          kubectl get service bd-site -n default -o json
+          kubectl get endpoints bd-site -n default -o json
+          kubectl get endpointslices -n default -l kubernetes.io/service-name=bd-site -o json
+          kubectl get pvc -n default -o wide
+          kubectl get pv -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,CLAIM:.spec.claimRef.name,RECLAIM:.spec.persistentVolumeReclaimPolicy,CAPACITY:.spec.capacity.storage
+          kubectl get nodes -o wide
+          kubectl get events -n default --field-selector involvedObject.name=bd-site --sort-by=.lastTimestamp
+          kubectl get pods -n default -l app=bd-site -o name | while IFS= read -r pod; do
+            kubectl get events -n default --field-selector "involvedObject.name=${pod#pod/}" --sort-by=.lastTimestamp
+          done
+
+  repair-pull-reference:
+    needs: inspect
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Preflight existing credential and repair only stale pull reference
+        env:
+          LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
+        run: |
+          set -euo pipefail
+          umask 077
+          CONFIG="${RUNNER_TEMP}/bd-site-repair-kubeconfig"
+          trap 'rm -f "${CONFIG}"' EXIT
+          printf '%s' "${LINODE_KUBECONFIG}" | base64 -d > "${CONFIG}"
+          export KUBECONFIG="${CONFIG}"
+          IMAGE='ghcr.io/berryhill/bd-site-app@sha256:90cea532b2882e32330c5920199759b5d021598c454b7561498b61bce0fddf77'
+          test "$(kubectl get deployment bd-site -n default -o jsonpath='{.spec.template.spec.containers[0].image}')" = "${IMAGE}"
+          test "$(kubectl get deployment bd-site -n default -o jsonpath='{.spec.template.spec.volumes[?(@.name=="posts-content")].persistentVolumeClaim.claimName}')" = bd-site-posts-pvc
+          kubectl get serviceaccount bd-site -n default -o json | python3 -c 'import json,sys; assert json.load(sys.stdin)["imagePullSecrets"] == [{"name":"ghcr-pull"}]'
+          python3 -c '
+          import json
+          print(json.dumps({"apiVersion":"apps/v1","kind":"DaemonSet","metadata":{"name":"bd-site-incident-pull-check","namespace":"default"},"spec":{"selector":{"matchLabels":{"app":"bd-site-incident-pull-check"}},"template":{"metadata":{"labels":{"app":"bd-site-incident-pull-check"}},"spec":{"imagePullSecrets":[{"name":"ghcr-pull"}],"tolerations":[{"operator":"Exists"}],"containers":[{"name":"pull-check","image":"ghcr.io/berryhill/bd-site-app@sha256:90cea532b2882e32330c5920199759b5d021598c454b7561498b61bce0fddf77","imagePullPolicy":"Always","command":["/bin/sh","-c","sleep 600"]}]}}}}))' | kubectl apply -f -
+          kubectl rollout status daemonset/bd-site-incident-pull-check -n default --timeout=180s
+          NODES="$(kubectl get nodes -o json | python3 -c 'import json,sys; print(len(json.load(sys.stdin)["items"]))')"
+          test "$(kubectl get daemonset bd-site-incident-pull-check -n default -o jsonpath='{.status.numberReady}')" = "${NODES}"
+          kubectl get pods -n default -l app=bd-site-incident-pull-check -o wide
+          kubectl patch deployment bd-site -n default --type=json -p='[{"op":"add","path":"/spec/template/spec/imagePullSecrets","value":[{"name":"ghcr-pull"}]}]'
+          kubectl rollout status deployment/bd-site -n default --timeout=300s
+          kubectl get deployment bd-site -n default -o wide
+          kubectl get pods -n default -l app=bd-site -o wide
+          kubectl get endpointslices -n default -l kubernetes.io/service-name=bd-site -o json
+          kubectl exec -n default deployment/bd-site -- node -e 'const fs=require("fs"),crypto=require("crypto"); const root="/app/src/data/blog"; const files=fs.readdirSync(root).filter(x=>x.endsWith(".md")).sort(); console.log(JSON.stringify({directory:root,markdownCount:files.length,inventory:files.map(name=>({name,sha256:crypto.createHash("sha256").update(fs.readFileSync(root+"/"+name)).digest("hex")}))}));'
+          for path in /livez /readyz / /posts/ /rss.xml /sitemap.xml /sitemap-posts.xml; do
+            curl --fail --silent --show-error --retry 3 --max-time 30 -o /dev/null -w "${path} HTTP %{http_code}\n" "https://berryhill.dev${path}"
+          done
+          kubectl delete daemonset bd-site-incident-pull-check -n default --wait=false
