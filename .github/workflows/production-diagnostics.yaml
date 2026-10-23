@@ -22,12 +22,28 @@ jobs:
       - name: Inspect production without mutation
         env:
           LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
           umask 077
           CONFIG="${RUNNER_TEMP}/bd-site-diagnostics-kubeconfig"
           trap 'rm -f "${CONFIG}"' EXIT
           printf '%s' "${LINODE_KUBECONFIG}" | base64 -d > "${CONFIG}"
           export KUBECONFIG="${CONFIG}"
+          kubectl get deployment bd-site -n default -o jsonpath='serviceAccount={.spec.template.spec.serviceAccountName} pullSecrets={.spec.template.spec.imagePullSecrets[*].name}{"\n"}'
+          kubectl get serviceaccount bd-site -n default -o jsonpath='pullSecrets={.imagePullSecrets[*].name}{"\n"}'
+          kubectl get pods -n default -l app=bd-site -o jsonpath='{range .items[*]}{.metadata.name}{" pullSecrets="}{.spec.imagePullSecrets[*].name}{"\n"}{end}'
+          kubectl get secret ghcr-pull -n default -o jsonpath='type={.type} created={.metadata.creationTimestamp}{"\n"}'
+          python3 -c '
+          import os,base64,urllib.request,urllib.error,json
+          auth=base64.b64encode((os.environ["GHCR_USERNAME"]+":"+os.environ["GHCR_TOKEN"]).encode()).decode()
+          req=urllib.request.Request("https://ghcr.io/token?scope=repository%3Aberryhill%2Fbd-site-app%3Apull&service=ghcr.io",headers={"Authorization":"Basic "+auth})
+          try:
+              with urllib.request.urlopen(req,timeout=20) as r: token=json.load(r)["token"]
+              req=urllib.request.Request("https://ghcr.io/v2/berryhill/bd-site-app/manifests/sha256:90cea532b2882e32330c5920199759b5d021598c454b7561498b61bce0fddf77",headers={"Authorization":"Bearer "+token,"Accept":"application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json"})
+              with urllib.request.urlopen(req,timeout=20) as r: print("Configured registry credential exact-image manifest HTTP",r.status)
+          except urllib.error.HTTPError as e: print("Configured registry credential HTTP",e.code)
+          '
           kubectl get deployment bd-site -n default -o json | python3 -c '
           import json,sys
           d=json.load(sys.stdin); t=d["spec"]["template"]
