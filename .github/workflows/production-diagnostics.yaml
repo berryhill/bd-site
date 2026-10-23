@@ -1,0 +1,48 @@
+name: Production diagnostics
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/production-diagnostics.yaml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bd-site-production
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect production without mutation
+        env:
+          LINODE_KUBECONFIG: ${{ secrets.LINODE_KUBECONFIG }}
+        run: |
+          umask 077
+          CONFIG="${RUNNER_TEMP}/bd-site-diagnostics-kubeconfig"
+          trap 'rm -f "${CONFIG}"' EXIT
+          printf '%s' "${LINODE_KUBECONFIG}" | base64 -d > "${CONFIG}"
+          export KUBECONFIG="${CONFIG}"
+          kubectl get deployment bd-site -n default -o json | python3 -c '
+          import json,sys
+          d=json.load(sys.stdin); t=d["spec"]["template"]
+          print(json.dumps({"status":d.get("status"),"replicas":d["spec"].get("replicas"),"selector":d["spec"]["selector"],"revision":t["metadata"].get("annotations"),"containers":[{"name":c["name"],"image":c["image"],"readinessProbe":c.get("readinessProbe"),"volumeMounts":c.get("volumeMounts"),"storageMode":[e for e in c.get("env",[]) if e["name"] in ["CONTENT_STORAGE_MODE","CONTENT_STORAGE_FILESYSTEM_PATH"]]} for c in t["spec"]["containers"]],"volumes":t["spec"].get("volumes")},indent=2))'
+          kubectl get pods -n default -l app=bd-site -o json | python3 -c '
+          import json,sys
+          for p in json.load(sys.stdin)["items"]:
+              print(json.dumps({"pod":p["metadata"]["name"],"node":p["spec"].get("nodeName"),"status":p.get("status")},indent=2))'
+          kubectl get service bd-site -n default -o json
+          kubectl get endpoints bd-site -n default -o json
+          kubectl get endpointslices -n default -l kubernetes.io/service-name=bd-site -o json
+          kubectl get pvc -n default -o wide
+          kubectl get pv -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,CLAIM:.spec.claimRef.name,RECLAIM:.spec.persistentVolumeReclaimPolicy,CAPACITY:.spec.capacity.storage
+          kubectl get nodes -o wide
+          kubectl get events -n default --field-selector involvedObject.name=bd-site --sort-by=.lastTimestamp
+          kubectl get pods -n default -l app=bd-site -o name | while IFS= read -r pod; do
+            kubectl get events -n default --field-selector "involvedObject.name=${pod#pod/}" --sort-by=.lastTimestamp
+          done
