@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import assert from "node:assert/strict";
+import { SITE } from "../src/config.ts";
 import {
   buildBlogPostingJsonLd,
   buildCollectionPageJsonLd,
@@ -78,6 +79,15 @@ test("BlogPosting includes enriched post schema fields", () => {
     "@id": "https://berryhill.dev/#organization",
     name: "Berryhill Dev",
     url: "https://berryhill.dev/",
+    description: SITE.desc,
+    logo: "https://berryhill.dev/favicon.png",
+    email: "matt@berryhill.dev",
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "general inquiries",
+      email: "matt@berryhill.dev",
+      url: "https://berryhill.dev/about/#connect",
+    },
     founder: { "@id": "https://berryhill.dev/about/#person" },
   });
 });

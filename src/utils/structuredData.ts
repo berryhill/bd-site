@@ -92,6 +92,15 @@ function buildOrganizationReference() {
     "@id": organizationId,
     name: "Berryhill Dev",
     url: SITE.website,
+    description: SITE.desc,
+    logo: new URL("favicon.png", SITE.website).href,
+    email: "matt@berryhill.dev",
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "general inquiries",
+      email: "matt@berryhill.dev",
+      url: new URL("about/#connect", SITE.website).href,
+    },
     founder: { "@id": personId },
   };
 }
@@ -144,7 +153,6 @@ export function buildHomepageJsonLd(input: WebSiteJsonLdInput) {
     {
       "@context": "https://schema.org",
       ...buildOrganizationReference(),
-      email: "matt@berryhill.dev",
     },
   ];
 }
