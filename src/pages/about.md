@@ -4,13 +4,13 @@ title: "About"
 description: "Matthew Berryhill builds AI-native systems, writes about agent workflows, and keeps the operator loop visible."
 ---
 
-<div class="window proto-window">
+<div class="window proto-window" role="main" id="main-content">
   <div class="titlebar">
     <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
     <span class="path">m@berryhill: ~/berryhill.dev/<b>about.md</b></span>
     <span class="gnome-ctrls"><button class="gctl min" aria-label="Minimize" type="button">&minus;</button><button class="gctl max" aria-label="Maximize" type="button">&#9633;</button><button class="gctl cls" aria-label="Close" type="button">&times;</button></span>
   </div>
-  <div class="tabstrip"><a class="tab" href="/">~ home</a><a class="tab" href="/posts/">posts/</a><a class="tab on" href="/about/">about.md</a><span class="tabnew" aria-hidden="true">+</span></div>
+  <div class="tabstrip" role="navigation" aria-label="Site navigation"><a class="tab" href="/">~ home</a><a class="tab" href="/posts/">posts/</a><a class="tab on" href="/about/">about.md</a><span class="tabnew" aria-hidden="true">+</span></div>
   <div class="term">
     <div class="line"><span class="ps1">m@berryhill <span class="sep">in</span> <span class="cwd">~</span> $</span><span class="cmd">cat about.md</span></div>
     <div class="frontmatter"><span class="sep">---</span><br /><span class="k">name</span><span class="sep">:</span> <span class="v">Matthew Berryhill</span><br /><span class="k">role</span><span class="sep">:</span> <span class="v acc">engineer + writer + operator</span><br /><span class="k">based</span><span class="sep">:</span> <span class="v">Los Santos, Panamá</span><br /><span class="k">nationality</span><span class="sep">:</span> <span class="v acc">USA</span><br /><span class="k">writing</span><span class="sep">:</span> <span class="v inf">field notes on AI-native systems</span><br /><span class="k">focus</span><span class="sep">:</span> <span class="v">[agent workflows, governance, provenance, review gates]</span><br /><span class="k">contact</span><span class="sep">:</span> <span class="v inf">matt@berryhill.dev</span><br /><span class="sep">---</span></div>
@@ -26,6 +26,6 @@ description: "Matthew Berryhill builds AI-native systems, writes about agent wor
         <section id="connect"><h2>Let's connect..</h2><p class="connect-deck">Skip the vague AI strategy call. Send the problem, artifact, deadline, and decision you need to make.</p><div class="contact-grid" aria-label="Contact options"><a class="primary" href="mailto:matt@berryhill.dev"><span><b>EMAIL</b> matt@berryhill.dev</span><span class="m">best for specific requests</span></a><a class="primary" href="https://calendly.com/matt-berryhill/30min" target="_blank" rel="noopener noreferrer"><span><b>CAL</b> /matt/30min</span><span class="m">after the problem is concrete</span></a><a href="https://www.linkedin.com/in/matthew-berryhill/" target="_blank" rel="noopener noreferrer"><span><b>LINKEDIN</b> /in/matthew-berryhill</span><span class="m">public profile</span></a><a href="/rss.xml"><span><b>RSS</b> /rss.xml</span><span class="m">subscribe to writing</span></a></div></section>
       </div>
     </div>
-    <div class="terminal-exit"><span><a href="/">← cd ../</a> back to ~</span><span><span class="eof">EOF</span> · field notes · © Berryhill 2026 · <a href="/rss.xml">rss</a></span></div>
+    <div class="terminal-exit"><span><a href="/">← cd ../</a> back to ~</span><span><span class="eof">EOF</span> · field notes · © Berryhill 2026 · <a href="/privacy/">privacy</a> · <a href="/rss.xml">rss</a></span></div>
   </div>
 </div>

@@ -41,28 +41,25 @@ const jsonLd = buildWebSiteJsonLd({
 ---
 
 <Layout jsonLd={jsonLd}>
-  <div class="window proto-window">
+  <main class="window proto-window" id="main-content">
     <div class="titlebar">
-      <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
+      <span class="hamb" aria-hidden="true">&#9776;</span>
       <span class="path">m@berryhill: ~/<b>berryhill.dev</b></span>
       <span class="gnome-ctrls"
-        ><button class="gctl min" aria-label="Minimize" type="button"
-          >&minus;</button
-        ><button class="gctl max" aria-label="Maximize" type="button"
-          >&#9633;</button
-        ><button class="gctl cls" aria-label="Close" type="button"
-          >&times;</button
-        ></span
+        ><span class="gctl min" aria-hidden="true">&minus;</span><span
+          class="gctl max"
+          aria-hidden="true">&#9633;</span
+        ><span class="gctl cls" aria-hidden="true">&times;</span></span
       >
     </div>
-    <div class="tabstrip">
+    <nav class="tabstrip" aria-label="Site navigation">
       <a class="tab on" href="/">~ home</a><a class="tab" href="/posts/"
         >posts/</a
       ><a class="tab" href="/about/">about.md</a><span
         class="tabnew"
         aria-hidden="true">+</span
       >
-    </div>
+    </nav>
     <div class="term">
       <div class="line">
         <span class="ps1"
@@ -96,8 +93,11 @@ const jsonLd = buildWebSiteJsonLd({
           </div><div class="row-s"><span>operator</span><b>matt</b></div>
         </div>
       </div>
-      <form class="cmdbar" onsubmit="event.preventDefault();">
-        <span class="ps">~/ $</span><input
+      <form class="cmdbar" id="home-command-form">
+        <label class="ps" for="home-command"
+          >~/ $ <span class="sr-only">Command</span></label
+        ><input
+          id="home-command"
           type="text"
           placeholder="try: fleet · posts · about · contact · curl GET /fleet"
           autocomplete="off"
@@ -114,7 +114,7 @@ const jsonLd = buildWebSiteJsonLd({
           >{getHomepageFleetCountLabel(curatedHomepageFleet)}</span
         >
       </p>
-      <div class="fleet-response" aria-label="Fleet response">
+      <div class="fleet-response" id="fleet" aria-label="Fleet response">
         <div class="fleet-meta">
           <div><span>operator</span><b>matt · human</b></div><div>
             <span>mode</span><b>human-led</b>
@@ -247,11 +247,65 @@ const jsonLd = buildWebSiteJsonLd({
         >
       </p>
     </div>
-  </div>
+  </main>
   <footer>
-    © Berryhill 2026 · built quietly · zero trackers · <a
+    © Berryhill 2026 · built quietly · <a href="/about/">about</a> · <a
+      href="/about/#connect">contact</a
+    > · <a href="/privacy/">privacy</a> · <a
       href="/rss.xml"
       style="color: var(--muted);">rss</a
     >
   </footer>
 </Layout>
+
+<style>
+  .cmdbar:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .cmdbar input {
+    min-width: 0;
+  }
+</style>
+
+<script>
+  document.addEventListener("submit", event => {
+    if (
+      !(event.target instanceof HTMLFormElement) ||
+      event.target.id !== "home-command-form"
+    )
+      return;
+    event.preventDefault();
+    const input = event.target.querySelector<HTMLInputElement>("#home-command");
+    const command = input?.value.trim().toLowerCase();
+    const routes: Record<string, string> = {
+      home: "/",
+      posts: "/posts/",
+      about: "/about/",
+      contact: "/about/#connect",
+      fleet: "/#fleet",
+      "curl get /fleet": "/#fleet",
+      privacy: "/privacy/",
+    };
+    if (command && routes[command]) window.location.assign(routes[command]);
+    else
+      input?.setCustomValidity("Try fleet, posts, about, contact, or privacy");
+    input?.reportValidity();
+  });
+  document.addEventListener("input", event => {
+    if (
+      event.target instanceof HTMLInputElement &&
+      event.target.id === "home-command"
+    )
+      event.target.setCustomValidity("");
+  });
+  document.addEventListener("keydown", event => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      const input = document.querySelector<HTMLInputElement>("#home-command");
+      if (input) {
+        event.preventDefault();
+        input.focus();
+      }
+    }
+  });
+</script>

@@ -32,6 +32,12 @@ const {
   modDatetime,
   tags,
 } = post.data;
+const resolvedAuthor = author ?? SITE.author;
+const authorIsMatt = [
+  SITE.author,
+  "Matt Berryhill",
+  "Matthew Berryhill",
+].includes(resolvedAuthor);
 const htmlContent = await marked.parse(post.body || "");
 let ogImageUrl: string | undefined;
 if (typeof initOgImage === "string") ogImageUrl = initOgImage;
@@ -109,7 +115,12 @@ const shareMailHref = `mailto:?subject=${encodedShareTitle}&body=${encodedPostUr
   jsonLd={jsonLd}
 >
   <div class="progress" id="progress" aria-hidden="true"></div>
-  <div class="window proto-window" data-pagefind-body>
+  <div
+    class="window proto-window"
+    role="main"
+    id="main-content"
+    data-pagefind-body
+  >
     <div class="titlebar">
       <button class="hamb" aria-label="Menu" type="button">&#9776;</button><span
         class="path"
@@ -124,7 +135,7 @@ const shareMailHref = `mailto:?subject=${encodedShareTitle}&body=${encodedPostUr
         ></span
       >
     </div>
-    <div class="tabstrip">
+    <div class="tabstrip" role="navigation" aria-label="Site navigation">
       <a class="tab" href="/">~ home</a><a class="tab on" href="/posts/"
         >posts/</a
       ><a class="tab" href="/about/">about.md</a><span
@@ -158,7 +169,15 @@ const shareMailHref = `mailto:?subject=${encodedShareTitle}&body=${encodedPostUr
           <div class="bylines">
             <div class="item">
               <span class="lbl">by</span>
-              <b>matthew berryhill</b>
+              {
+                authorIsMatt ? (
+                  <a href="/about/">
+                    <b>Matthew Berryhill</b>
+                  </a>
+                ) : (
+                  <b>{resolvedAuthor}</b>
+                )
+              }
             </div><span class="dot">·</span><div class="item">
               <span class="lbl">posted</span>
               <b>{published}</b>

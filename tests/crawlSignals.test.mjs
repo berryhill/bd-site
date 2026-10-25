@@ -125,8 +125,8 @@ test("static sitemap URL collection excludes redirect-only and hidden 404 surfac
   const withArchives = getStaticSitemapPaths({ showArchives: true });
   const withoutArchives = getStaticSitemapPaths({ showArchives: false });
 
-  assert.deepEqual(withArchives, ["", "about", "posts", "tags"]);
-  assert.deepEqual(withoutArchives, ["", "about", "posts", "tags"]);
+  assert.deepEqual(withArchives, ["", "about", "privacy", "posts", "tags"]);
+  assert.deepEqual(withoutArchives, ["", "about", "privacy", "posts", "tags"]);
 
   for (const redirectPath of REDIRECT_ONLY_SITEMAP_PATHS) {
     assert.equal(withArchives.includes(redirectPath), false);

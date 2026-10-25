@@ -76,7 +76,7 @@ const page = {
 };
 ---
 
-<div class="window proto-window">
+<div class="window proto-window" role="main" id="main-content">
   <div class="titlebar">
     <button class="hamb" aria-label="Menu" type="button">&#9776;</button>
     <span class="path">m@berryhill: ~/berryhill.dev/<b>posts</b></span>
@@ -90,7 +90,7 @@ const page = {
       <button class="gctl cls" aria-label="Close" type="button">&times;</button>
     </span>
   </div>
-  <div class="tabstrip">
+  <div class="tabstrip" role="navigation" aria-label="Site navigation">
     <a class="tab" href="/">~ home</a>
     <a class="tab on" href="/posts/">posts/</a>
     <a class="tab" href="/about/">about.md</a>
@@ -296,7 +296,8 @@ const page = {
 </div>
 <Pagination {page} />
 <footer>
-  © Berryhill 2026 · <a href="/">← back to ~</a> · zero trackers · <a
+  © Berryhill 2026 · <a href="/">← back to ~</a> · <a href="/about/">about</a> ·
+  <a href="/about/#connect">contact</a> · <a href="/privacy/">privacy</a> · <a
     href="/rss.xml">rss</a
   >
 </footer>

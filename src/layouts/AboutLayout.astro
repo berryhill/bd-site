@@ -12,8 +12,8 @@ export interface Props {
 
 const { frontmatter } = Astro.props;
 const jsonLd = buildPersonJsonLd({
-  name: SITE.author,
-  url: SITE.profile,
+  name: "Matthew Berryhill",
+  url: new URL("about/", SITE.website).href,
   image: new URL("/matt_headshot.jpeg", SITE.website).href,
   description: frontmatter.description ?? SITE.desc,
 });
