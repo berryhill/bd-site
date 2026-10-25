@@ -1,0 +1,75 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { SITE } from "@/config";
+
+export const prerender = false;
+---
+
+<Layout
+  title={`Privacy | ${SITE.title}`}
+  description="How berryhill.dev handles analytics, local browser preferences, and contact links."
+>
+  <Header />
+  <main id="main-content" class="privacy-page">
+    <p class="prompt">guest@berryhill:~ $ cat privacy.md</p>
+    <h1>Privacy at berryhill.dev</h1>
+    <p>
+      This page describes the public site's current source-backed behavior. It
+      is not a claim about the data practices of sites you visit through
+      external links.
+    </p>
+    <h2>Analytics and browser storage</h2>
+    <p>
+      In production, when PUBLIC_GA_MEASUREMENT_ID is configured, the site loads
+      Google Analytics 4 via Google Tag Manager's gtag.js and sends page-view
+      events. Google may set cookies or process usage information under its own
+      policies. We do not claim this site has zero trackers. If the measurement
+      ID is absent, this integration is not loaded.
+    </p>
+    <p>
+      The site's theme control, where available, stores your theme preference in
+      localStorage. Navigation may store a back-link in sessionStorage. These
+      browser values are used for interface behavior, not submitted through a
+      site contact form.
+    </p>
+    <h2>Contact and other services</h2>
+    <p>
+      The site links to email, Calendly, LinkedIn, and RSS. If you email us,
+      your message goes through your mail provider; if you follow a third-party
+      link, that provider's own privacy practices apply. There is no public
+      contact submission form on this site. Server and hosting logs, retention,
+      analytics configuration, and any third-party service settings require
+      operator review before more specific promises can be made.
+    </p>
+    <p>
+      For privacy questions, <a href="mailto:matt@berryhill.dev"
+        >email Matt at matt@berryhill.dev</a
+      >. See <a href="/about/">About</a> or <a href="/">return home</a>.
+    </p>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .privacy-page {
+    max-width: 48rem;
+    margin: 3rem auto;
+    padding: 0 1.5rem 4rem;
+    line-height: 1.7;
+  }
+  .privacy-page h1,
+  .privacy-page h2 {
+    line-height: 1.2;
+    margin-top: 2rem;
+  }
+  .privacy-page .prompt {
+    color: var(--accent);
+    font-family: monospace;
+  }
+  .privacy-page a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+</style>

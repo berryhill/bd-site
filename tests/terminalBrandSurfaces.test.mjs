@@ -123,14 +123,14 @@ const terminalNavSources = {
 };
 
 for (const [name, source] of Object.entries(terminalNavSources)) {
-  const tabstrip = source.match(/<div class=\"tabstrip\">[\s\S]*?<\/div>/)?.[0] ?? "";
+  const tabstrip = source.match(/<(div|nav) class=\"tabstrip\"[^>]*>[\s\S]*?<\/\1>/)?.[0] ?? "";
   assert.ok(tabstrip, `${name} must keep a terminal tabstrip`);
   assert.doesNotMatch(tabstrip, />search<|>notes\/<|>projects\/<|>uses\.md</, `${name} must hide stale terminal tabs and unavailable search`);
   assert.doesNotMatch(tabstrip, /href=\"\/search\//, `${name} must not link to unavailable search from terminal tabs`);
   assert.doesNotMatch(tabstrip, /href=\"\/archives\//, `${name} must not expose archives through terminal tabs`);
 }
 
-const postsArchiveTabstrip = sources.postsArchive.match(/<div class=\"tabstrip\">[\s\S]*?<\/div>/)?.[0] ?? "";
+const postsArchiveTabstrip = sources.postsArchive.match(/<div class=\"tabstrip\"[^>]*>[\s\S]*?<\/div>/)?.[0] ?? "";
 assert.ok(postsArchiveTabstrip, "posts archive must keep a terminal tabstrip");
 assert.doesNotMatch(
   postsArchiveTabstrip,

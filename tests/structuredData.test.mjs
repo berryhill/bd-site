@@ -67,14 +67,18 @@ test("BlogPosting includes enriched post schema fields", () => {
   assert.deepEqual(jsonLd.author, [
     {
       "@type": "Person",
+      "@id": "https://berryhill.dev/about/#person",
       name: "Berryhill",
-      url: "https://berryhill.dev/",
+      url: "https://berryhill.dev/about/",
+      sameAs: ["https://www.linkedin.com/in/matthew-berryhill/"],
     },
   ]);
   assert.deepEqual(jsonLd.publisher, {
-    "@type": "Person",
-    name: "Berryhill",
+    "@type": "Organization",
+    "@id": "https://berryhill.dev/#organization",
+    name: "Berryhill Dev",
     url: "https://berryhill.dev/",
+    founder: { "@id": "https://berryhill.dev/about/#person" },
   });
 });
 

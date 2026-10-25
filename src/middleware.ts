@@ -1,6 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { BlogStoreUnavailableError } from "@/content/blogStore";
 import { storageUnavailableResponse } from "@/content/publicBlogReads";
+import { SITE } from "@/config";
 import {
   getCanonicalHtmlRedirectLocation,
   getPageOneArchiveRedirectLocation,
@@ -31,7 +32,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
     );
 
     if (!redirectLocation) {
-      return await next();
+      const response = await next();
+      if (
+        (method === "GET" || method === "HEAD") &&
+        response.status === 200 &&
+        response.headers.get("content-type")?.includes("text/html")
+      ) {
+        const headers = new Headers(response.headers);
+        headers.append(
+          "Link",
+          `<${new URL("rss.xml", SITE.website).href}>; rel="alternate"; type="application/rss+xml"`
+        );
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+      }
+      return response;
     }
 
     return context.redirect(redirectLocation, REDIRECT_STATUS);
