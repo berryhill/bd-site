@@ -29,6 +29,9 @@ const isActive = (path: string) => {
       <a href="/about/" class:list={{ "active-nav": isActive("/about") }}>
         About
       </a>
+      <a href="/start/" class:list={{ "active-nav": isActive("/start") }}>
+        Getting started
+      </a>
       {
         SITE.lightAndDarkMode && (
           <button

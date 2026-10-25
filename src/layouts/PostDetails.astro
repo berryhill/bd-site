@@ -138,10 +138,9 @@ const shareMailHref = `mailto:?subject=${encodedShareTitle}&body=${encodedPostUr
     <div class="tabstrip" role="navigation" aria-label="Site navigation">
       <a class="tab" href="/">~ home</a><a class="tab on" href="/posts/"
         >posts/</a
-      ><a class="tab" href="/about/">about.md</a><span
-        class="tabnew"
-        aria-hidden="true">+</span
-      >
+      ><a class="tab" href="/about/">about.md</a><a class="tab" href="/start/"
+        >getting started</a
+      ><span class="tabnew" aria-hidden="true">+</span>
     </div>
     <div class="term">
       <div class="line">
@@ -368,6 +367,11 @@ const shareMailHref = `mailto:?subject=${encodedShareTitle}&body=${encodedPostUr
             )
           }
         </nav>
+        <p>
+          <a href="/start/"
+            >Getting started: research, subscribe, or get in touch</a
+          >
+        </p>
         <a class="back" href="/posts/"
           ><span class="ps">$</span> cd ../ <span style="color: var(--dim)"
             >· back to posts/</span

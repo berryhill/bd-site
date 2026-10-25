@@ -1,0 +1,91 @@
+---
+export const prerender = false;
+
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config";
+---
+
+<Layout
+  title={`Getting started | ${SITE.title}`}
+  description="Three public paths through berryhill.dev: research field notes, subscribe to the RSS feed, or ask Matthew Berryhill a specific project question."
+>
+  <main class="window proto-window" id="main-content">
+    <div class="titlebar">
+      <span class="hamb" aria-hidden="true">&#9776;</span>
+      <span class="path">m@berryhill: ~/berryhill.dev/<b>start</b></span>
+      <span class="gnome-ctrls" aria-hidden="true"
+        ><span class="gctl min">&minus;</span><span class="gctl max"
+          >&#9633;</span
+        ><span class="gctl cls">&times;</span></span
+      >
+    </div>
+    <nav class="tabstrip" aria-label="Site navigation">
+      <a class="tab" href="/">~ home</a>
+      <a class="tab" href="/posts/">posts/</a>
+      <a class="tab" href="/about/">about.md</a>
+      <a class="tab on" href="/start/" aria-current="page">getting started</a>
+    </nav>
+    <div class="term">
+      <div class="line">
+        <span class="ps1"
+          >guest@berryhill <span class="sep">:</span>
+          <span class="cwd">~</span> $</span
+        ><span class="cmd">cat start.md</span>
+      </div>
+      <h1>Getting started</h1>
+      <p class="out">
+        Berryhill.dev is a public collection of field notes on AI-native
+        systems, agent governance, provenance, and the operator work behind
+        shipped software. It is for readers researching a decision, people
+        subscribing to the writing, and collaborators with a concrete question.
+      </p>
+      <p class="out">
+        <b>Integration boundary:</b> There is no advertised public SDK, public MCP
+        server, account setup, or general-purpose reader API. You do not need to
+        install anything to read the site or subscribe to its public RSS feed. The
+        paths below are content and contact workflows, not a software integration.
+      </p>
+      <section aria-labelledby="research">
+        <h2 id="research">01 / Research an article</h2>
+        <p class="out">
+          Open the <a href="/posts/">public posts archive</a>, choose a relevant
+          article, check its publication date and author, and follow the sources
+          linked in the article. Cite the article's canonical URL for its
+          argument; check original sources for factual claims. For
+          machine-readable discovery, start at <a href="/llms.txt">llms.txt</a> or
+          the <a href="/sitemap.xml">canonical sitemap</a>. These indexes do not
+          replace reading the article.
+        </p>
+      </section>
+      <section aria-labelledby="subscribe">
+        <h2 id="subscribe">02 / Subscribe to public writing</h2>
+        <p class="out">
+          Add <a href="/rss.xml">https://berryhill.dev/rss.xml</a> to any RSS reader.
+          Or fetch the public feed as XML:
+        </p>
+        <pre
+          class="frontmatter"><code>curl https://berryhill.dev/rss.xml</code></pre>
+        <p class="out">
+          Read the feed's item links to open the full articles. The public feed
+          needs no site account or API key; it is not an interface for
+          publishing or querying private data.
+        </p>
+      </section>
+      <section aria-labelledby="contact">
+        <h2 id="contact">03 / Ask about a project</h2>
+        <p class="out">
+          Read <a href="/about/">about Matthew Berryhill</a>, then email <a
+            href="mailto:matt@berryhill.dev">matt@berryhill.dev</a
+          > with your problem, current artifact, deadline, and the decision you need
+          to make. A specific question is more useful than a generic integration
+          request.
+        </p>
+      </section>
+    </div>
+  </main>
+  <footer>
+    © Berryhill 2026 · <a href="/">home</a> · <a href="/posts/">posts</a> · <a
+      href="/about/">about</a
+    > · <a href="/privacy/">privacy</a> · <a href="/rss.xml">rss</a>
+  </footer>
+</Layout>
