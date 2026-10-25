@@ -132,6 +132,23 @@ export function buildWebSiteJsonLd(input: WebSiteJsonLdInput) {
   });
 }
 
+// Homepage identities are separate top-level nodes for simple extractors.
+export function buildHomepageJsonLd(input: WebSiteJsonLdInput) {
+  return [
+    buildWebSiteJsonLd(input),
+    buildPersonJsonLd({
+      name: "Matthew Berryhill",
+      url: new URL("about/", SITE.website).href,
+      image: new URL("/matt_headshot.jpeg", SITE.website).href,
+    }),
+    {
+      "@context": "https://schema.org",
+      ...buildOrganizationReference(),
+      email: "matt@berryhill.dev",
+    },
+  ];
+}
+
 export function buildPersonJsonLd(input: PersonJsonLdInput) {
   return stripNullishValues({
     "@context": "https://schema.org",

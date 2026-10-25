@@ -7,7 +7,7 @@ import getSortedPosts from "@/utils/getSortedPosts";
 import { getPath } from "@/utils/getPath";
 import { toCanonicalHtmlPath } from "@/utils/url";
 import { SITE } from "@/config";
-import { buildWebSiteJsonLd } from "@/utils/structuredData";
+import { buildHomepageJsonLd } from "@/utils/structuredData";
 import {
   formatHomepageDate,
   getPostWordCount,
@@ -25,7 +25,7 @@ const { featuredPosts, recentPosts } = selectHomepagePosts(sortedPosts);
 const wordCount = getPostWordCount;
 const readMinutes = getReadMinutes;
 const formatDate = formatHomepageDate;
-const jsonLd = buildWebSiteJsonLd({
+const jsonLd = buildHomepageJsonLd({
   name: SITE.title,
   url: SITE.website,
   description: SITE.desc,
@@ -55,10 +55,9 @@ const jsonLd = buildWebSiteJsonLd({
     <nav class="tabstrip" aria-label="Site navigation">
       <a class="tab on" href="/">~ home</a><a class="tab" href="/posts/"
         >posts/</a
-      ><a class="tab" href="/about/">about.md</a><span
-        class="tabnew"
-        aria-hidden="true">+</span
-      >
+      ><a class="tab" href="/about/">about.md</a><a class="tab" href="/start/"
+        >getting started</a
+      ><span class="tabnew" aria-hidden="true">+</span>
     </nav>
     <div class="term">
       <div class="line">
@@ -251,10 +250,8 @@ const jsonLd = buildWebSiteJsonLd({
   <footer>
     © Berryhill 2026 · built quietly · <a href="/about/">about</a> · <a
       href="/about/#connect">contact</a
-    > · <a href="/privacy/">privacy</a> · <a
-      href="/rss.xml"
-      style="color: var(--muted);">rss</a
-    >
+    > · <a href="/start/">getting started</a> · <a href="/privacy/">privacy</a> ·
+    <a href="/rss.xml" style="color: var(--muted);">rss</a>
   </footer>
 </Layout>
 
@@ -282,6 +279,8 @@ const jsonLd = buildWebSiteJsonLd({
       home: "/",
       posts: "/posts/",
       about: "/about/",
+      start: "/start/",
+      docs: "/start/",
       contact: "/about/#connect",
       fleet: "/#fleet",
       "curl get /fleet": "/#fleet",
@@ -289,7 +288,9 @@ const jsonLd = buildWebSiteJsonLd({
     };
     if (command && routes[command]) window.location.assign(routes[command]);
     else
-      input?.setCustomValidity("Try fleet, posts, about, contact, or privacy");
+      input?.setCustomValidity(
+        "Try fleet, posts, about, start, contact, or privacy"
+      );
     input?.reportValidity();
   });
   document.addEventListener("input", event => {

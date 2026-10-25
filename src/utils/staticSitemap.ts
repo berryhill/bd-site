@@ -10,6 +10,7 @@ export const STATIC_SITEMAP_PATHS = [
   "about",
   "privacy",
   "posts",
+  "start",
   "tags",
 ] as const;
 

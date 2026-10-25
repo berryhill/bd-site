@@ -105,7 +105,7 @@ test("about page bottom CTA uses compact prototype footer presentation", () => {
   assert.match(aboutSource, /<a href="#connect">Let's connect\.\.<\/a>/);
   assert.match(aboutSource, /<div class="terminal-exit">/);
   assert.match(aboutSource, /← cd \.\.\/<\/a> back to ~/);
-  assert.match(aboutSource, /<span class="eof">EOF<\/span> · field notes · © Berryhill 2026 · <a href="\/privacy\/">privacy<\/a> · <a href="\/rss\.xml">rss<\/a>/);
+  assert.match(aboutSource, /<span class="eof">EOF<\/span> · field notes · © Berryhill 2026 · <a href="\/start\/">getting started<\/a> · <a href="\/privacy\/">privacy<\/a> · <a href="\/rss\.xml">rss<\/a>/);
   assert.equal((aboutSource.match(/<span class="m">/g) ?? []).length, 4);
   assert.doesNotMatch(aboutSource, /<\/div>\s*<footer>/, "about page must not keep a detached footer below the terminal window");
   assert.equal(aboutSource.includes("built quietly · zero trackers"), false);
